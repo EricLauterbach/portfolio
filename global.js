@@ -1070,12 +1070,13 @@ function initCopyleaksAnimations() {
     const lottieEl = container.querySelector('[data-animation-type="lottie"]');
     const registered = lottie.getRegisteredAnimations?.() || [];
     const webflowInst = registered.find(a => a.wrapper === lottieEl);
-    console.log(`container ${i}:`, {
-      lottieEl: !!lottieEl,
-      _lottieInstance: !!lottieEl?._lottieInstance,
-      webflowInst: !!webflowInst,
-      innerHTML: lottieEl?.innerHTML?.slice(0, 50)
-    });
+    console.log(`container ${i}:`, JSON.stringify({
+      lottieElFound: !!lottieEl,
+      hasOurInstance: !!lottieEl?._lottieInstance,
+      hasWebflowInst: !!webflowInst,
+      registeredCount: registered.length,
+      innerHTMLLength: lottieEl?.innerHTML?.length || 0
+    }));
   });
 
 
