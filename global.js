@@ -44,6 +44,15 @@ function reinitWebflow() {
 }
 
 function initLottieElements() {
+  // Destroy all Webflow-rendered Lottie content before we initialise our own
+  // This prevents Webflow's async init from racing with ours
+  document.querySelectorAll('[data-animation-type="lottie"]').forEach(el => {
+    el.innerHTML = '';
+    // Remove Webflow's internal lottie reference if it exists
+    delete el.__lottie;
+    delete el._lottie;
+  });
+  
   window._lottieObservers = window._lottieObservers || [];
 
   // Disconnect any existing observers
@@ -1352,9 +1361,9 @@ function onPageLoad() {
   if (namespace === 'home') initHomePage();
   if (namespace === 'copyleaks-animations') {
     setTimeout(() => {
-      initLottieElements();      // replace Webflow's instances with ours
-      initCopyleaksAnimations(); // bind hover on our instances
-    }, 500);
+      initLottieElements();
+      initCopyleaksAnimations();
+    }, 800); // increased from 500 to give Webflow more time to finish, then we take over
   }
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
 }
