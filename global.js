@@ -370,7 +370,7 @@ function initEntranceAnimations() {
     ScrollTrigger.create({
       trigger: el,
       start: 'top bottom',       // when top of element hits bottom of viewport
-      end: '+=300',              // complete after 200px of scroll
+      end: '+=150',              // complete after 200px of scroll
       scrub: 1,                  // smooth scrub with 1s lag — handles fast scrolling
       invalidateOnRefresh: true, // recalculates on resize for responsive layouts
       onUpdate: self => {
