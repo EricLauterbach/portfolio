@@ -358,17 +358,17 @@ function initEntranceAnimations() {
 
   elements.forEach(el => {
     // Set initial state
-    gsap.set(el, { y: 50, opacity: 0 });
+    gsap.set(el, { y: 200, opacity: 0 });
 
     ScrollTrigger.create({
       trigger: el,
       start: 'top bottom',       // when top of element hits bottom of viewport
-      end: '+=200',              // complete after 200px of scroll
+      end: '+=300',              // complete after 200px of scroll
       scrub: 1,                  // smooth scrub with 1s lag — handles fast scrolling
       invalidateOnRefresh: true, // recalculates on resize for responsive layouts
       onUpdate: self => {
         gsap.set(el, {
-          y: 50 * (1 - self.progress),
+          y: 200 * (1 - self.progress),
           opacity: self.progress
         });
       },
@@ -378,7 +378,7 @@ function initEntranceAnimations() {
       },
       onLeaveBack: () => {
         // Reset if scrolled back above trigger
-        gsap.set(el, { y: 50, opacity: 0 });
+        gsap.set(el, { y: 200, opacity: 0 });
       }
     });
   });
