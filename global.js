@@ -363,8 +363,8 @@ function initEntranceAnimations() {
 
   if (!elements.length) return;
 
-  const Y_OFFSET = 75;
-  const DURATION = 1;
+  const Y_OFFSET = 100;
+  const DURATION = 1.25;
   const STAGGER_OFFSET = 0.15;
 
   let entranceTriggers = [];
