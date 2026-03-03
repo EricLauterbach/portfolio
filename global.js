@@ -1303,22 +1303,25 @@ window.smoother = ScrollSmoother.create({
 // RUN ON FIRST PAGE LOAD
 // ============================================================
 
-$(window).on("load", function() {
+function onPageLoad() {
   initAll();
 
   const namespace = document.querySelector('[data-barba="container"]')?.dataset?.barbaNamespace;
-  console.log('window load fired, namespace:', namespace);
-  
+  console.log('onPageLoad fired, namespace:', namespace);
+
   if (namespace === 'home') initHomePage();
   if (namespace === 'copyleaks-animations') {
-    console.log('copyleaks-animations detected on load');
     setTimeout(() => {
-      console.log('setTimeout fired, calling initCopyleaksAnimations');
+      console.log('calling initCopyleaksAnimations');
       initCopyleaksAnimations();
     }, 500);
   }
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
-});
+}
 
-  if (namespace === 'copyleaks-website') initCopyleaksWebsite();
-});
+// Handle both cases — already loaded or not yet
+if (document.readyState === 'complete') {
+  onPageLoad();
+} else {
+  window.addEventListener('load', onPageLoad);
+}
