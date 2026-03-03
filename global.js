@@ -1307,28 +1307,18 @@ $(window).on("load", function() {
   initAll();
 
   const namespace = document.querySelector('[data-barba="container"]')?.dataset?.barbaNamespace;
+  console.log('window load fired, namespace:', namespace);
+  
   if (namespace === 'home') initHomePage();
   if (namespace === 'copyleaks-animations') {
-    const waitForLottie = setInterval(() => {
-      const firstHover = document.querySelector(
-        '.contentcontainerportfolioproject.copyleaksanimations.hovertriggered [data-animation-type="lottie"]'
-      );
-      if (!firstHover) return;
-
-      const registered = lottie.getRegisteredAnimations?.() || [];
-      const hasInstance = registered.some(a => a.wrapper === firstHover) || firstHover._lottieInstance;
-
-      if (hasInstance) {
-        clearInterval(waitForLottie);
-        initCopyleaksAnimations();
-      }
-    }, 50);
-
+    console.log('copyleaks-animations detected on load');
     setTimeout(() => {
-      clearInterval(waitForLottie);
+      console.log('setTimeout fired, calling initCopyleaksAnimations');
       initCopyleaksAnimations();
-    }, 3000);
+    }, 500);
   }
+  if (namespace === 'copyleaks-website') initCopyleaksWebsite();
+});
 
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
 });
