@@ -100,8 +100,12 @@ function initLottieElements() {
           '.contentcontainerportfolioproject.copyleaksanimations.hovertriggered'
         );
 
+        const w = el.offsetWidth;
+        const h = el.offsetHeight;
         el.innerHTML = '';
-
+        if (w) el.style.width = w + 'px';
+        if (h) el.style.height = h + 'px';
+        
         const instance = lottie.loadAnimation({
           container: el,
           renderer: renderer,
