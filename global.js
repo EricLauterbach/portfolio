@@ -362,10 +362,10 @@ function initEntranceAnimations() {
 
   if (!elements.length) return;
 
-  const Y_OFFSET = 75;
-  const DURATION = 0.5;
+  const Y_OFFSET = 100;
+  const DURATION = 0.6;
   const OPACITY_DURATION = DURATION / 1.25;
-  const STAGGER_OFFSET = 0.12; // seconds between siblings in a row
+  const STAGGER_OFFSET = 0.15; // seconds between siblings in a row
 
   let entranceTriggers = [];
 
