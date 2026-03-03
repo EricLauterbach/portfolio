@@ -44,8 +44,58 @@ function reinitWebflow() {
 }
 
 function initLottieElements() {
+  const loadQueue = [];
+  let isProcessing = false;
+
+  function processQueue() {
+    if (isProcessing || loadQueue.length === 0) return;
+    isProcessing = true;
+
+    const { el, src, loop, renderer, isHoverTriggered } = loadQueue.shift();
+
+    // Skip if already loaded (e.g. called twice)
+    if (el._lottieInstance) {
+      isProcessing = false;
+      processQueue();
+      return;
+    }
+
+    el.innerHTML = '';
+
+    const instance = lottie.loadAnimation({
+      container: el,
+      renderer: renderer,
+      loop: loop,
+      autoplay: !isHoverTriggered,
+      path: src,
+    });
+
+    el._lottieInstance = instance;
+
+    if (isHoverTriggered) {
+      instance.addEventListener('DOMLoaded', () => {
+        instance.goToAndStop(0, true);
+      });
+    }
+
+    // Wait for this animation to finish loading before starting the next
+    // This prevents multiple heavy SVG parses happening simultaneously
+    instance.addEventListener('DOMLoaded', () => {
+      isProcessing = false;
+      // Small gap between loads to keep main thread free
+      setTimeout(processQueue, 16);
+    });
+
+    // Safety fallback in case DOMLoaded never fires
+    setTimeout(() => {
+      if (isProcessing) {
+        isProcessing = false;
+        processQueue();
+      }
+    }, 2000);
+  }
+
   document.querySelectorAll('[data-animation-type="lottie"]').forEach((el) => {
-    // Destroy existing instance if present
     if (el._lottieInstance) {
       el._lottieInstance.destroy();
       el._lottieInstance = null;
@@ -58,40 +108,17 @@ function initLottieElements() {
     const renderer = el.getAttribute('data-renderer') || 'svg';
     const isHoverTriggered = el.closest('.contentcontainerportfolioproject.copyleaksanimations.hovertriggered');
 
-    function loadAnimation() {
-      // Already loaded — skip
-      if (el._lottieInstance) return;
-
-      el.innerHTML = '';
-
-      const instance = lottie.loadAnimation({
-        container: el,
-        renderer: renderer,
-        loop: loop,
-        autoplay: !isHoverTriggered,
-        path: src,
-      });
-
-      el._lottieInstance = instance;
-
-      if (isHoverTriggered) {
-        instance.addEventListener('DOMLoaded', () => {
-          instance.goToAndStop(0, true);
-        });
-      }
-    }
-
-    // Use IntersectionObserver to lazy load
-    // rootMargin of 400px means it starts loading 400px before entering viewport
     const observer = new IntersectionObserver((entries, obs) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          loadAnimation();
-          obs.unobserve(el); // stop observing once loaded
+          obs.unobserve(el);
+          // Add to queue rather than loading immediately
+          loadQueue.push({ el, src, loop, renderer, isHoverTriggered });
+          processQueue();
         }
       });
     }, {
-      rootMargin: '400px 0px 400px 0px' // pre-load 400px above and below viewport
+      rootMargin: '400px 0px 400px 0px'
     });
 
     observer.observe(el);
