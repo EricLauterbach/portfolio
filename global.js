@@ -969,8 +969,8 @@ function initHomePage() {
       gsap.to(imageContainer, { padding: spacingTiny, duration: 0.4, ease: "power2.inOut" });
       projectItems.forEach((otherItem) => {
         if (otherItem !== item) {
-          gsap.killTweensOf(otherItem, { opacity: true }); // only kill opacity tweens
-          gsap.to(otherItem, { opacity: 0.1, duration: 0.4, ease: "power2.inOut", overwrite: 'auto' });
+          gsap.getTweensOf(otherItem).forEach(t => { if (t.vars.opacity !== undefined) t.kill(); });
+          gsap.to(otherItem, { opacity: 0.1, duration: 0.4, ease: "power2.inOut", overwrite: false });
         }
       });
     });
@@ -982,8 +982,8 @@ function initHomePage() {
       gsap.to(imageContainer, { padding: initialPadding, duration: 0.4, ease: "power2.inOut" });
       projectItems.forEach((otherItem) => {
         if (otherItem !== item) {
-          gsap.killTweensOf(otherItem, { opacity: true }); // only kill opacity tweens
-          gsap.to(otherItem, { opacity: 1, duration: 0.4, ease: "power2.inOut", overwrite: 'auto' });
+          gsap.getTweensOf(otherItem).forEach(t => { if (t.vars.opacity !== undefined) t.kill(); });
+          gsap.to(otherItem, { opacity: 1, duration: 0.4, ease: "power2.inOut", overwrite: false });
         }
       });
     });
