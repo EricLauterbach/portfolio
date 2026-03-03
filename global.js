@@ -349,6 +349,7 @@ const ENTRANCE_SELECTORS = [
   '.contentcontainerportfolioproject.copyleaksanimations',
   '.bentoitemportfoliohome',
   '.projectportfoliohome',
+  '.contactbuttonportfolio',
 ];
 
 function initEntranceAnimations() {
