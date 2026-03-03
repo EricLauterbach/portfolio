@@ -96,7 +96,7 @@ function initLottieElements() {
 
         const loop = el.getAttribute('data-loop') === '1';
         const renderer = el.getAttribute('data-renderer') || 'svg';
-        const isHoverTriggered = el.closest(
+        const hoverContainer = el.closest(
           '.contentcontainerportfolioproject.copyleaksanimations.hovertriggered'
         );
 
@@ -106,20 +106,36 @@ function initLottieElements() {
           container: el,
           renderer: renderer,
           loop: loop,
-          autoplay: !isHoverTriggered,
+          autoplay: !hoverContainer,
           path: src,
         });
 
         el._lottieInstance = instance;
 
-        if (isHoverTriggered) {
+        if (hoverContainer && !hoverContainer._hoverBound) {
+          hoverContainer._hoverBound = true;
+
           instance.addEventListener('DOMLoaded', () => {
             instance.goToAndStop(0, true);
+          });
+
+          hoverContainer.addEventListener('mouseenter', () => {
+            const inst = el._lottieInstance;
+            if (!inst) return;
+            inst.setDirection(1);
+            inst.play();
+          });
+
+          hoverContainer.addEventListener('mouseleave', () => {
+            const inst = el._lottieInstance;
+            if (!inst) return;
+            inst.setDirection(-1);
+            inst.play();
           });
         }
       });
     }, {
-      rootMargin: '200px', // load 200px before entering viewport
+      rootMargin: '400px 0px',
     });
 
     elements.forEach(el => obs.observe(el));
@@ -1226,30 +1242,7 @@ function initHomePage() {
 // ============================================================
 
 function initCopyleaksAnimations() {
-  document.querySelectorAll('.contentcontainerportfolioproject.copyleaksanimations.hovertriggered').forEach((container) => {
-    container._hoverBound = false;
-  });
-
-  document.querySelectorAll('.contentcontainerportfolioproject.copyleaksanimations.hovertriggered').forEach((container) => {
-    if (container._hoverBound) return;
-    container._hoverBound = true;
-
-    container.addEventListener('mouseenter', () => {
-      const lottieEl = container.querySelector('[data-animation-type="lottie"]');
-      const inst = lottieEl?._lottieInstance;
-      if (!inst) return;
-      inst.setDirection(1);
-      inst.play();
-    });
-
-    container.addEventListener('mouseleave', () => {
-      const lottieEl = container.querySelector('[data-animation-type="lottie"]');
-      const inst = lottieEl?._lottieInstance;
-      if (!inst) return;
-      inst.setDirection(-1);
-      inst.play();
-    });
-  });
+  // Hover binding is handled inside initLottieElements after each instance loads
 }
 
 
