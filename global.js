@@ -1062,27 +1062,6 @@ function initHomePage() {
 // ============================================================
 
 function initCopyleaksAnimations() {
-
-  const hovers = document.querySelectorAll('.contentcontainerportfolioproject.copyleaksanimations.hovertriggered');
-  console.log('hover containers found:', hovers.length);
-  
-  hovers.forEach((container, i) => {
-    const lottieEl = container.querySelector('[data-animation-type="lottie"]');
-    const registered = lottie.getRegisteredAnimations?.() || [];
-    const webflowInst = registered.find(a => a.wrapper === lottieEl);
-    console.log(`container ${i}:`, JSON.stringify({
-      lottieElFound: !!lottieEl,
-      hasOurInstance: !!lottieEl?._lottieInstance,
-      hasWebflowInst: !!webflowInst,
-      registeredCount: registered.length,
-      innerHTMLLength: lottieEl?.innerHTML?.length || 0
-    }));
-  });
-
-
-
-  
-
   document.querySelectorAll('.contentcontainerportfolioproject.copyleaksanimations.hovertriggered').forEach((container) => {
     container._hoverBound = false;
   });
@@ -1093,8 +1072,7 @@ function initCopyleaksAnimations() {
 
     container.addEventListener('mouseenter', () => {
       const lottieEl = container.querySelector('[data-animation-type="lottie"]');
-      if (!lottieEl) return;
-      const inst = lottieEl._lottieInstance || lottie.getRegisteredAnimations?.()?.find(a => a.wrapper === lottieEl);
+      const inst = lottieEl?._lottieInstance;
       if (!inst) return;
       inst.setDirection(1);
       inst.play();
@@ -1102,8 +1080,7 @@ function initCopyleaksAnimations() {
 
     container.addEventListener('mouseleave', () => {
       const lottieEl = container.querySelector('[data-animation-type="lottie"]');
-      if (!lottieEl) return;
-      const inst = lottieEl._lottieInstance || lottie.getRegisteredAnimations?.()?.find(a => a.wrapper === lottieEl);
+      const inst = lottieEl?._lottieInstance;
       if (!inst) return;
       inst.setDirection(-1);
       inst.play();
@@ -1313,8 +1290,8 @@ function onPageLoad() {
   if (namespace === 'home') initHomePage();
   if (namespace === 'copyleaks-animations') {
     setTimeout(() => {
-      console.log('calling initCopyleaksAnimations');
-      initCopyleaksAnimations();
+      initLottieElements();      // replace Webflow's instances with ours
+      initCopyleaksAnimations(); // bind hover on our instances
     }, 500);
   }
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
