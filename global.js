@@ -348,7 +348,6 @@ barba.init({
 const ENTRANCE_SELECTORS = [
   '.contentcontainerportfolioproject.copyleaksanimations',
   '.bentoitemportfoliohome',
-  '.projectportfoliohome',
 ];
 
 function initEntranceAnimations() {
@@ -363,10 +362,9 @@ function initEntranceAnimations() {
 
   if (!elements.length) return;
 
-  const Y_OFFSET = 100;
-  const DURATION = 0.6;
-  const OPACITY_DURATION = DURATION / 1.25;
-  const STAGGER_OFFSET = 0.15; // seconds between siblings in a row
+  const Y_OFFSET = 75;
+  const DURATION = 0.5;
+  const STAGGER_OFFSET = 0.12;
 
   let entranceTriggers = [];
 
@@ -374,7 +372,6 @@ function initEntranceAnimations() {
     entranceTriggers.forEach(st => st.kill());
     entranceTriggers = [];
 
-    // Recalculate row groupings from current layout
     const rows = {};
     elements.forEach(el => {
       const top = Math.round(el.getBoundingClientRect().top / 10) * 10;
@@ -383,7 +380,6 @@ function initEntranceAnimations() {
     });
 
     elements.forEach(el => {
-      // Already animated in — don't reset or re-trigger
       if (el._entranceComplete) return;
 
       const top = Math.round(el.getBoundingClientRect().top / 10) * 10;
@@ -392,27 +388,20 @@ function initEntranceAnimations() {
       const isInRow = row.length > 1;
       const staggerDelay = isInRow ? indexInRow * STAGGER_OFFSET : 0;
 
-      gsap.set(el, { y: Y_OFFSET, opacity: 0.5 });
+      gsap.set(el, { y: Y_OFFSET });
 
       const st = ScrollTrigger.create({
         trigger: el,
-        start: 'top bottom', // trigger when 100px of element is visible
+        start: 'top bottom-=100',
         invalidateOnRefresh: true,
         onEnter: () => {
           el._entranceComplete = true;
-          gsap.timeline()
-            .to(el, {
-              opacity: 1,
-              duration: OPACITY_DURATION,
-              delay: staggerDelay,
-              ease: 'power2.inOut',
-            }, 0)
-            .to(el, {
-              y: 0,
-              duration: DURATION,
-              delay: staggerDelay,
-              ease: 'power2.inOut',
-            }, 0);
+          gsap.to(el, {
+            y: 0,
+            duration: DURATION,
+            delay: staggerDelay,
+            ease: 'power2.inOut',
+          });
         },
       });
 
