@@ -331,6 +331,64 @@ barba.init({
 });
 
 
+
+
+// ================================
+// SCROLL ENTRANCE ANIMATIONS
+// Add selectors here to apply entrance animation to any element
+// ================================
+
+const ENTRANCE_SELECTORS = [
+  '.contentcontainerportfolioproject.copyleaksanimations', // lottie containers
+  // '.some-other-class',  // add more selectors here
+  // '#some-id',
+];
+
+function initEntranceAnimations() {
+  if (!ENTRANCE_SELECTORS.length) return;
+
+  const elements = [];
+  ENTRANCE_SELECTORS.forEach(selector => {
+    document.querySelectorAll(selector).forEach(el => {
+      if (!elements.includes(el)) elements.push(el);
+    });
+  });
+
+  if (!elements.length) return;
+
+  elements.forEach(el => {
+    // Set initial state
+    gsap.set(el, { y: 50, opacity: 0 });
+
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top bottom',       // when top of element hits bottom of viewport
+      end: '+=200',              // complete after 200px of scroll
+      scrub: 1,                  // smooth scrub with 1s lag — handles fast scrolling
+      invalidateOnRefresh: true, // recalculates on resize for responsive layouts
+      onUpdate: self => {
+        gsap.set(el, {
+          y: 50 * (1 - self.progress),
+          opacity: self.progress
+        });
+      },
+      onLeave: () => {
+        // Ensure final state is clean when scrolled past
+        gsap.set(el, { y: 0, opacity: 1 });
+      },
+      onLeaveBack: () => {
+        // Reset if scrolled back above trigger
+        gsap.set(el, { y: 50, opacity: 0 });
+      }
+    });
+  });
+}
+
+
+
+
+
+
 // ============================================================
 // GLOBAL INIT — runs on load + after every Barba transition
 // ============================================================
@@ -338,6 +396,8 @@ barba.init({
 function initAll() {
 
   ScrollTrigger.getAll().forEach(st => st.kill());
+
+  initEntranceAnimations();
 
   // UPDATE NAVIGATION URLS BASED ON PAGE
   (function() {
