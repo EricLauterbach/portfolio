@@ -135,6 +135,7 @@ function initLottieElements() {
         }
       });
     }, {
+      root: document.querySelector('#smooth-content') || null,
       rootMargin: '400px 0px',
     });
 
