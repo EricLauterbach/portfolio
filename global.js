@@ -889,14 +889,16 @@ function initAll() {
   document.querySelectorAll(".contactbuttonportfoliohome").forEach((button) => {
     const buttonImage = button.querySelector(".contactbuttonimageportfoliohome");
     button.addEventListener("mouseenter", () => {
-      gsap.killTweensOf(button); gsap.killTweensOf(buttonImage);
-      gsap.to(button,      { scale: 1.15, duration: 0.6, ease: "elastic.out(1,1)" });
-      gsap.to(buttonImage, { scale: 1.1,  duration: 0.6, ease: "elastic.out(1,1)" });
+      gsap.getTweensOf(button).forEach(t => { if (t.vars.scale !== undefined) t.kill(); });
+      gsap.getTweensOf(buttonImage).forEach(t => { if (t.vars.scale !== undefined) t.kill(); });
+      gsap.to(button,      { scale: 1.15, duration: 0.6, ease: "elastic.out(1,1)", overwrite: false });
+      gsap.to(buttonImage, { scale: 1.1,  duration: 0.6, ease: "elastic.out(1,1)", overwrite: false });
     });
     button.addEventListener("mouseleave", () => {
-      gsap.killTweensOf(button); gsap.killTweensOf(buttonImage);
-      gsap.to(button,      { scale: 1, duration: 0.6, ease: "elastic.out(1,1)" });
-      gsap.to(buttonImage, { scale: 1, duration: 0.6, ease: "elastic.out(1,1)" });
+      gsap.getTweensOf(button).forEach(t => { if (t.vars.scale !== undefined) t.kill(); });
+      gsap.getTweensOf(buttonImage).forEach(t => { if (t.vars.scale !== undefined) t.kill(); });
+      gsap.to(button,      { scale: 1, duration: 0.6, ease: "elastic.out(1,1)", overwrite: false });
+      gsap.to(buttonImage, { scale: 1, duration: 0.6, ease: "elastic.out(1,1)", overwrite: false });
     });
   });
 
