@@ -44,6 +44,9 @@ function reinitWebflow() {
 }
 
 function initLottieElements() {
+  // Track observers so they can be killed on transition
+  window._lottieObservers = window._lottieObservers || [];
+
   const loadQueue = [];
   let isProcessing = false;
 
@@ -112,15 +115,18 @@ function initLottieElements() {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           obs.unobserve(el);
-          // Add to queue rather than loading immediately
           loadQueue.push({ el, src, loop, renderer, isHoverTriggered });
           processQueue();
         }
       });
     }, {
+      // Observe the smooth-wrapper instead of the real viewport
+      // This accounts for ScrollSmoother's transform offset
+      root: document.querySelector('#smooth-wrapper') || null,
       rootMargin: '800px 0px 800px 0px'
     });
 
+    window._lottieObservers.push(observer); // track it
     observer.observe(el);
   });
 }
@@ -171,6 +177,20 @@ window.addEventListener('popstate', () => {
 barba.hooks.before(() => {
   if (window.lockTooltip) window.lockTooltip();
   document.body.classList.add('is-transitioning');
+
+  // Kill Lottie observers
+  if (window._lottieObservers) {
+    window._lottieObservers.forEach(obs => obs.disconnect());
+    window._lottieObservers = [];
+  }
+
+  // Destroy all Lottie instances from previous page
+  document.querySelectorAll('[data-animation-type="lottie"]').forEach(el => {
+    if (el._lottieInstance) {
+      el._lottieInstance.destroy();
+      el._lottieInstance = null;
+    }
+  });
 });
 
 barba.hooks.beforeEnter((data) => {
