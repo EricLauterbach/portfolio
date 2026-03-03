@@ -990,25 +990,21 @@ function initHomePage() {
   });
 
   // ── Techstack slider + hover ─────────────────────────────
-  const wrapper = document.getElementById("sliderWrapper");
-
-
-  // ── Techstack slider + hover ─────────────────────────────
-  const wrapper    = document.getElementById("sliderWrapper");
-  const btnDesign  = document.getElementById("sliderButtonDesign");
-  const btnDev     = document.getElementById("sliderButtonDev");
-  const background = document.getElementById("sliderButtonBackground");
+  const sliderWrapper    = document.getElementById("sliderWrapper");
+  const sliderBtnDesign  = document.getElementById("sliderButtonDesign");
+  const sliderBtnDev     = document.getElementById("sliderButtonDev");
+  const sliderBackground = document.getElementById("sliderButtonBackground");
   const techstackSlider1 = document.getElementById("techstackSlider1");
   const techstackSlider2 = document.getElementById("techstackSlider2");
 
-  if (wrapper && btnDesign && btnDev && background && techstackSlider1 && techstackSlider2) {
+  if (sliderWrapper && sliderBtnDesign && sliderBtnDev && sliderBackground && techstackSlider1 && techstackSlider2) {
     let activeState = "design";
 
     function calculateValues() {
-      const activeButton = activeState === "design" ? btnDesign : btnDev;
-      const wrapperRect  = wrapper.getBoundingClientRect();
+      const activeButton = activeState === "design" ? sliderBtnDesign : sliderBtnDev;
+      const wrapperRect  = sliderWrapper.getBoundingClientRect();
       const buttonRect   = activeButton.getBoundingClientRect();
-      const bgStyles     = window.getComputedStyle(background);
+      const bgStyles     = window.getComputedStyle(sliderBackground);
       const bgBorderX    = parseFloat(bgStyles.borderLeftWidth) + parseFloat(bgStyles.borderRightWidth);
       const bgBorderY    = parseFloat(bgStyles.borderTopWidth)  + parseFloat(bgStyles.borderBottomWidth);
       const sliderHeight = techstackSlider1.getBoundingClientRect().height;
@@ -1024,16 +1020,16 @@ function initHomePage() {
     function updateUI(animate = false) {
       const values = calculateValues();
       if (animate) {
-        gsap.to(background, { duration: 0.6, ease: "elastic.out(1,1)", x: values.bgX, y: values.bgY, width: values.bgWidth, height: values.bgHeight });
+        gsap.to(sliderBackground, { duration: 0.6, ease: "elastic.out(1,1)", x: values.bgX, y: values.bgY, width: values.bgWidth, height: values.bgHeight });
         gsap.to([techstackSlider1, techstackSlider2], { duration: 0.6, ease: "elastic.out(1,1)", y: values.techstackY });
       } else {
-        gsap.set(background, { x: values.bgX, y: values.bgY, width: values.bgWidth, height: values.bgHeight });
+        gsap.set(sliderBackground, { x: values.bgX, y: values.bgY, width: values.bgWidth, height: values.bgHeight });
         gsap.set([techstackSlider1, techstackSlider2], { y: values.techstackY });
       }
     }
 
-    btnDesign.addEventListener("click", function() { if (activeState !== "design") { activeState = "design"; updateUI(true); } });
-    btnDev.addEventListener("click",    function() { if (activeState !== "dev")    { activeState = "dev";    updateUI(true); } });
+    sliderBtnDesign.addEventListener("click", function() { if (activeState !== "design") { activeState = "design"; updateUI(true); } });
+    sliderBtnDev.addEventListener("click",    function() { if (activeState !== "dev")    { activeState = "dev";    updateUI(true); } });
     window.addEventListener("resize",   function() { updateUI(false); });
     updateUI(false);
 
