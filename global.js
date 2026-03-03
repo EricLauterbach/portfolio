@@ -886,8 +886,8 @@ function initAll() {
 
 
   // CONTACT BUTTONS HOVER
-  document.querySelectorAll(".contactbuttonportfoliohome").forEach((button) => {
-    const buttonImage = button.querySelector(".contactbuttonimageportfoliohome");
+  document.querySelectorAll(".contactbuttonportfolio").forEach((button) => {
+    const buttonImage = button.querySelector(".contactbuttonimageportfolio");
     button.addEventListener("mouseenter", () => {
       gsap.getTweensOf(button).forEach(t => { if (t.vars.scale !== undefined) t.kill(); });
       gsap.getTweensOf(buttonImage).forEach(t => { if (t.vars.scale !== undefined) t.kill(); });
