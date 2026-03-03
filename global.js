@@ -987,6 +987,10 @@ function initHomePage() {
         }
       });
     });
+  });
+
+  // ── Techstack slider + hover ─────────────────────────────
+  const wrapper = document.getElementById("sliderWrapper");
 
 
   // ── Techstack slider + hover ─────────────────────────────
