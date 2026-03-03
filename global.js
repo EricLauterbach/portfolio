@@ -348,6 +348,7 @@ barba.init({
 const ENTRANCE_SELECTORS = [
   '.contentcontainerportfolioproject.copyleaksanimations',
   '.bentoitemportfoliohome',
+  '.projectportfoliohome',
 ];
 
 function initEntranceAnimations() {
@@ -363,8 +364,8 @@ function initEntranceAnimations() {
   if (!elements.length) return;
 
   const Y_OFFSET = 75;
-  const DURATION = 0.5;
-  const STAGGER_OFFSET = 0.12;
+  const DURATION = 0.75;
+  const STAGGER_OFFSET = 0.15;
 
   let entranceTriggers = [];
 
@@ -392,7 +393,7 @@ function initEntranceAnimations() {
 
       const st = ScrollTrigger.create({
         trigger: el,
-        start: 'top bottom-=100',
+        start: 'top bottom-=50',
         invalidateOnRefresh: true,
         onEnter: () => {
           el._entranceComplete = true;
@@ -400,7 +401,7 @@ function initEntranceAnimations() {
             y: 0,
             duration: DURATION,
             delay: staggerDelay,
-            ease: 'power2.inOut',
+            ease: 'elastic.out(1,1)',
           });
         },
       });
