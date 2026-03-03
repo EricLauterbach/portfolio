@@ -53,6 +53,7 @@ function initLottieElements() {
   let queuedCount = 0;
 
   function loadAnimation(el, src, loop, renderer, isHoverTriggered) {
+    if (el._lottieInstance || el._lottieQueued) return; // double-load guard
     if (el._lottieInstance) return;
 
     el.innerHTML = '';
@@ -94,18 +95,24 @@ function initLottieElements() {
     const inRange = rect.top < window.innerHeight + buffer && rect.bottom > -buffer;
 
     if (inRange) {
-      const delay = queuedCount * 32; // 32ms stagger between each
+      const delay = queuedCount * 32;
       queuedCount++;
-      setTimeout(() => loadAnimation(el, src, loop, renderer, isHoverTriggered), delay);
+      el._lottieQueued = true; // mark as already queued
+      setTimeout(() => {
+        el._lottieQueued = false;
+        loadAnimation(el, src, loop, renderer, isHoverTriggered);
+      }, delay);
       return; // don't set up observer for these
     }
-
+    
     // For elements outside initial range, use observer
     const observer = new IntersectionObserver((entries, obs) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           obs.unobserve(el);
+          if (el._lottieQueued || el._lottieInstance) return; // skip if already loading
           loadAnimation(el, src, loop, renderer, isHoverTriggered);
+          
         }
       });
     }, {
