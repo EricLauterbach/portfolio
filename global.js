@@ -44,24 +44,16 @@ function reinitWebflow() {
 }
 
 function initLottieElements() {
-  // Track observers so they can be killed on transition
   window._lottieObservers = window._lottieObservers || [];
 
-  const loadQueue = [];
-  let isProcessing = false;
+  // Disconnect any existing observers
+  window._lottieObservers.forEach(obs => obs.disconnect());
+  window._lottieObservers = [];
 
-  function processQueue() {
-    if (isProcessing || loadQueue.length === 0) return;
-    isProcessing = true;
+  let queuedCount = 0;
 
-    const { el, src, loop, renderer, isHoverTriggered } = loadQueue.shift();
-
-    // Skip if already loaded (e.g. called twice)
-    if (el._lottieInstance) {
-      isProcessing = false;
-      processQueue();
-      return;
-    }
+  function loadAnimation(el, src, loop, renderer, isHoverTriggered) {
+    if (el._lottieInstance) return;
 
     el.innerHTML = '';
 
@@ -80,22 +72,6 @@ function initLottieElements() {
         instance.goToAndStop(0, true);
       });
     }
-
-    // Wait for this animation to finish loading before starting the next
-    // This prevents multiple heavy SVG parses happening simultaneously
-    instance.addEventListener('DOMLoaded', () => {
-      isProcessing = false;
-      // Small gap between loads to keep main thread free
-      setTimeout(processQueue, 16);
-    });
-
-    // Safety fallback in case DOMLoaded never fires
-    setTimeout(() => {
-      if (isProcessing) {
-        isProcessing = false;
-        processQueue();
-      }
-    }, 2000);
   }
 
   document.querySelectorAll('[data-animation-type="lottie"]').forEach((el) => {
@@ -111,22 +87,33 @@ function initLottieElements() {
     const renderer = el.getAttribute('data-renderer') || 'svg';
     const isHoverTriggered = el.closest('.contentcontainerportfolioproject.copyleaksanimations.hovertriggered');
 
+    // If already in or near viewport on init, load with a small stagger
+    // This handles fast-scroll scenario where observer may miss elements
+    const rect = el.getBoundingClientRect();
+    const buffer = 800;
+    const inRange = rect.top < window.innerHeight + buffer && rect.bottom > -buffer;
+
+    if (inRange) {
+      const delay = queuedCount * 32; // 32ms stagger between each
+      queuedCount++;
+      setTimeout(() => loadAnimation(el, src, loop, renderer, isHoverTriggered), delay);
+      return; // don't set up observer for these
+    }
+
+    // For elements outside initial range, use observer
     const observer = new IntersectionObserver((entries, obs) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           obs.unobserve(el);
-          loadQueue.push({ el, src, loop, renderer, isHoverTriggered });
-          processQueue();
+          loadAnimation(el, src, loop, renderer, isHoverTriggered);
         }
       });
     }, {
-      // Observe the smooth-wrapper instead of the real viewport
-      // This accounts for ScrollSmoother's transform offset
       root: document.querySelector('#smooth-wrapper') || null,
       rootMargin: '800px 0px 800px 0px'
     });
 
-    window._lottieObservers.push(observer); // track it
+    window._lottieObservers.push(observer);
     observer.observe(el);
   });
 }
