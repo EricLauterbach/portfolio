@@ -347,7 +347,7 @@ barba.init({
 
 const ENTRANCE_SELECTORS = [
   '.contentcontainerportfolioproject.copyleaksanimations', // lottie containers
-  '.bentoitemportfoliohome ', // Homepage bento box items
+  '.bentoitemportfoliohome', // Homepage bento box items
 ];
 
 function initEntranceAnimations() {
@@ -362,30 +362,34 @@ function initEntranceAnimations() {
 
   if (!elements.length) return;
 
+  const Y_OFFSET = 100;
+  const DURATION = 1;
+  const OPACITY_DURATION = DURATION / 2; // opacity finishes twice as fast as y
+
   elements.forEach(el => {
-    // Set initial state
-    gsap.set(el, { y: 100, opacity: 0 });
+    gsap.set(el, { y: Y_OFFSET, opacity: 0 });
+
+    const tl = gsap.timeline({ paused: true })
+      .to(el, {
+        opacity: 1,
+        duration: OPACITY_DURATION,
+        ease: 'power2.inOut',
+      }, 0)
+      .to(el, {
+        y: 0,
+        duration: DURATION,
+        ease: 'power2.inOut',
+      }, 0);
 
     ScrollTrigger.create({
       trigger: el,
-      start: 'top bottom',       // when top of element hits bottom of viewport
-      end: '+=300',              // complete after 200px of scroll
-      scrub: 1,                  // smooth scrub with 1s lag — handles fast scrolling
-      invalidateOnRefresh: true, // recalculates on resize for responsive layouts
-      onUpdate: self => {
-        gsap.set(el, {
-          y: 100 * (1 - self.progress),
-          opacity: self.progress
-        });
-      },
-      onLeave: () => {
-        // Ensure final state is clean when scrolled past
-        gsap.set(el, { y: 0, opacity: 1 });
-      },
-      onLeaveBack: () => {
-        // Reset if scrolled back above trigger
-        gsap.set(el, { y: 100, opacity: 0 });
-      }
+      start: 'top bottom',
+      end: '+=200',
+      scrub: 1,
+      invalidateOnRefresh: true,
+      animation: tl,
+      onLeave: () => gsap.set(el, { y: 0, opacity: 1 }),
+      onLeaveBack: () => gsap.set(el, { y: Y_OFFSET, opacity: 0 }),
     });
   });
 }
