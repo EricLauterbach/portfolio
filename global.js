@@ -78,10 +78,16 @@ function loadLottie() {
 function initLottieElements() {
   loadLottie().then(() => {
     const elements = Array.from(document.querySelectorAll('[data-animation-type="lottie"]'));
+    console.log('[Lottie] elements found:', elements.length);
+
     window._lottieObservers = window._lottieObservers || [];
+
+    const root = document.querySelector('#smooth-content') || null;
+    console.log('[Lottie] observer root:', root);
 
     const obs = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
+        console.log('[Lottie] entry:', entry.target, 'intersecting:', entry.isIntersecting);
         if (!entry.isIntersecting) return;
         obs.unobserve(entry.target);
         const el = entry.target;
@@ -105,7 +111,7 @@ function initLottieElements() {
         el.innerHTML = '';
         if (w) el.style.width = w + 'px';
         if (h) el.style.height = h + 'px';
-        
+
         const instance = lottie.loadAnimation({
           container: el,
           renderer: renderer,
@@ -143,7 +149,10 @@ function initLottieElements() {
       rootMargin: '400px 0px',
     });
 
-    elements.forEach(el => obs.observe(el));
+    elements.forEach(el => {
+      console.log('[Lottie] observing:', el);
+      obs.observe(el);
+    });
     window._lottieObservers.push(obs);
   });
 }
