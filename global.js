@@ -347,8 +347,7 @@ barba.init({
 
 const ENTRANCE_SELECTORS = [
   '.contentcontainerportfolioproject.copyleaksanimations', // lottie containers
-  // '.some-other-class',  // add more selectors here
-  // '#some-id',
+  '.bentoitemportfoliohome ', // Homepage bento box items
 ];
 
 function initEntranceAnimations() {
