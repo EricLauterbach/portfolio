@@ -118,7 +118,7 @@ function initLottieElements() {
         }
       });
     }, {
-      rootMargin: '400px 0px 400px 0px'
+      rootMargin: '800px 0px 800px 0px'
     });
 
     observer.observe(el);
