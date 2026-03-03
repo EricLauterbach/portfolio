@@ -45,6 +45,7 @@ function reinitWebflow() {
 
 function initLottieElements() {
   document.querySelectorAll('[data-animation-type="lottie"]').forEach((el) => {
+    // Destroy existing instance if present
     if (el._lottieInstance) {
       el._lottieInstance.destroy();
       el._lottieInstance = null;
@@ -57,23 +58,43 @@ function initLottieElements() {
     const renderer = el.getAttribute('data-renderer') || 'svg';
     const isHoverTriggered = el.closest('.contentcontainerportfolioproject.copyleaksanimations.hovertriggered');
 
-    el.innerHTML = '';
+    function loadAnimation() {
+      // Already loaded — skip
+      if (el._lottieInstance) return;
 
-    const instance = lottie.loadAnimation({
-      container: el,
-      renderer: renderer,
-      loop: loop,
-      autoplay: !isHoverTriggered,
-      path: src,
+      el.innerHTML = '';
+
+      const instance = lottie.loadAnimation({
+        container: el,
+        renderer: renderer,
+        loop: loop,
+        autoplay: !isHoverTriggered,
+        path: src,
+      });
+
+      el._lottieInstance = instance;
+
+      if (isHoverTriggered) {
+        instance.addEventListener('DOMLoaded', () => {
+          instance.goToAndStop(0, true);
+        });
+      }
+    }
+
+    // Use IntersectionObserver to lazy load
+    // rootMargin of 400px means it starts loading 400px before entering viewport
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          loadAnimation();
+          obs.unobserve(el); // stop observing once loaded
+        }
+      });
+    }, {
+      rootMargin: '400px 0px 400px 0px' // pre-load 400px above and below viewport
     });
 
-    el._lottieInstance = instance;
-
-    if (isHoverTriggered) {
-      instance.addEventListener('DOMLoaded', () => {
-        instance.goToAndStop(0, true);
-      });
-    }
+    observer.observe(el);
   });
 }
 
