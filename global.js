@@ -348,6 +348,7 @@ barba.init({
 const ENTRANCE_SELECTORS = [
   '.contentcontainerportfolioproject.copyleaksanimations',
   '.bentoitemportfoliohome',
+  '.projectportfoliohome',
 ];
 
 function initEntranceAnimations() {
