@@ -230,10 +230,12 @@ barba.hooks.after((data) => {
   if (namespace === 'home') initHomePage();
   if (namespace === 'copyleaks-animations') {
     setTimeout(() => {
+      ScrollTrigger.refresh();
       initLottieElements();
       initEntranceAnimations();
       initCopyleaksAnimations();
-    }, 100);
+    }, 300);
+  }
   }
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
 
