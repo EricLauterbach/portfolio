@@ -395,7 +395,7 @@ function initEntranceAnimations() {
 
       const st = ScrollTrigger.create({
         trigger: el,
-        start: 'top bottom-=100', // trigger when 100px of element is visible
+        start: 'top bottom', // trigger when 100px of element is visible
         invalidateOnRefresh: true,
         onEnter: () => {
           el._entranceComplete = true;
