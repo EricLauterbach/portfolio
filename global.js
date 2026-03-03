@@ -44,14 +44,6 @@ function reinitWebflow() {
 }
 
 function initLottieElements() {
-  // Destroy all Webflow-rendered Lottie content before we initialise our own
-  // This prevents Webflow's async init from racing with ours
-  document.querySelectorAll('[data-animation-type="lottie"]').forEach(el => {
-    el.innerHTML = '';
-    // Remove Webflow's internal lottie reference if it exists
-    delete el.__lottie;
-    delete el._lottie;
-  });
   
   window._lottieObservers = window._lottieObservers || [];
 
@@ -62,11 +54,11 @@ function initLottieElements() {
   let queuedCount = 0;
 
   function loadAnimation(el, src, loop, renderer, isHoverTriggered) {
-    if (el._lottieInstance || el._lottieQueued) return; // double-load guard
-    if (el._lottieInstance) return;
-
+    if (el._lottieInstance || el._lottieQueued) return;
+    
+    // Wipe at the last possible moment, just before we load our own instance
     el.innerHTML = '';
-
+    
     const instance = lottie.loadAnimation({
       container: el,
       renderer: renderer,
@@ -74,9 +66,9 @@ function initLottieElements() {
       autoplay: !isHoverTriggered,
       path: src,
     });
-
+  
     el._lottieInstance = instance;
-
+  
     if (isHoverTriggered) {
       instance.addEventListener('DOMLoaded', () => {
         instance.goToAndStop(0, true);
