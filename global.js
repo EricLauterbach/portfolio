@@ -364,7 +364,7 @@ function initEntranceAnimations() {
   if (!elements.length) return;
 
   const Y_OFFSET = 75;
-  const DURATION = 0.75;
+  const DURATION = 1;
   const STAGGER_OFFSET = 0.15;
 
   let entranceTriggers = [];
@@ -393,7 +393,7 @@ function initEntranceAnimations() {
 
       const st = ScrollTrigger.create({
         trigger: el,
-        start: 'top bottom-=50',
+        start: 'top bottom',
         invalidateOnRefresh: true,
         onEnter: () => {
           el._entranceComplete = true;
@@ -402,6 +402,7 @@ function initEntranceAnimations() {
             duration: DURATION,
             delay: staggerDelay,
             ease: 'elastic.out(1,1)',
+            overwrite: false, // don't kill other tweens on this element
           });
         },
       });
@@ -968,12 +969,12 @@ function initHomePage() {
       gsap.to(imageContainer, { padding: spacingTiny, duration: 0.4, ease: "power2.inOut" });
       projectItems.forEach((otherItem) => {
         if (otherItem !== item) {
-          gsap.killTweensOf(otherItem);
-          gsap.to(otherItem, { opacity: 0.1, duration: 0.4, ease: "power2.inOut" });
+          gsap.killTweensOf(otherItem, { opacity: true }); // only kill opacity tweens
+          gsap.to(otherItem, { opacity: 0.1, duration: 0.4, ease: "power2.inOut", overwrite: 'auto' });
         }
       });
     });
-
+    
     item.addEventListener("mouseleave", () => {
       isHovered = false;
       gsap.killTweensOf(smallButton);
@@ -981,12 +982,11 @@ function initHomePage() {
       gsap.to(imageContainer, { padding: initialPadding, duration: 0.4, ease: "power2.inOut" });
       projectItems.forEach((otherItem) => {
         if (otherItem !== item) {
-          gsap.killTweensOf(otherItem);
-          gsap.to(otherItem, { opacity: 1, duration: 0.4, ease: "power2.inOut" });
+          gsap.killTweensOf(otherItem, { opacity: true }); // only kill opacity tweens
+          gsap.to(otherItem, { opacity: 1, duration: 0.4, ease: "power2.inOut", overwrite: 'auto' });
         }
       });
     });
-  });
 
 
   // ── Techstack slider + hover ─────────────────────────────
