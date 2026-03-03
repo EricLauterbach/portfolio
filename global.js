@@ -236,7 +236,6 @@ barba.hooks.after((data) => {
       initCopyleaksAnimations();
     }, 300);
   }
-  }
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
 
   if (pendingHash) {
