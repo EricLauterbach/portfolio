@@ -1063,6 +1063,25 @@ function initHomePage() {
 
 function initCopyleaksAnimations() {
 
+  const hovers = document.querySelectorAll('.contentcontainerportfolioproject.copyleaksanimations.hovertriggered');
+  console.log('hover containers found:', hovers.length);
+  
+  hovers.forEach((container, i) => {
+    const lottieEl = container.querySelector('[data-animation-type="lottie"]');
+    const registered = lottie.getRegisteredAnimations?.() || [];
+    const webflowInst = registered.find(a => a.wrapper === lottieEl);
+    console.log(`container ${i}:`, {
+      lottieEl: !!lottieEl,
+      _lottieInstance: !!lottieEl?._lottieInstance,
+      webflowInst: !!webflowInst,
+      innerHTML: lottieEl?.innerHTML?.slice(0, 50)
+    });
+  });
+
+
+
+  
+
   document.querySelectorAll('.contentcontainerportfolioproject.copyleaksanimations.hovertriggered').forEach((container) => {
     container._hoverBound = false;
   });
