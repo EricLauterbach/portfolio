@@ -1,3 +1,14 @@
+// Neutralize unload listeners to allow bfcache
+(function() {
+  const origAdd = EventTarget.prototype.addEventListener;
+  EventTarget.prototype.addEventListener = function(type, listener, options) {
+    if (type === 'unload') return;
+    return origAdd.call(this, type, listener, options);
+  };
+})();
+
+
+
 // =============================================================
 // BARBA JS INIT
 // =============================================================
@@ -66,37 +77,53 @@ function loadLottie() {
 
 function initLottieElements() {
   loadLottie().then(() => {
-    document.querySelectorAll('[data-animation-type="lottie"]').forEach((el) => {
-      if (el._lottieInstance) {
-        el._lottieInstance.destroy();
-        el._lottieInstance = null;
-      }
+    const elements = Array.from(document.querySelectorAll('[data-animation-type="lottie"]'));
+    window._lottieObservers = window._lottieObservers || [];
 
-      const src = el.getAttribute('data-src');
-      if (!src) return;
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        obs.unobserve(entry.target);
+        const el = entry.target;
 
-      const loop = el.getAttribute('data-loop') === '1';
-      const renderer = el.getAttribute('data-renderer') || 'svg';
-      const isHoverTriggered = el.closest('.contentcontainerportfolioproject.copyleaksanimations.hovertriggered');
+        if (el._lottieInstance) {
+          el._lottieInstance.destroy();
+          el._lottieInstance = null;
+        }
 
-      el.innerHTML = '';
+        const src = el.getAttribute('data-src');
+        if (!src) return;
 
-      const instance = lottie.loadAnimation({
-        container: el,
-        renderer: renderer,
-        loop: loop,
-        autoplay: !isHoverTriggered,
-        path: src,
-      });
+        const loop = el.getAttribute('data-loop') === '1';
+        const renderer = el.getAttribute('data-renderer') || 'svg';
+        const isHoverTriggered = el.closest(
+          '.contentcontainerportfolioproject.copyleaksanimations.hovertriggered'
+        );
 
-      el._lottieInstance = instance;
+        el.innerHTML = '';
 
-      if (isHoverTriggered) {
-        instance.addEventListener('DOMLoaded', () => {
-          instance.goToAndStop(0, true);
+        const instance = lottie.loadAnimation({
+          container: el,
+          renderer: renderer,
+          loop: loop,
+          autoplay: !isHoverTriggered,
+          path: src,
         });
-      }
+
+        el._lottieInstance = instance;
+
+        if (isHoverTriggered) {
+          instance.addEventListener('DOMLoaded', () => {
+            instance.goToAndStop(0, true);
+          });
+        }
+      });
+    }, {
+      rootMargin: '200px', // load 200px before entering viewport
     });
+
+    elements.forEach(el => obs.observe(el));
+    window._lottieObservers.push(obs);
   });
 }
 
@@ -1429,9 +1456,9 @@ function onPageLoad() {
   if (namespace === 'copyleaks-animations') {
     setTimeout(() => {
       initLottieElements();
-      initEntranceAnimations(); // after Lottie so page height is more accurate
+      initEntranceAnimations();
       initCopyleaksAnimations();
-    }, 800);
+    }, 100); // was 800
   }
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
 }
