@@ -362,11 +362,11 @@ function initEntranceAnimations() {
 
   if (!elements.length) return;
 
-  const Y_OFFSET = 100;
+  const Y_OFFSET = 75;
   const DURATION = 1;
-  const OPACITY_DURATION = DURATION / 2;
+  const OPACITY_DURATION = DURATION / 1.25;
   const SCROLL_DISTANCE = 200;
-  const STAGGER_OFFSET = SCROLL_DISTANCE / 4; // 50px
+  const STAGGER_OFFSET = SCROLL_DISTANCE / 3; 
 
   // Store ScrollTrigger instances so we can kill and rebuild on resize
   let entranceTriggers = [];
@@ -393,7 +393,7 @@ function initEntranceAnimations() {
 
       // Only set initial state if not already animated in
       if (!el._entranceComplete) {
-        gsap.set(el, { y: Y_OFFSET, opacity: 0 });
+        gsap.set(el, { y: Y_OFFSET, opacity: .5 });
       }
 
       const tl = gsap.timeline({ paused: true })
