@@ -75,85 +75,84 @@ function loadLottie() {
   });
 }
 
-function initLottieElements() {
+function initLottieElements(loadAll = false) {
   loadLottie().then(() => {
     const elements = Array.from(document.querySelectorAll('[data-animation-type="lottie"]'));
-    console.log('[Lottie] elements found:', elements.length);
-
     window._lottieObservers = window._lottieObservers || [];
 
-    const root = document.querySelector('#smooth-content') || null;
-    console.log('[Lottie] observer root:', root);
+    function loadElement(el) {
+      if (el._lottieInstance) {
+        el._lottieInstance.destroy();
+        el._lottieInstance = null;
+      }
 
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        console.log('[Lottie] entry:', entry.target, 'intersecting:', entry.isIntersecting);
-        if (!entry.isIntersecting) return;
-        obs.unobserve(entry.target);
-        const el = entry.target;
+      const src = el.getAttribute('data-src');
+      if (!src) return;
 
-        if (el._lottieInstance) {
-          el._lottieInstance.destroy();
-          el._lottieInstance = null;
-        }
+      const loop = el.getAttribute('data-loop') === '1';
+      const renderer = el.getAttribute('data-renderer') || 'svg';
+      const hoverContainer = el.closest(
+        '.contentcontainerportfolioproject.copyleaksanimations.hovertriggered'
+      );
 
-        const src = el.getAttribute('data-src');
-        if (!src) return;
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
+      el.innerHTML = '';
+      if (w) el.style.width = w + 'px';
+      if (h) el.style.height = h + 'px';
 
-        const loop = el.getAttribute('data-loop') === '1';
-        const renderer = el.getAttribute('data-renderer') || 'svg';
-        const hoverContainer = el.closest(
-          '.contentcontainerportfolioproject.copyleaksanimations.hovertriggered'
-        );
+      const instance = lottie.loadAnimation({
+        container: el,
+        renderer: renderer,
+        loop: loop,
+        autoplay: !hoverContainer,
+        path: src,
+      });
 
-        const w = el.offsetWidth;
-        const h = el.offsetHeight;
-        el.innerHTML = '';
-        if (w) el.style.width = w + 'px';
-        if (h) el.style.height = h + 'px';
+      el._lottieInstance = instance;
 
-        const instance = lottie.loadAnimation({
-          container: el,
-          renderer: renderer,
-          loop: loop,
-          autoplay: !hoverContainer,
-          path: src,
+      if (hoverContainer && !hoverContainer._hoverBound) {
+        hoverContainer._hoverBound = true;
+
+        instance.addEventListener('DOMLoaded', () => {
+          instance.goToAndStop(0, true);
         });
 
-        el._lottieInstance = instance;
+        hoverContainer.addEventListener('mouseenter', () => {
+          const inst = el._lottieInstance;
+          if (!inst) return;
+          inst.setDirection(1);
+          inst.play();
+        });
 
-        if (hoverContainer && !hoverContainer._hoverBound) {
-          hoverContainer._hoverBound = true;
+        hoverContainer.addEventListener('mouseleave', () => {
+          const inst = el._lottieInstance;
+          if (!inst) return;
+          inst.setDirection(-1);
+          inst.play();
+        });
+      }
+    }
 
-          instance.addEventListener('DOMLoaded', () => {
-            instance.goToAndStop(0, true);
-          });
-
-          hoverContainer.addEventListener('mouseenter', () => {
-            const inst = el._lottieInstance;
-            if (!inst) return;
-            inst.setDirection(1);
-            inst.play();
-          });
-
-          hoverContainer.addEventListener('mouseleave', () => {
-            const inst = el._lottieInstance;
-            if (!inst) return;
-            inst.setDirection(-1);
-            inst.play();
-          });
-        }
+    if (loadAll) {
+      // Barba transition: load everything immediately, no observer needed
+      elements.forEach(el => loadElement(el));
+    } else {
+      // Direct page load: use IntersectionObserver to stagger loading
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          obs.unobserve(entry.target);
+          loadElement(entry.target);
+        });
+      }, {
+        root: document.querySelector('#smooth-content') || null,
+        rootMargin: '400px 0px',
       });
-    }, {
-      root: document.querySelector('#smooth-content') || null,
-      rootMargin: '400px 0px',
-    });
 
-    elements.forEach(el => {
-      console.log('[Lottie] observing:', el);
-      obs.observe(el);
-    });
-    window._lottieObservers.push(obs);
+      elements.forEach(el => obs.observe(el));
+      window._lottieObservers.push(obs);
+    }
   });
 }
 
@@ -245,7 +244,7 @@ barba.hooks.after((data) => {
   if (namespace === 'copyleaks-animations') {
     setTimeout(() => {
       ScrollTrigger.refresh();
-      initLottieElements();
+      initLottieElements(true); // pass flag to load all immediately
       initEntranceAnimations();
       initCopyleaksAnimations();
     }, 300);
