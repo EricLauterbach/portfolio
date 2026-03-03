@@ -43,92 +43,60 @@ function reinitWebflow() {
   document.querySelectorAll('video[autoplay]').forEach(video => video.play());
 }
 
+// ─── Dynamic Lottie loader ────────────────────────────────────────────────
+let lottieLoaded = false;
+
+function loadLottie() {
+  return new Promise((resolve) => {
+    if (typeof lottie !== 'undefined') { resolve(); return; }
+    if (lottieLoaded) {
+      // Already injected but not resolved yet — poll
+      const poll = setInterval(() => {
+        if (typeof lottie !== 'undefined') { clearInterval(poll); resolve(); }
+      }, 50);
+      return;
+    }
+    lottieLoaded = true;
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js';
+    script.onload = resolve;
+    document.head.appendChild(script);
+  });
+}
+
 function initLottieElements() {
-  
-  window._lottieObservers = window._lottieObservers || [];
+  loadLottie().then(() => {
+    document.querySelectorAll('[data-animation-type="lottie"]').forEach((el) => {
+      if (el._lottieInstance) {
+        el._lottieInstance.destroy();
+        el._lottieInstance = null;
+      }
 
-  // Disconnect any existing observers
-  window._lottieObservers.forEach(obs => obs.disconnect());
-  window._lottieObservers = [];
+      const src = el.getAttribute('data-src');
+      if (!src) return;
 
-  let queuedCount = 0;
+      const loop = el.getAttribute('data-loop') === '1';
+      const renderer = el.getAttribute('data-renderer') || 'svg';
+      const isHoverTriggered = el.closest('.contentcontainerportfolioproject.copyleaksanimations.hovertriggered');
 
-  function loadAnimation(el, src, loop, renderer, isHoverTriggered) {
-    if (el._lottieInstance || el._lottieQueued) return;
-  
-    el.innerHTML = '';
-  
-    const instance = lottie.loadAnimation({
-      container: el,
-      renderer: renderer,
-      loop: loop,
-      autoplay: !isHoverTriggered,
-      path: src,
+      el.innerHTML = '';
+
+      const instance = lottie.loadAnimation({
+        container: el,
+        renderer: renderer,
+        loop: loop,
+        autoplay: !isHoverTriggered,
+        path: src,
+      });
+
+      el._lottieInstance = instance;
+
+      if (isHoverTriggered) {
+        instance.addEventListener('DOMLoaded', () => {
+          instance.goToAndStop(0, true);
+        });
+      }
     });
-  
-    el._lottieInstance = instance;
-  
-    if (isHoverTriggered) {
-      instance.addEventListener('DOMLoaded', () => {
-        instance.goToAndStop(0, true);
-        // Refresh ScrollTrigger after each hover animation loads
-        // so entrance triggers recalculate with correct page height
-        ScrollTrigger.refresh();
-      });
-    } else {
-      instance.addEventListener('DOMLoaded', () => {
-        ScrollTrigger.refresh();
-      });
-    }
-  }
-
-  document.querySelectorAll('[data-animation-type="lottie"]').forEach((el) => {
-    if (el._lottieInstance) {
-      el._lottieInstance.destroy();
-      el._lottieInstance = null;
-    }
-
-    const src = el.getAttribute('data-src');
-    if (!src) return;
-
-    const loop = el.getAttribute('data-loop') === '1';
-    const renderer = el.getAttribute('data-renderer') || 'svg';
-    const isHoverTriggered = el.closest('.contentcontainerportfolioproject.copyleaksanimations.hovertriggered');
-
-    // If already in or near viewport on init, load with a small stagger
-    // This handles fast-scroll scenario where observer may miss elements
-    const rect = el.getBoundingClientRect();
-    const buffer = 800;
-    const inRange = rect.top < window.innerHeight + buffer && rect.bottom > -buffer;
-
-    if (inRange) {
-      const delay = queuedCount * 32;
-      queuedCount++;
-      el._lottieQueued = true; // mark as already queued
-      setTimeout(() => {
-        el._lottieQueued = false;
-        loadAnimation(el, src, loop, renderer, isHoverTriggered);
-      }, delay);
-      return; // don't set up observer for these
-    }
-    
-    // For elements outside initial range, use observer
-    const observer = new IntersectionObserver((entries, obs) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          obs.unobserve(el);
-          if (el._lottieQueued || el._lottieInstance) return; // skip if already loading
-          loadAnimation(el, src, loop, renderer, isHoverTriggered);
-          
-        }
-      });
-    }, {
-      root: document.querySelector('#smooth-wrapper') || null,
-      rootMargin: '800px 0px 800px 0px'
-    });
-
-    window._lottieObservers.push(observer);
-    observer.observe(el);
   });
 }
 
