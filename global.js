@@ -55,10 +55,9 @@ function initLottieElements() {
 
   function loadAnimation(el, src, loop, renderer, isHoverTriggered) {
     if (el._lottieInstance || el._lottieQueued) return;
-    
-    // Wipe at the last possible moment, just before we load our own instance
+  
     el.innerHTML = '';
-    
+  
     const instance = lottie.loadAnimation({
       container: el,
       renderer: renderer,
@@ -72,6 +71,13 @@ function initLottieElements() {
     if (isHoverTriggered) {
       instance.addEventListener('DOMLoaded', () => {
         instance.goToAndStop(0, true);
+        // Refresh ScrollTrigger after each hover animation loads
+        // so entrance triggers recalculate with correct page height
+        ScrollTrigger.refresh();
+      });
+    } else {
+      instance.addEventListener('DOMLoaded', () => {
+        ScrollTrigger.refresh();
       });
     }
   }
@@ -214,6 +220,7 @@ barba.hooks.after((data) => {
   if (namespace === 'copyleaks-animations') {
     setTimeout(() => {
       initLottieElements();
+      initEntranceAnimations();
       initCopyleaksAnimations();
     }, 100);
   }
@@ -397,7 +404,12 @@ function initAll() {
 
   ScrollTrigger.getAll().forEach(st => st.kill());
 
-  initEntranceAnimations();
+  // Only run entrance animations here for non-lottie pages
+  // For copyleaks-animations it's called after initLottieElements
+  const namespace = document.querySelector('[data-barba="container"]')?.dataset?.barbaNamespace;
+  if (namespace !== 'copyleaks-animations') {
+    initEntranceAnimations();
+  }
 
   // UPDATE NAVIGATION URLS BASED ON PAGE
   (function() {
@@ -1411,11 +1423,13 @@ function onPageLoad() {
   console.log('onPageLoad fired, namespace:', namespace);
 
   if (namespace === 'home') initHomePage();
+  // In onPageLoad:
   if (namespace === 'copyleaks-animations') {
     setTimeout(() => {
       initLottieElements();
+      initEntranceAnimations(); // after Lottie so page height is more accurate
       initCopyleaksAnimations();
-    }, 800); // increased from 500 to give Webflow more time to finish, then we take over
+    }, 800);
   }
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
 }
