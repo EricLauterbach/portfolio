@@ -84,6 +84,7 @@ function initLottieElements(loadAll = false) {
       if (el._lottieInstance) {
         el._lottieInstance.destroy();
         el._lottieInstance = null;
+        el._fillApplied = false; // reset so DOMLoaded can fire cleanly for new instance
       }
 
       const src = el.getAttribute('data-src');
@@ -128,15 +129,22 @@ function initLottieElements(loadAll = false) {
             el.style.position = 'relative';
       
             function applyHeight() {
-              const containerWidth = el.offsetWidth || el.parentElement?.offsetWidth;
+              // Walk up until we find a parent with a real width
+              let ref = el;
+              let containerWidth = 0;
+              while (ref && containerWidth < 50) {
+                containerWidth = ref.offsetWidth;
+                ref = ref.parentElement;
+              }
               if (containerWidth && vbWidth && vbHeight) {
                 el.style.height = (containerWidth * vbHeight / vbWidth) + 'px';
               }
             }
-      
+            
             applyHeight();
             setTimeout(applyHeight, 100);
             setTimeout(applyHeight, 400);
+            setTimeout(applyHeight, 800); // extra safety for Barba
           }
         }
       });
@@ -274,11 +282,14 @@ barba.hooks.after((data) => {
   if (namespace === 'copyleaks-animations') {
     setTimeout(() => {
       ScrollTrigger.refresh();
-      initLottieElements(true); // pass flag to load all immediately
-      initEntranceAnimations();
+      initLottieElements();
       initCopyleaksAnimations();
     }, 300);
+    setTimeout(() => {
+      initEntranceAnimations(); // separate, later timeout so layout is fully settled
+    }, 500);
   }
+  
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
 
   if (pendingHash) {
