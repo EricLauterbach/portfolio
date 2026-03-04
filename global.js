@@ -1259,6 +1259,7 @@ function initCopyleaksMarketing() {
     type: 'loop',
     drag: 'free',
     clones: 0,
+    trimSpace: true,
     focus: '1',
     arrows: false,
     pagination: false,
