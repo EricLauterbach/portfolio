@@ -1249,6 +1249,21 @@ function initCopyleaksWebsite() {
 
 function initCopyleaksMarketing() {
 
+    window.marketingSlider1 = new Splide('#marketingSlider1', {
+      type: 'loop', 
+      drag: 'free', 
+      focus: '1', 
+      arrows: false, 
+      pagination: false,
+      autoWidth: true, 
+      autoplay: false, 
+      snap: true, 
+      perMove: 1,
+      padding: { left: 29 },
+      easing: 'cubic-bezier(.09,1.88,.5,.92)',
+    });
+    window.marketingSlider1.mount();
+
 }
 
 
