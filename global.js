@@ -96,6 +96,7 @@ function initLottieElements(loadAll = false) {
       );
 
       el.innerHTML = '';
+      el.style.overflow = 'hidden';
 
       const instance = lottie.loadAnimation({
         container: el,
