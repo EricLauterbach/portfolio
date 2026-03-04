@@ -112,9 +112,13 @@ function initLottieElements(loadAll = false) {
         if (el.dataset.lottieFill) {
           const svg = el.querySelector('svg');
           if (svg) {
-            svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+            svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+            svg.style.position = 'absolute';
             svg.style.width = '100%';
             svg.style.height = '100%';
+            svg.style.top = '0';
+            svg.style.left = '0';
+            el.style.position = 'relative';
           }
         }
       });
