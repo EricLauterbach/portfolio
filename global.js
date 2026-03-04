@@ -347,11 +347,6 @@ barba.init({
 
 
 
-// ================================
-// SCROLL ENTRANCE ANIMATIONS
-// Add selectors here to apply entrance animation to any element
-// ================================
-
 const ENTRANCE_SELECTORS = [
   '.contentcontainerportfolioproject.copyleaksanimations',
   '.bentoitemportfoliohome',
@@ -359,13 +354,6 @@ const ENTRANCE_SELECTORS = [
   '.contactbuttonportfolio',
   '.contentcontainerportfolioproject',
 ];
-
-function getDocumentTop(el) {
-  if (window.smoother) {
-    return window.smoother.offset(el, "top");
-  }
-  return el.getBoundingClientRect().top + window.scrollY;
-}
 
 function initEntranceAnimations() {
   if (!ENTRANCE_SELECTORS.length) return;
@@ -385,75 +373,52 @@ function initEntranceAnimations() {
 
   let entranceTriggers = [];
 
-  function triggerEntrance(el, staggerDelay) {
-    if (el._entranceComplete) return;
-    el._entranceComplete = true;
-    gsap.to(el, {
-      y: 0,
-      duration: DURATION,
-      delay: staggerDelay,
-      ease: 'elastic.out(1,1)',
-      overwrite: false,
-    });
-  }
-
   function buildTriggers() {
-    entranceTriggers.forEach(st => {
-      if (typeof st.kill === 'function') st.kill();
-    });
+    entranceTriggers.forEach(st => st.kill());
     entranceTriggers = [];
 
-    const rows = {};
-    const elData = new WeakMap();
-    const topCache = new Map();
+    // Sort elements by their DOM position top-to-bottom
+    const sorted = [...elements].sort((a, b) =>
+      a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1
+    );
 
-    // First pass: measure all positions BEFORE any gsap.set
-    elements.forEach(el => {
-      const top = Math.round(getDocumentTop(el) / 10) * 10;
-      topCache.set(el, top);
+    // Group into rows by rounding their ScrollSmoother offset
+    const rows = {};
+    sorted.forEach(el => {
+      if (el._entranceComplete) return;
+      const top = Math.round(window.smoother.offset(el, "top") / 10) * 10;
       if (!rows[top]) rows[top] = [];
       rows[top].push(el);
     });
 
-    // Second pass: compute stagger + cache docTop
-    elements.forEach(el => {
+    sorted.forEach(el => {
       if (el._entranceComplete) return;
-      const top = topCache.get(el);
+
+      const top = Math.round(window.smoother.offset(el, "top") / 10) * 10;
       const row = rows[top];
       const indexInRow = row ? row.indexOf(el) : 0;
       const staggerDelay = (row && row.length > 1) ? indexInRow * STAGGER_OFFSET : 0;
-      elData.set(el, {
-        docTop: top,
-        staggerDelay,
-      });
-    });
 
-    // Third pass: apply gsap.set AFTER all measurements are done
-    elements.forEach(el => {
-      if (el._entranceComplete) return;
       gsap.set(el, { y: Y_OFFSET });
-    });
 
-    function checkElements() {
-      const scrollY = window.smoother ? window.smoother.scrollTop() : window.scrollY;
-      const viewportBottom = scrollY + window.innerHeight;
-      let allDone = true;
-
-      elements.forEach(el => {
-        if (el._entranceComplete) return;
-        allDone = false;
-        const data = elData.get(el);
-        if (!data) return;
-        if (data.docTop <= viewportBottom) {
-          triggerEntrance(el, data.staggerDelay);
-        }
+      const st = ScrollTrigger.create({
+        trigger: el,
+        start: 'top bottom',
+        invalidateOnRefresh: true,
+        onEnter: () => {
+          el._entranceComplete = true;
+          gsap.to(el, {
+            y: 0,
+            duration: DURATION,
+            delay: staggerDelay,
+            ease: 'elastic.out(1,1)',
+            overwrite: false,
+          });
+        },
       });
 
-      if (allDone) gsap.ticker.remove(checkElements);
-    }
-
-    gsap.ticker.add(checkElements);
-    entranceTriggers.push({ kill: () => gsap.ticker.remove(checkElements) });
+      entranceTriggers.push(st);
+    });
   }
 
   buildTriggers();
@@ -467,6 +432,7 @@ function initEntranceAnimations() {
     }, 250);
   });
 }
+
 
 // ============================================================
 // GLOBAL INIT — runs on load + after every Barba transition
