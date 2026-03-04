@@ -401,76 +401,49 @@ function initEntranceAnimations() {
   }
 
   function buildTriggers() {
-    entranceTriggers.forEach(st => st.kill());
+    entranceTriggers.forEach(st => {
+      if (typeof st.kill === 'function') st.kill();
+    });
     entranceTriggers = [];
-  
+
     const rows = {};
     elements.forEach(el => {
       const top = Math.round(getDocumentTop(el) / 10) * 10;
       if (!rows[top]) rows[top] = [];
       rows[top].push(el);
     });
-  
+
     elements.forEach(el => {
       if (el._entranceComplete) return;
-  
-      const top = Math.round(getDocumentTop(el) / 10) * 10;
-      const row = rows[top];
-      const indexInRow = row.indexOf(el);
-      const isInRow = row.length > 1;
-      const staggerDelay = isInRow ? indexInRow * STAGGER_OFFSET : 0;
-  
       gsap.set(el, { y: Y_OFFSET });
     });
-  
+
     function checkElements() {
       const scrollY = window.smoother ? window.smoother.scrollTop() : window.scrollY;
       const viewportBottom = scrollY + window.innerHeight;
-  
+      let allDone = true;
+
       elements.forEach(el => {
         if (el._entranceComplete) return;
+        allDone = false;
         const elTop = getDocumentTop(el);
         if (elTop <= viewportBottom) {
           const top = Math.round(elTop / 10) * 10;
           const row = rows[top];
           const indexInRow = row ? row.indexOf(el) : 0;
-          const isInRow = row ? row.length > 1 : false;
-          const staggerDelay = isInRow ? indexInRow * STAGGER_OFFSET : 0;
+          const staggerDelay = (row && row.length > 1) ? indexInRow * STAGGER_OFFSET : 0;
           triggerEntrance(el, staggerDelay);
         }
       });
+
+      if (allDone) gsap.ticker.remove(checkElements);
     }
-  
-    // Check immediately in case elements are already in view
-    checkElements();
-  
-    // Use the smooth wrapper element if available, otherwise window
-    const scrollEl = document.querySelector('#smooth-wrapper') || window;
-    scrollEl.addEventListener('scroll', checkElements);
-    entranceTriggers.push({
-      kill: () => scrollEl.removeEventListener('scroll', checkElements)
-    });
+
+    gsap.ticker.add(checkElements);
+    entranceTriggers.push({ kill: () => gsap.ticker.remove(checkElements) });
   }
 
   buildTriggers();
-
-  setTimeout(() => {
-    elements.forEach(el => {
-      const docTop = getDocumentTop(el);
-      const scrollY = window.smoother ? window.smoother.scrollTop() : window.scrollY;
-      const viewportBottom = scrollY + window.innerHeight;
-      const st = entranceTriggers.find(t => t.trigger === el);
-      console.log(
-        el.className.split(' ').join('.'),
-        '| docTop:', docTop,
-        '| viewportBottom:', viewportBottom,
-        '| inView:', docTop < viewportBottom,
-        '| entranceComplete:', el._entranceComplete,
-        '| hasTrigger:', !!st,
-        '| triggerStart:', st ? st.start : 'n/a',
-      );
-    });
-  }, 600);
 
   let resizeTimer;
   window.addEventListener('resize', () => {
