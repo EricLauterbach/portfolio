@@ -241,14 +241,10 @@ barba.hooks.after((data) => {
   }
 
   // Entrance animations — every page, always last
-  document.fonts.ready.then(() => {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        ScrollTrigger.refresh();
-        initEntranceAnimations();
-      });
-    });
-  });
+  setTimeout(() => {
+    ScrollTrigger.refresh();
+    initEntranceAnimations();
+  }, 500);
 
   if (pendingHash) {
     const hash = pendingHash;
@@ -1552,14 +1548,10 @@ function onPageLoad() {
   }
 
   // Entrance animations — every page, after fonts and layout are ready
-  document.fonts.ready.then(() => {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        ScrollTrigger.refresh();
-        initEntranceAnimations();
-      });
-    });
-  });
+  setTimeout(() => {
+    ScrollTrigger.refresh();
+    initEntranceAnimations();
+  }, 300);
 }
 
 // Handle both cases — already loaded or not yet
