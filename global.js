@@ -1256,17 +1256,16 @@ function initCopyleaksMarketing() {
   const css = (variable) => getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
   
   window.marketingSlider1 = new Splide('#marketingSlider1', {
-    type: 'loop',
+    type: 'slide',
     drag: 'free',
-    clones: 0,
-    trimSpace: true,
+    perPage: 4,
+    perMove: 1,
     focus: '1',
     arrows: false,
     pagination: false,
     autoWidth: true,
     autoplay: false,
     snap: true,
-    perMove: 1,
     speed: 3000,
     interval: 5000,
     padding: { left: css('--_portfolio-spacing---spacing-large') },
@@ -1275,12 +1274,15 @@ function initCopyleaksMarketing() {
     breakpoints: {
   		992: {
   			padding: css('--_portfolio-spacing---spacing-medium'),
+        perPage: 4,
   		},
       768: {
   			padding: css('--_portfolio-spacing---spacing-small'),
+        perPage: 3,
   		},
       480: {
   			padding: css('--_portfolio-spacing---spacing-tiny'),
+        perPage: 2,
   		},
     }
     
