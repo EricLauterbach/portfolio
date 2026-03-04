@@ -108,6 +108,17 @@ function initLottieElements(loadAll = false) {
 
       el._lottieInstance = instance;
 
+      instance.addEventListener('DOMLoaded', () => {
+        if (el.dataset.lottieFill) {
+          const svg = el.querySelector('svg');
+          if (svg) {
+            svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+            svg.style.width = '100%';
+            svg.style.height = '100%';
+          }
+        }
+      });
+
       if (hoverContainer && !hoverContainer._hoverBound) {
         hoverContainer._hoverBound = true;
 
