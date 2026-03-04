@@ -369,14 +369,11 @@ const ENTRANCE_SELECTORS = [
 ];
 
 function initEntranceAnimations() {
-  if (!elements.length) return;
+  if (!ENTRANCE_SELECTORS.length) return;
 
-  // Set initial state immediately to prevent flash of natural position
-  elements.forEach(el => {
-    if (!el._entranceComplete) {
-      gsap.set(el, { y: Y_OFFSET });
-    }
-  });
+  const Y_OFFSET = 100;
+  const DURATION = 1.5;
+  const STAGGER_OFFSET = 0.15;
 
   const elements = [];
   ENTRANCE_SELECTORS.forEach(selector => {
@@ -387,9 +384,12 @@ function initEntranceAnimations() {
 
   if (!elements.length) return;
 
-  const Y_OFFSET = 100;
-  const DURATION = 1.5;
-  const STAGGER_OFFSET = 0.15;
+  // Set initial state immediately to prevent flash of natural position
+  elements.forEach(el => {
+    if (!el._entranceComplete) {
+      gsap.set(el, { y: Y_OFFSET });
+    }
+  });
 
   let entranceTriggers = [];
 
@@ -404,7 +404,7 @@ function initEntranceAnimations() {
     const rows = {};
     sorted.forEach(el => {
       if (el._entranceComplete) return;
-      const top = Math.round(window.smoother.offset(el, "top") / 10) * 10;
+      const top = Math.round(window.smoother.offset(el, 'top') / 10) * 10;
       if (!rows[top]) rows[top] = [];
       rows[top].push(el);
     });
@@ -412,7 +412,7 @@ function initEntranceAnimations() {
     sorted.forEach(el => {
       if (el._entranceComplete) return;
 
-      const top = Math.round(window.smoother.offset(el, "top") / 10) * 10;
+      const top = Math.round(window.smoother.offset(el, 'top') / 10) * 10;
       const row = rows[top];
       const indexInRow = row ? row.indexOf(el) : 0;
       const staggerDelay = (row && row.length > 1) ? indexInRow * STAGGER_OFFSET : 0;
