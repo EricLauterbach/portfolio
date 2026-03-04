@@ -360,6 +360,16 @@ const ENTRANCE_SELECTORS = [
   '.contentcontainerportfolioproject',
 ];
 
+function getDocumentTop(el) {
+  let top = 0;
+  let current = el;
+  while (current) {
+    top += current.offsetTop;
+    current = current.offsetParent;
+  }
+  return top;
+}
+
 function initEntranceAnimations() {
   if (!ENTRANCE_SELECTORS.length) return;
 
@@ -382,10 +392,9 @@ function initEntranceAnimations() {
     entranceTriggers.forEach(st => st.kill());
     entranceTriggers = [];
 
-    // Use offsetTop for row grouping — stable regardless of scroll position
     const rows = {};
     elements.forEach(el => {
-      const top = Math.round(el.offsetTop / 10) * 10;
+      const top = Math.round(getDocumentTop(el) / 10) * 10;
       if (!rows[top]) rows[top] = [];
       rows[top].push(el);
     });
@@ -393,7 +402,7 @@ function initEntranceAnimations() {
     elements.forEach(el => {
       if (el._entranceComplete) return;
 
-      const top = Math.round(el.offsetTop / 10) * 10;
+      const top = Math.round(getDocumentTop(el) / 10) * 10;
       const row = rows[top];
       const indexInRow = row.indexOf(el);
       const isInRow = row.length > 1;
@@ -433,6 +442,8 @@ function initEntranceAnimations() {
     }, 250);
   });
 }
+
+
 
 // ============================================================
 // GLOBAL INIT — runs on load + after every Barba transition
