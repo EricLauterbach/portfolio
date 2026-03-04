@@ -213,6 +213,9 @@ barba.hooks.after((data) => {
   reinitWebflow();
   initAll();
 
+  // Prime entrance positions immediately so elements never flash natural position
+  primeEntranceAnimations();
+
   const namespace = data.next.namespace;
   if (namespace === 'home') initHomePage();
   if (namespace === 'copyleaks-animations') {
@@ -374,6 +377,7 @@ function initEntranceAnimations() {
   const Y_OFFSET = 100;
   const DURATION = 1.5;
   const STAGGER_OFFSET = 0.15;
+  const INITIAL_DELAY = 0.3; // minimum delay for elements already in viewport on load
 
   const elements = [];
   ENTRANCE_SELECTORS.forEach(selector => {
@@ -409,6 +413,9 @@ function initEntranceAnimations() {
       rows[top].push(el);
     });
 
+    // Track whether this is the first time triggers are built (page init)
+    const isInit = entranceTriggers.length === 0;
+
     sorted.forEach(el => {
       if (el._entranceComplete) return;
 
@@ -416,6 +423,12 @@ function initEntranceAnimations() {
       const row = rows[top];
       const indexInRow = row ? row.indexOf(el) : 0;
       const staggerDelay = (row && row.length > 1) ? indexInRow * STAGGER_OFFSET : 0;
+
+      // Check if element is already in viewport at init time
+      const scrollY = window.smoother ? window.smoother.scrollTop() : window.scrollY;
+      const viewportBottom = scrollY + window.innerHeight;
+      const alreadyInView = window.smoother.offset(el, 'top') <= viewportBottom;
+      const initDelay = alreadyInView ? INITIAL_DELAY + staggerDelay : staggerDelay;
 
       const st = ScrollTrigger.create({
         trigger: el,
@@ -426,7 +439,7 @@ function initEntranceAnimations() {
           gsap.to(el, {
             y: 0,
             duration: DURATION,
-            delay: staggerDelay,
+            delay: initDelay,
             ease: 'elastic.out(1,1)',
             overwrite: false,
           });
@@ -448,6 +461,18 @@ function initEntranceAnimations() {
     }, 250);
   });
 }
+
+function primeEntranceAnimations() {
+  ENTRANCE_SELECTORS.forEach(selector => {
+    document.querySelectorAll(selector).forEach(el => {
+      if (!el._entranceComplete) {
+        gsap.set(el, { y: 100 });
+      }
+    });
+  });
+}
+
+
 
 // ============================================================
 // GLOBAL INIT — runs on load + after every Barba transition
@@ -1509,6 +1534,8 @@ function onPageLoad() {
       initCopyleaksMarketing();
     }, 100);
   }
+
+  primeEntranceAnimations(); // prime before delay
 
   setTimeout(() => {
     ScrollTrigger.refresh();
