@@ -347,6 +347,11 @@ barba.init({
 
 
 
+// ================================
+// SCROLL ENTRANCE ANIMATIONS
+// Add selectors here to apply entrance animation to any element
+// ================================
+
 const ENTRANCE_SELECTORS = [
   '.contentcontainerportfolioproject.copyleaksanimations',
   '.bentoitemportfoliohome',
@@ -377,12 +382,10 @@ function initEntranceAnimations() {
     entranceTriggers.forEach(st => st.kill());
     entranceTriggers = [];
 
-    // Sort elements by their DOM position top-to-bottom
     const sorted = [...elements].sort((a, b) =>
       a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1
     );
 
-    // Group into rows by rounding their ScrollSmoother offset
     const rows = {};
     sorted.forEach(el => {
       if (el._entranceComplete) return;
@@ -399,11 +402,14 @@ function initEntranceAnimations() {
       const indexInRow = row ? row.indexOf(el) : 0;
       const staggerDelay = (row && row.length > 1) ? indexInRow * STAGGER_OFFSET : 0;
 
+      const isTall = el.offsetHeight > window.innerHeight * 0.5;
+      const startPos = isTall ? 'top 80%' : 'top bottom';
+
       gsap.set(el, { y: Y_OFFSET });
 
       const st = ScrollTrigger.create({
         trigger: el,
-        start: 'top bottom',
+        start: startPos,
         invalidateOnRefresh: true,
         onEnter: () => {
           el._entranceComplete = true;
@@ -432,7 +438,6 @@ function initEntranceAnimations() {
     }, 250);
   });
 }
-
 
 // ============================================================
 // GLOBAL INIT — runs on load + after every Barba transition
