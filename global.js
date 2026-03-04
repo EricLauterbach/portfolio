@@ -225,7 +225,12 @@ barba.hooks.after((data) => {
     }, 500);
   }
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
-  if (namespace === 'copyleaks-marketing') initCopyleaksMarketing();
+  if (namespace === 'copyleaks-marketing') {
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+      initCopyleaksMarketing();
+    }, 300);
+  }
 
   if (pendingHash) {
     const hash = pendingHash;
@@ -1248,22 +1253,27 @@ function initCopyleaksWebsite() {
 // ============================================================
 
 function initCopyleaksMarketing() {
+  
+  if (window.marketingSlider1) {
+    window.marketingSlider1.destroy();
+    window.marketingSlider1 = null;
+  }
 
-    window.marketingSlider1 = new Splide('#marketingSlider1', {
-      type: 'loop', 
-      drag: 'free', 
-      focus: '1', 
-      arrows: false, 
-      pagination: false,
-      autoWidth: true, 
-      autoplay: false, 
-      snap: true, 
-      perMove: 1,
-      padding: { left: 29 },
-      easing: 'cubic-bezier(.09,1.88,.5,.92)',
-    });
-    window.marketingSlider1.mount();
-
+  window.marketingSlider1 = new Splide('#marketingSlider1', {
+    type: 'loop',
+    drag: 'free',
+    focus: '1',
+    arrows: false,
+    pagination: false,
+    autoWidth: true,
+    autoplay: false,
+    snap: true,
+    perMove: 1,
+    padding: { left: 29 },
+    easing: 'cubic-bezier(.09,1.88,.5,.92)',
+  });
+  window.marketingSlider1.mount();
+  
 }
 
 
@@ -1464,7 +1474,11 @@ function onPageLoad() {
     }, 100);
   }
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
-  if (namespace === 'copyleaks-marketing') initCopyleaksMarketing();
+  if (namespace === 'copyleaks-marketing') {
+    setTimeout(() => {
+      initCopyleaksMarketing();
+    }, 300);
+  }
 }
 
 // Handle both cases — already loaded or not yet
