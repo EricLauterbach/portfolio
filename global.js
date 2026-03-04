@@ -444,6 +444,24 @@ function initEntranceAnimations() {
 
   buildTriggers();
 
+  setTimeout(() => {
+    elements.forEach(el => {
+      const docTop = getDocumentTop(el);
+      const scrollY = window.smoother ? window.smoother.scrollTop() : window.scrollY;
+      const viewportBottom = scrollY + window.innerHeight;
+      const st = entranceTriggers.find(t => t.trigger === el);
+      console.log(
+        el.className.split(' ').join('.'),
+        '| docTop:', docTop,
+        '| viewportBottom:', viewportBottom,
+        '| inView:', docTop < viewportBottom,
+        '| entranceComplete:', el._entranceComplete,
+        '| hasTrigger:', !!st,
+        '| triggerStart:', st ? st.start : 'n/a',
+      );
+    });
+  }, 600);
+
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
