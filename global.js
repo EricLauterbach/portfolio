@@ -444,18 +444,12 @@ function initEntranceAnimations() {
     // Check immediately in case elements are already in view
     checkElements();
   
-    // Use ScrollSmoother's scroll event if available, otherwise window scroll
-    if (window.smoother) {
-      window.smoother.el.addEventListener('scroll', checkElements);
-      entranceTriggers.push({
-        kill: () => window.smoother?.el.removeEventListener('scroll', checkElements)
-      });
-    } else {
-      window.addEventListener('scroll', checkElements);
-      entranceTriggers.push({
-        kill: () => window.removeEventListener('scroll', checkElements)
-      });
-    }
+    // Use the smooth wrapper element if available, otherwise window
+    const scrollEl = document.querySelector('#smooth-wrapper') || window;
+    scrollEl.addEventListener('scroll', checkElements);
+    entranceTriggers.push({
+      kill: () => scrollEl.removeEventListener('scroll', checkElements)
+    });
   }
 
   buildTriggers();
