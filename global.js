@@ -226,6 +226,9 @@ barba.hooks.after((data) => {
   }
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
   if (namespace === 'copyleaks-marketing') {
+
+    console.log('marketing namespace detected in after hook');
+    
     setTimeout(() => {
       ScrollTrigger.refresh();
       initCopyleaksMarketing();
@@ -1253,6 +1256,10 @@ function initCopyleaksWebsite() {
 // ============================================================
 
 function initCopyleaksMarketing() {
+
+  console.log('initCopyleaksMarketing called');
+  console.trace();
+  
   if (window._marketingSlider1) {
     window._marketingSlider1.destroy();
     window._marketingSlider1 = null;
