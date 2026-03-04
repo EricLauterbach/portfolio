@@ -41,7 +41,7 @@ function initSmoother(restoreScroll = false) {
   window.smoother = ScrollSmoother.create({
     wrapper: '#smooth-wrapper',
     content: '#smooth-content',
-    smooth: 0,
+    smooth: 1,
     effects: true,
     normalizeScroll: true,
   });
@@ -230,6 +230,9 @@ barba.hooks.after((data) => {
     setTimeout(() => {
       initCopyleaksMarketing();
     }, 300);
+    setTimeout(() => {
+      initEntranceAnimations();
+    }, 500);
   }
 
   if (pendingHash) {
@@ -1469,7 +1472,7 @@ function initCopyleaksMarketing() {
 window.smoother = ScrollSmoother.create({
   wrapper: '#smooth-wrapper',
   content: '#smooth-content',
-  smooth: 0,
+  smooth: 1,
   effects: true,
   normalizeScroll: true,
 });
@@ -1495,6 +1498,7 @@ function onPageLoad() {
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
   if (namespace === 'copyleaks-marketing') {
     setTimeout(() => {
+      initEntranceAnimations();
       initCopyleaksMarketing();
     }, 300);
   }
