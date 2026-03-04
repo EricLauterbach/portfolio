@@ -226,13 +226,13 @@ barba.hooks.after((data) => {
   }
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
   if (namespace === 'copyleaks-marketing') {
-
-    console.log('marketing namespace detected in after hook');
-    
-    setTimeout(() => {
-      ScrollTrigger.refresh();
-      initCopyleaksMarketing();
-    }, 500);
+    const waitForSmoother = setInterval(() => {
+      if (window.smoother) {
+        clearInterval(waitForSmoother);
+        ScrollTrigger.refresh();
+        initCopyleaksMarketing();
+      }
+    }, 50);
   }
 
   if (pendingHash) {
@@ -1491,9 +1491,13 @@ function onPageLoad() {
   }
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
   if (namespace === 'copyleaks-marketing') {
-    setTimeout(() => {
-      initCopyleaksMarketing();
-    }, 300);
+    const waitForSmoother = setInterval(() => {
+      if (window.smoother) {
+        clearInterval(waitForSmoother);
+        ScrollTrigger.refresh();
+        initCopyleaksMarketing();
+      }
+    }, 50);
   }
 }
 
