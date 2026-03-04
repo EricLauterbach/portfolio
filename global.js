@@ -405,34 +405,40 @@ function initEntranceAnimations() {
       if (typeof st.kill === 'function') st.kill();
     });
     entranceTriggers = [];
-
+  
     const rows = {};
     const elData = new WeakMap();
-
+  
+    // First pass: measure all positions BEFORE any gsap.set
+    const topCache = new Map();
     elements.forEach(el => {
       const top = Math.round(getDocumentTop(el) / 10) * 10;
+      topCache.set(el, top);
       if (!rows[top]) rows[top] = [];
       rows[top].push(el);
     });
-
+  
+    // Second pass: compute stagger data using cached tops
     elements.forEach(el => {
       if (el._entranceComplete) return;
-
-      const top = Math.round(getDocumentTop(el) / 10) * 10;
+      const top = topCache.get(el);
       const row = rows[top];
       const indexInRow = row ? row.indexOf(el) : 0;
       const staggerDelay = (row && row.length > 1) ? indexInRow * STAGGER_OFFSET : 0;
-      const docTop = getDocumentTop(el);
-
-      elData.set(el, { docTop, staggerDelay });
+      elData.set(el, { docTop: top, staggerDelay });
+    });
+  
+    // Third pass: apply gsap.set AFTER all measurements are done
+    elements.forEach(el => {
+      if (el._entranceComplete) return;
       gsap.set(el, { y: Y_OFFSET });
     });
-
+  
     function checkElements() {
       const scrollY = window.smoother ? window.smoother.scrollTop() : window.scrollY;
       const viewportBottom = scrollY + window.innerHeight;
       let allDone = true;
-
+  
       elements.forEach(el => {
         if (el._entranceComplete) return;
         allDone = false;
@@ -442,10 +448,10 @@ function initEntranceAnimations() {
           triggerEntrance(el, data.staggerDelay);
         }
       });
-
+  
       if (allDone) gsap.ticker.remove(checkElements);
     }
-
+  
     gsap.ticker.add(checkElements);
     entranceTriggers.push({ kill: () => gsap.ticker.remove(checkElements) });
   }
