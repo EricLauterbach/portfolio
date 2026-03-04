@@ -1253,18 +1253,17 @@ function initCopyleaksWebsite() {
 // ============================================================
 
 function initCopyleaksMarketing() {
-  if (window.marketingSlider1) {
-    window.marketingSlider1.destroy();
-    window.marketingSlider1 = null;
+  if (window._marketingSlider1) {
+    window._marketingSlider1.destroy();
+    window._marketingSlider1 = null;
   }
 
   const el = document.querySelector('#marketingSlider1');
   if (!el) return;
 
-  // Force Splide to recalculate after layout is real
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      window.marketingSlider1 = new Splide('#marketingSlider1', {
+      window._marketingSlider1 = new Splide('#marketingSlider1', {
         type: 'loop',
         drag: 'free',
         focus: '1',
@@ -1277,11 +1276,10 @@ function initCopyleaksMarketing() {
         padding: { left: 29 },
         easing: 'cubic-bezier(.09,1.88,.5,.92)',
       });
-      window.marketingSlider1.mount();
-      
-      // Force refresh after mount in case dimensions were still settling
+      window._marketingSlider1.mount();
+
       setTimeout(() => {
-        window.marketingSlider1.refresh();
+        window._marketingSlider1.refresh();
       }, 100);
     });
   });
