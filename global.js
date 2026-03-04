@@ -381,7 +381,7 @@ function initEntranceAnimations() {
   const Y_OFFSET = 100;
   const DURATION = 1.5;
   const STAGGER_OFFSET = 0.15;
-  const INITIAL_DELAY = 0.6; // minimum delay for elements already in viewport on load
+  const INITIAL_DELAY = 0.8; // minimum delay for elements already in viewport on load
 
   const elements = [];
   ENTRANCE_SELECTORS.forEach(selector => {
