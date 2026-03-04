@@ -388,6 +388,18 @@ function initEntranceAnimations() {
 
   let entranceTriggers = [];
 
+  function triggerEntrance(el, staggerDelay) {
+    if (el._entranceComplete) return;
+    el._entranceComplete = true;
+    gsap.to(el, {
+      y: 0,
+      duration: DURATION,
+      delay: staggerDelay,
+      ease: 'elastic.out(1,1)',
+      overwrite: false,
+    });
+  }
+
   function buildTriggers() {
     entranceTriggers.forEach(st => st.kill());
     entranceTriggers = [];
@@ -398,6 +410,9 @@ function initEntranceAnimations() {
       if (!rows[top]) rows[top] = [];
       rows[top].push(el);
     });
+
+    const scrollY = window.smoother ? window.smoother.scrollTop() : window.scrollY;
+    const viewportBottom = scrollY + window.innerHeight;
 
     elements.forEach(el => {
       if (el._entranceComplete) return;
@@ -410,21 +425,17 @@ function initEntranceAnimations() {
 
       gsap.set(el, { y: Y_OFFSET });
 
+      // If already in viewport at init time, trigger immediately
+      if (getDocumentTop(el) < viewportBottom) {
+        triggerEntrance(el, staggerDelay);
+        return;
+      }
+
       const st = ScrollTrigger.create({
         trigger: el,
         start: 'top bottom',
         invalidateOnRefresh: true,
-        scroller: window.smoother ? window.smoother.el : undefined,
-        onEnter: () => {
-          el._entranceComplete = true;
-          gsap.to(el, {
-            y: 0,
-            duration: DURATION,
-            delay: staggerDelay,
-            ease: 'elastic.out(1,1)',
-            overwrite: false,
-          });
-        },
+        onEnter: () => triggerEntrance(el, staggerDelay),
       });
 
       entranceTriggers.push(st);
@@ -442,7 +453,6 @@ function initEntranceAnimations() {
     }, 250);
   });
 }
-
 
 
 // ============================================================
