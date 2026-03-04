@@ -1258,10 +1258,11 @@ function initCopyleaksMarketing() {
   window.marketingSlider1 = new Splide('#marketingSlider1', {
     type: 'loop',
     drag: 'free',
+    clones: 0,
     focus: '1',
     arrows: false,
     pagination: false,
-    autoWidth: false,
+    autoWidth: true,
     autoplay: false,
     snap: true,
     perMove: 1,
