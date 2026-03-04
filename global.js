@@ -369,7 +369,14 @@ const ENTRANCE_SELECTORS = [
 ];
 
 function initEntranceAnimations() {
-  if (!ENTRANCE_SELECTORS.length) return;
+  if (!elements.length) return;
+
+  // Set initial state immediately to prevent flash of natural position
+  elements.forEach(el => {
+    if (!el._entranceComplete) {
+      gsap.set(el, { y: Y_OFFSET });
+    }
+  });
 
   const elements = [];
   ENTRANCE_SELECTORS.forEach(selector => {
@@ -409,8 +416,6 @@ function initEntranceAnimations() {
       const row = rows[top];
       const indexInRow = row ? row.indexOf(el) : 0;
       const staggerDelay = (row && row.length > 1) ? indexInRow * STAGGER_OFFSET : 0;
-
-      gsap.set(el, { y: Y_OFFSET });
 
       const st = ScrollTrigger.create({
         trigger: el,
