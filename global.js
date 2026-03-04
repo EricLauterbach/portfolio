@@ -358,7 +358,7 @@ const ENTRANCE_SELECTORS = [
   '.projectportfoliohome',
   '.contactbuttonportfolio',
   '.contentcontainerportfolioproject',
-  '.contentimagecontainerportfolioproject',
+  '.contentimagecontainerportfolioproject.pageslide',
 ];
 
 function initEntranceAnimations() {
