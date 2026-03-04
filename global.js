@@ -378,10 +378,19 @@ const ENTRANCE_SELECTORS = [
 function initEntranceAnimations() {
   if (!ENTRANCE_SELECTORS.length) return;
 
+  // Inject CSS immediately to prevent FOUC — applies before first paint
+  if (!document.getElementById('entrance-animation-styles')) {
+    const style = document.createElement('style');
+    style.id = 'entrance-animation-styles';
+    style.textContent = ENTRANCE_SELECTORS.map(sel => sel.trim()).join(',\n') +
+      ' { transform: translateY(100px); }';
+    document.head.appendChild(style);
+  }
+
   const Y_OFFSET = 100;
   const DURATION = 1.5;
   const STAGGER_OFFSET = 0.15;
-  const IN_VIEW_DELAY = 0.3; // base delay for elements already visible on load
+  const IN_VIEW_DELAY = 0.3;
 
   const elements = [];
   ENTRANCE_SELECTORS.forEach(selector => {
@@ -437,7 +446,7 @@ function initEntranceAnimations() {
     });
 
     // Animate in-view elements directly — no ScrollTrigger, just a clean staggered delay
-    inViewElements.forEach((el, i) => {
+    inViewElements.forEach((el) => {
       const top = Math.round(window.smoother.offset(el, 'top') / 10) * 10;
       const row = rows[top];
       const indexInRow = row ? row.indexOf(el) : 0;
@@ -478,6 +487,10 @@ function initEntranceAnimations() {
 
       entranceTriggers.push(st);
     });
+
+    // Remove injected style once GSAP has taken over
+    const injectedStyle = document.getElementById('entrance-animation-styles');
+    if (injectedStyle) injectedStyle.remove();
   }
 
   buildTriggers();
@@ -491,7 +504,6 @@ function initEntranceAnimations() {
     }, 250);
   });
 }
-
 
 // ============================================================
 // GLOBAL INIT — runs on load + after every Barba transition
