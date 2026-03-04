@@ -361,9 +361,10 @@ const ENTRANCE_SELECTORS = [
 ];
 
 function getDocumentTop(el) {
-  const rect = el.getBoundingClientRect();
-  const scrollY = window.smoother ? window.smoother.scrollTop() : window.scrollY;
-  return rect.top + scrollY;
+  if (window.smoother) {
+    return window.smoother.offset(el, "top");
+  }
+  return el.getBoundingClientRect().top + window.scrollY;
 }
 
 function initEntranceAnimations() {
@@ -414,18 +415,15 @@ function initEntranceAnimations() {
       rows[top].push(el);
     });
 
-    // Second pass: compute stagger + cache docTop and docBottom
+    // Second pass: compute stagger + cache docTop
     elements.forEach(el => {
       if (el._entranceComplete) return;
       const top = topCache.get(el);
       const row = rows[top];
       const indexInRow = row ? row.indexOf(el) : 0;
       const staggerDelay = (row && row.length > 1) ? indexInRow * STAGGER_OFFSET : 0;
-      const rect = el.getBoundingClientRect();
-      const scrollY = window.smoother ? window.smoother.scrollTop() : window.scrollY;
       elData.set(el, {
         docTop: top,
-        docBottom: rect.bottom + scrollY,
         staggerDelay,
       });
     });
@@ -438,7 +436,6 @@ function initEntranceAnimations() {
 
     function checkElements() {
       const scrollY = window.smoother ? window.smoother.scrollTop() : window.scrollY;
-      const viewportTop = scrollY;
       const viewportBottom = scrollY + window.innerHeight;
       let allDone = true;
 
@@ -447,8 +444,7 @@ function initEntranceAnimations() {
         allDone = false;
         const data = elData.get(el);
         if (!data) return;
-        // Trigger if top edge is within viewport + buffer, OR element is already straddling/past viewport
-        if (data.docTop <= viewportBottom + 200 || data.docBottom >= viewportTop) {
+        if (data.docTop <= viewportBottom) {
           triggerEntrance(el, data.staggerDelay);
         }
       });
