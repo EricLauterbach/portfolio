@@ -229,6 +229,15 @@ barba.hooks.after((data) => {
     const waitForSmoother = setInterval(() => {
       if (window.smoother) {
         clearInterval(waitForSmoother);
+        
+        const el = document.querySelector('#marketingSlider1');
+        console.log('smoother ready');
+        console.log('element:', el);
+        console.log('element width:', el?.offsetWidth);
+        console.log('element height:', el?.offsetHeight);
+        console.log('parent width:', el?.parentElement?.offsetWidth);
+        console.log('track:', el?.querySelector('.splide__track')?.offsetWidth);
+        
         ScrollTrigger.refresh();
         initCopyleaksMarketing();
       }
@@ -1494,6 +1503,15 @@ function onPageLoad() {
     const waitForSmoother = setInterval(() => {
       if (window.smoother) {
         clearInterval(waitForSmoother);
+        
+        const el = document.querySelector('#marketingSlider1');
+        console.log('smoother ready');
+        console.log('element:', el);
+        console.log('element width:', el?.offsetWidth);
+        console.log('element height:', el?.offsetHeight);
+        console.log('parent width:', el?.parentElement?.offsetWidth);
+        console.log('track:', el?.querySelector('.splide__track')?.offsetWidth);
+        
         ScrollTrigger.refresh();
         initCopyleaksMarketing();
       }
