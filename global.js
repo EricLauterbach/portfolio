@@ -112,13 +112,26 @@ function initLottieElements(loadAll = false) {
         if (el.dataset.lottieFill) {
           const svg = el.querySelector('svg');
           if (svg) {
-            svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-            svg.style.position = 'absolute';
-            svg.style.width = '100%';
-            svg.style.height = '100%';
-            svg.style.top = '0';
-            svg.style.left = '0';
-            el.style.position = 'relative';
+            // Get natural aspect ratio from viewBox
+            const viewBox = svg.getAttribute('viewBox')?.split(' ');
+            const vbWidth = viewBox ? parseFloat(viewBox[2]) : 0;
+            const vbHeight = viewBox ? parseFloat(viewBox[3]) : 0;
+      
+            // Wait one frame for grid to settle, then set height from container width
+            requestAnimationFrame(() => {
+              const containerWidth = el.offsetWidth || el.parentElement?.offsetWidth;
+              if (containerWidth && vbWidth && vbHeight) {
+                const naturalHeight = (containerWidth * vbHeight) / vbWidth;
+                el.style.height = naturalHeight + 'px';
+              }
+              svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+              svg.style.position = 'absolute';
+              svg.style.width = '100%';
+              svg.style.height = '100%';
+              svg.style.top = '0';
+              svg.style.left = '0';
+              el.style.position = 'relative';
+            });
           }
         }
       });
