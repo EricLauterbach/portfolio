@@ -382,9 +382,10 @@ function initEntranceAnimations() {
     entranceTriggers.forEach(st => st.kill());
     entranceTriggers = [];
 
+    // Use offsetTop for row grouping — stable regardless of scroll position
     const rows = {};
     elements.forEach(el => {
-      const top = Math.round(el.getBoundingClientRect().top / 10) * 10;
+      const top = Math.round(el.offsetTop / 10) * 10;
       if (!rows[top]) rows[top] = [];
       rows[top].push(el);
     });
@@ -392,7 +393,7 @@ function initEntranceAnimations() {
     elements.forEach(el => {
       if (el._entranceComplete) return;
 
-      const top = Math.round(el.getBoundingClientRect().top / 10) * 10;
+      const top = Math.round(el.offsetTop / 10) * 10;
       const row = rows[top];
       const indexInRow = row.indexOf(el);
       const isInRow = row.length > 1;
@@ -404,6 +405,7 @@ function initEntranceAnimations() {
         trigger: el,
         start: 'top bottom',
         invalidateOnRefresh: true,
+        scroller: window.smoother ? window.smoother.el : undefined,
         onEnter: () => {
           el._entranceComplete = true;
           gsap.to(el, {
@@ -431,7 +433,6 @@ function initEntranceAnimations() {
     }, 250);
   });
 }
-
 
 // ============================================================
 // GLOBAL INIT — runs on load + after every Barba transition
