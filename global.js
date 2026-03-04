@@ -61,7 +61,6 @@ function loadLottie() {
   return new Promise((resolve) => {
     if (typeof lottie !== 'undefined') { resolve(); return; }
     if (lottieLoaded) {
-      // Already injected but not resolved yet — poll
       const poll = setInterval(() => {
         if (typeof lottie !== 'undefined') { clearInterval(poll); resolve(); }
       }, 50);
@@ -75,16 +74,12 @@ function loadLottie() {
   });
 }
 
-function initLottieElements(loadAll = false) {
+function initLottieElements() {
   loadLottie().then(() => {
-    const elements = Array.from(document.querySelectorAll('[data-animation-type="lottie"]'));
-    window._lottieObservers = window._lottieObservers || [];
-
-    function loadElement(el) {
+    document.querySelectorAll('[data-animation-type="lottie"]').forEach((el) => {
       if (el._lottieInstance) {
         el._lottieInstance.destroy();
         el._lottieInstance = null;
-        el._fillApplied = false; // reset so DOMLoaded can fire cleanly for new instance
       }
 
       const src = el.getAttribute('data-src');
@@ -109,46 +104,6 @@ function initLottieElements(loadAll = false) {
 
       el._lottieInstance = instance;
 
-      instance.addEventListener('DOMLoaded', () => {
-        if (el._fillApplied) return;
-        el._fillApplied = true;
-      
-        if (el.dataset.lottieFill) {
-          const svg = el.querySelector('svg');
-          if (svg) {
-            const viewBox = svg.getAttribute('viewBox')?.split(' ');
-            const vbWidth = viewBox ? parseFloat(viewBox[2]) : 0;
-            const vbHeight = viewBox ? parseFloat(viewBox[3]) : 0;
-      
-            svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-            svg.style.position = 'absolute';
-            svg.style.width = '100%';
-            svg.style.height = '100%';
-            svg.style.top = '0';
-            svg.style.left = '0';
-            el.style.position = 'relative';
-      
-            function applyHeight() {
-              // Walk up until we find a parent with a real width
-              let ref = el;
-              let containerWidth = 0;
-              while (ref && containerWidth < 50) {
-                containerWidth = ref.offsetWidth;
-                ref = ref.parentElement;
-              }
-              if (containerWidth && vbWidth && vbHeight) {
-                el.style.height = (containerWidth * vbHeight / vbWidth) + 'px';
-              }
-            }
-            
-            applyHeight();
-            setTimeout(applyHeight, 100);
-            setTimeout(applyHeight, 400);
-            setTimeout(applyHeight, 800); // extra safety for Barba
-          }
-        }
-      });
-      
       if (hoverContainer && !hoverContainer._hoverBound) {
         hoverContainer._hoverBound = true;
 
@@ -170,27 +125,7 @@ function initLottieElements(loadAll = false) {
           inst.play();
         });
       }
-    }
-
-    if (loadAll) {
-      // Barba transition: load everything immediately, no observer needed
-      elements.forEach(el => loadElement(el));
-    } else {
-      // Direct page load: use IntersectionObserver to stagger loading
-      const obs = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (!entry.isIntersecting) return;
-          obs.unobserve(entry.target);
-          loadElement(entry.target);
-        });
-      }, {
-        root: document.querySelector('#smooth-content') || null,
-        rootMargin: '400px 0px',
-      });
-
-      elements.forEach(el => obs.observe(el));
-      window._lottieObservers.push(obs);
-    }
+    });
   });
 }
 
@@ -286,10 +221,9 @@ barba.hooks.after((data) => {
       initCopyleaksAnimations();
     }, 300);
     setTimeout(() => {
-      initEntranceAnimations(); // separate, later timeout so layout is fully settled
+      initEntranceAnimations();
     }, 500);
   }
-  
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
 
   if (pendingHash) {
@@ -469,7 +403,7 @@ function initEntranceAnimations() {
             duration: DURATION,
             delay: staggerDelay,
             ease: 'elastic.out(1,1)',
-            overwrite: false, // don't kill other tweens on this element
+            overwrite: false,
           });
         },
       });
@@ -489,10 +423,6 @@ function initEntranceAnimations() {
     }, 250);
   });
 }
-
-
-
-
 
 
 // ============================================================
@@ -1043,7 +973,7 @@ function initHomePage() {
         }
       });
     });
-    
+
     item.addEventListener("mouseleave", () => {
       isHovered = false;
       gsap.killTweensOf(smallButton);
@@ -1497,16 +1427,14 @@ function onPageLoad() {
   initAll();
 
   const namespace = document.querySelector('[data-barba="container"]')?.dataset?.barbaNamespace;
-  console.log('onPageLoad fired, namespace:', namespace);
 
   if (namespace === 'home') initHomePage();
-  // In onPageLoad:
   if (namespace === 'copyleaks-animations') {
     setTimeout(() => {
       initLottieElements();
       initEntranceAnimations();
       initCopyleaksAnimations();
-    }, 100); // was 800
+    }, 100);
   }
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
 }
