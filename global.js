@@ -301,6 +301,8 @@ barba.init({
       to:   { namespace: ['home'] },
 
       async leave(data) {
+        if (window.forceCloseMobileContactMenu) window.forceCloseMobileContactMenu();
+        
         killSmoother();
         const scrollY = window.scrollY || window.pageYOffset;
         gsap.set(data.current.container, {
