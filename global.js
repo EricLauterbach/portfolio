@@ -357,6 +357,8 @@ const ENTRANCE_SELECTORS = [
   '.bentoitemportfoliohome',
   '.projectportfoliohome',
   '.contactbuttonportfolio',
+  '.contentcontainerportfolioproject',
+  '.contentimagecontainerportfolioproject',
 ];
 
 function initEntranceAnimations() {
