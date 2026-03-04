@@ -22,7 +22,7 @@ if ('scrollRestoration' in history) {
 const projectPages = [
   'copyleaks-animations',
   'copyleaks-website',
-  // 'next-project',
+  'copyleaks-marketing',
 ];
 
 let isFirstLoad = true;
@@ -225,6 +225,7 @@ barba.hooks.after((data) => {
     }, 500);
   }
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
+  if (namespace === 'copyleaks-marketing') initCopyleaksMarketing();
 
   if (pendingHash) {
     const hash = pendingHash;
@@ -1241,6 +1242,15 @@ function initCopyleaksWebsite() {
 
 
 // ============================================================
+// COPYLEAKS Marketing PAGE
+// ============================================================
+
+function initCopyleaksMarketing() {
+
+}
+
+
+// ============================================================
 // PROFILE TEXT LOOP
 // Runs once — interval persists across transitions naturally
 // ============================================================
@@ -1437,6 +1447,7 @@ function onPageLoad() {
     }, 100);
   }
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
+  if (namespace === 'copyleaks-marketing') initCopyleaksMarketing();
 }
 
 // Handle both cases — already loaded or not yet
