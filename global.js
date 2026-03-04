@@ -216,24 +216,28 @@ barba.hooks.after((data) => {
   const namespace = data.next.namespace;
   if (namespace === 'home') initHomePage();
   if (namespace === 'copyleaks-animations') {
-    setTimeout(() => {
-      ScrollTrigger.refresh();
-      initLottieElements();
-      initCopyleaksAnimations();
-    }, 300);
-    setTimeout(() => {
-      initEntranceAnimations();
-    }, 500);
-  }
-  if (namespace === 'copyleaks-website') initCopyleaksWebsite();
-  if (namespace === 'copyleaks-marketing') {
-    setTimeout(() => {
-      initCopyleaksMarketing();
-    }, 300);
-    setTimeout(() => {
-      initEntranceAnimations();
-    }, 500);
-  }
+  setTimeout(() => {
+    ScrollTrigger.refresh();
+    initLottieElements();
+    initCopyleaksAnimations();
+  }, 300);
+}
+if (namespace === 'copyleaks-marketing') {
+  setTimeout(() => {
+    initCopyleaksMarketing();
+  }, 300);
+}
+if (namespace === 'copyleaks-website') {
+  setTimeout(() => {
+    initCopyleaksWebsite();
+  }, 300);
+}
+
+// Entrance animations — every page, always last
+setTimeout(() => {
+  ScrollTrigger.refresh();
+  initEntranceAnimations();
+}, 500);
 
   if (pendingHash) {
     const hash = pendingHash;
@@ -1491,17 +1495,20 @@ function onPageLoad() {
   if (namespace === 'copyleaks-animations') {
     setTimeout(() => {
       initLottieElements();
-      initEntranceAnimations();
       initCopyleaksAnimations();
     }, 100);
   }
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
   if (namespace === 'copyleaks-marketing') {
     setTimeout(() => {
-      initEntranceAnimations();
       initCopyleaksMarketing();
-    }, 300);
+    }, 100);
   }
+
+  setTimeout(() => {
+    ScrollTrigger.refresh();
+    initEntranceAnimations();
+  }, 300);
 }
 
 // Handle both cases — already loaded or not yet
