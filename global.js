@@ -226,22 +226,9 @@ barba.hooks.after((data) => {
   }
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
   if (namespace === 'copyleaks-marketing') {
-    const waitForSmoother = setInterval(() => {
-      if (window.smoother) {
-        clearInterval(waitForSmoother);
-        
-        const el = document.querySelector('#marketingSlider1');
-        console.log('smoother ready');
-        console.log('element:', el);
-        console.log('element width:', el?.offsetWidth);
-        console.log('element height:', el?.offsetHeight);
-        console.log('parent width:', el?.parentElement?.offsetWidth);
-        console.log('track:', el?.querySelector('.splide__track')?.offsetWidth);
-        
-        ScrollTrigger.refresh();
-        initCopyleaksMarketing();
-      }
-    }, 50);
+    setTimeout(() => {
+      initCopyleaksMarketing();
+    }, 300);
   }
 
   if (pendingHash) {
@@ -1265,40 +1252,22 @@ function initCopyleaksWebsite() {
 // ============================================================
 
 function initCopyleaksMarketing() {
-
-  console.log('initCopyleaksMarketing called');
-  console.trace();
-  
-  if (window._marketingSlider1) {
-    window._marketingSlider1.destroy();
-    window._marketingSlider1 = null;
-  }
-
-  const el = document.querySelector('#marketingSlider1');
-  if (!el) return;
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      window._marketingSlider1 = new Splide('#marketingSlider1', {
-        type: 'loop',
-        drag: 'free',
-        focus: '1',
-        arrows: false,
-        pagination: false,
-        autoWidth: true,
-        autoplay: false,
-        snap: true,
-        perMove: 1,
-        padding: { left: 29 },
-        easing: 'cubic-bezier(.09,1.88,.5,.92)',
-      });
-      window._marketingSlider1.mount();
-
-      setTimeout(() => {
-        window._marketingSlider1.refresh();
-      }, 100);
-    });
+  window.marketingSlider1 = new Splide('#marketingSlider1', {
+    type: 'loop',
+    drag: 'free',
+    focus: '1',
+    arrows: false,
+    pagination: false,
+    autoWidth: true,
+    autoplay: false,
+    snap: true,
+    perMove: 1,
+    speed: 3000,
+    interval: 5000,
+    padding: { left: 29 },
+    easing: 'cubic-bezier(.09,1.88,.5,.92)',
   });
+  window.marketingSlider1.mount();
 }
 
 
@@ -1500,22 +1469,9 @@ function onPageLoad() {
   }
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
   if (namespace === 'copyleaks-marketing') {
-    const waitForSmoother = setInterval(() => {
-      if (window.smoother) {
-        clearInterval(waitForSmoother);
-        
-        const el = document.querySelector('#marketingSlider1');
-        console.log('smoother ready');
-        console.log('element:', el);
-        console.log('element width:', el?.offsetWidth);
-        console.log('element height:', el?.offsetHeight);
-        console.log('parent width:', el?.parentElement?.offsetWidth);
-        console.log('track:', el?.querySelector('.splide__track')?.offsetWidth);
-        
-        ScrollTrigger.refresh();
-        initCopyleaksMarketing();
-      }
-    }, 50);
+    setTimeout(() => {
+      initCopyleaksMarketing();
+    }, 300);
   }
 }
 
