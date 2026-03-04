@@ -1253,7 +1253,7 @@ function initCopyleaksWebsite() {
 
 function initCopyleaksMarketing() {
   window.marketingSlider1 = new Splide('#marketingSlider1', {
-    type: 'loop',
+    type: 'slide',
     drag: 'free',
     focus: '1',
     arrows: false,
@@ -1264,8 +1264,21 @@ function initCopyleaksMarketing() {
     perMove: 1,
     speed: 3000,
     interval: 5000,
-    padding: { left: 29 },
+    padding: { left: var(--_portfolio-spacing---spacing-large) },
     easing: 'cubic-bezier(.09,1.88,.5,.92)',
+
+    breakpoints: {
+  		992: {
+  			padding: var(--_portfolio-spacing---spacing-medium),
+  		},
+      768: {
+  			padding: var(--_portfolio-spacing---spacing-small),
+  		},
+      480: {
+  			padding: var(--_portfolio-spacing---spacing-tiny),
+  		},
+    }
+    
   });
   window.marketingSlider1.mount();
 }
