@@ -206,7 +206,7 @@ barba.hooks.beforeEnter((data) => {
 
   gsap.set(data.next.container, { opacity: 0 });
 
-  // Prime entrance elements before container is visible
+  // Prime entrance elements before container is visible — prevents flash of natural position
   ENTRANCE_SELECTORS.forEach(selector => {
     data.next.container.querySelectorAll(selector).forEach(el => {
       gsap.set(el, { y: 100 });
@@ -223,25 +223,25 @@ barba.hooks.after((data) => {
   const namespace = data.next.namespace;
   if (namespace === 'home') initHomePage();
   if (namespace === 'copyleaks-animations') {
-  setTimeout(() => {
-    ScrollTrigger.refresh();
-    initLottieElements();
-    initCopyleaksAnimations();
-  }, 300);
-}
-if (namespace === 'copyleaks-marketing') {
-  setTimeout(() => {
-    initCopyleaksMarketing();
-  }, 300);
-}
-if (namespace === 'copyleaks-website') {
-  setTimeout(() => {
-    initCopyleaksWebsite();
-  }, 300);
-}
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+      initLottieElements();
+      initCopyleaksAnimations();
+    }, 300);
+  }
+  if (namespace === 'copyleaks-marketing') {
+    setTimeout(() => {
+      initCopyleaksMarketing();
+    }, 300);
+  }
+  if (namespace === 'copyleaks-website') {
+    setTimeout(() => {
+      initCopyleaksWebsite();
+    }, 300);
+  }
 
-// Entrance animations — every page, always last
-document.fonts.ready.then(() => {
+  // Entrance animations — every page, always last
+  document.fonts.ready.then(() => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         ScrollTrigger.refresh();
@@ -325,7 +325,7 @@ barba.init({
 
       async leave(data) {
         if (window.forceCloseMobileContactMenu) window.forceCloseMobileContactMenu();
-        
+
         killSmoother();
         const scrollY = window.scrollY || window.pageYOffset;
         gsap.set(data.current.container, {
@@ -385,7 +385,7 @@ function initEntranceAnimations() {
   const Y_OFFSET = 100;
   const DURATION = 1.5;
   const STAGGER_OFFSET = 0.15;
-  const INITIAL_DELAY = 0.8; // minimum delay for elements already in viewport on load
+  const IN_VIEW_DELAY = 0.3; // base delay for elements already visible on load
 
   const elements = [];
   ENTRANCE_SELECTORS.forEach(selector => {
@@ -396,7 +396,8 @@ function initEntranceAnimations() {
 
   if (!elements.length) return;
 
-  // Set initial state immediately to prevent flash of natural position
+  // Set initial state immediately — elements already primed in beforeEnter for Barba,
+  // but this covers fresh loads and any elements missed
   elements.forEach(el => {
     if (!el._entranceComplete) {
       gsap.set(el, { y: Y_OFFSET });
@@ -413,6 +414,7 @@ function initEntranceAnimations() {
       a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1
     );
 
+    // Row grouping for stagger
     const rows = {};
     sorted.forEach(el => {
       if (el._entranceComplete) return;
@@ -421,22 +423,46 @@ function initEntranceAnimations() {
       rows[top].push(el);
     });
 
-    // Track whether this is the first time triggers are built (page init)
-    const isInit = entranceTriggers.length === 0;
+    // Separate elements into already-in-view vs below fold
+    const scrollY = window.smoother ? window.smoother.scrollTop() : window.scrollY;
+    const viewportBottom = scrollY + window.innerHeight;
+
+    const inViewElements = [];
+    const belowFoldElements = [];
 
     sorted.forEach(el => {
       if (el._entranceComplete) return;
+      const elTop = window.smoother.offset(el, 'top');
+      if (elTop <= viewportBottom) {
+        inViewElements.push(el);
+      } else {
+        belowFoldElements.push(el);
+      }
+    });
 
+    // Animate in-view elements directly — no ScrollTrigger, just a clean staggered delay
+    inViewElements.forEach((el, i) => {
       const top = Math.round(window.smoother.offset(el, 'top') / 10) * 10;
       const row = rows[top];
       const indexInRow = row ? row.indexOf(el) : 0;
       const staggerDelay = (row && row.length > 1) ? indexInRow * STAGGER_OFFSET : 0;
 
-      // Check if element is already in viewport at init time
-      const scrollY = window.smoother ? window.smoother.scrollTop() : window.scrollY;
-      const viewportBottom = scrollY + window.innerHeight;
-      const alreadyInView = window.smoother.offset(el, 'top') <= viewportBottom;
-      const initDelay = alreadyInView ? INITIAL_DELAY + staggerDelay : staggerDelay;
+      el._entranceComplete = true;
+      gsap.to(el, {
+        y: 0,
+        duration: DURATION,
+        delay: IN_VIEW_DELAY + staggerDelay,
+        ease: 'elastic.out(1,1)',
+        overwrite: false,
+      });
+    });
+
+    // Below-fold elements use ScrollTrigger as normal
+    belowFoldElements.forEach(el => {
+      const top = Math.round(window.smoother.offset(el, 'top') / 10) * 10;
+      const row = rows[top];
+      const indexInRow = row ? row.indexOf(el) : 0;
+      const staggerDelay = (row && row.length > 1) ? indexInRow * STAGGER_OFFSET : 0;
 
       const st = ScrollTrigger.create({
         trigger: el,
@@ -447,7 +473,7 @@ function initEntranceAnimations() {
           gsap.to(el, {
             y: 0,
             duration: DURATION,
-            delay: initDelay,
+            delay: staggerDelay,
             ease: 'elastic.out(1,1)',
             overwrite: false,
           });
@@ -471,7 +497,6 @@ function initEntranceAnimations() {
 }
 
 
-
 // ============================================================
 // GLOBAL INIT — runs on load + after every Barba transition
 // ============================================================
@@ -479,13 +504,6 @@ function initEntranceAnimations() {
 function initAll() {
 
   ScrollTrigger.getAll().forEach(st => st.kill());
-
-  // Only run entrance animations here for non-lottie pages
-  // For copyleaks-animations it's called after initLottieElements
-  const namespace = document.querySelector('[data-barba="container"]')?.dataset?.barbaNamespace;
-  if (namespace !== 'copyleaks-animations') {
-    initEntranceAnimations();
-  }
 
   // UPDATE NAVIGATION URLS BASED ON PAGE
   (function() {
@@ -1288,13 +1306,13 @@ function initCopyleaksWebsite() {
 
 
 // ============================================================
-// COPYLEAKS Marketing PAGE
+// COPYLEAKS MARKETING PAGE
 // ============================================================
 
 function initCopyleaksMarketing() {
 
   const css = (variable) => getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
-  
+
   window.marketingSlider1 = new Splide('#marketingSlider1', {
     type: 'slide',
     drag: 'free',
@@ -1311,20 +1329,20 @@ function initCopyleaksMarketing() {
     easing: 'cubic-bezier(.09,1.88,.5,.92)',
 
     breakpoints: {
-  		992: {
-  			padding: { left: css('--_portfolio-spacing---spacing-medium'), right: css('--_portfolio-spacing---spacing-medium') },
+      992: {
+        padding: { left: css('--_portfolio-spacing---spacing-medium'), right: css('--_portfolio-spacing---spacing-medium') },
         perPage: 4,
-  		},
+      },
       768: {
-  			padding: { left: css('--_portfolio-spacing---spacing-small'), right: css('--_portfolio-spacing---spacing-small') },
+        padding: { left: css('--_portfolio-spacing---spacing-small'), right: css('--_portfolio-spacing---spacing-small') },
         perPage: 3,
-  		},
+      },
       480: {
-  			padding: { left: css('--_portfolio-spacing---spacing-tiny'), right: css('--_portfolio-spacing---spacing-tiny') },
+        padding: { left: css('--_portfolio-spacing---spacing-tiny'), right: css('--_portfolio-spacing---spacing-tiny') },
         perPage: 2,
-  		},
+      },
     }
-    
+
   });
   window.marketingSlider1.mount();
 }
@@ -1533,6 +1551,7 @@ function onPageLoad() {
     }, 100);
   }
 
+  // Entrance animations — every page, after fonts and layout are ready
   document.fonts.ready.then(() => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
