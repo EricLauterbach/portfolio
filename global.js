@@ -229,7 +229,7 @@ barba.hooks.after((data) => {
     setTimeout(() => {
       ScrollTrigger.refresh();
       initCopyleaksMarketing();
-    }, 300);
+    }, 500);
   }
 
   if (pendingHash) {
@@ -1253,27 +1253,38 @@ function initCopyleaksWebsite() {
 // ============================================================
 
 function initCopyleaksMarketing() {
-  
   if (window.marketingSlider1) {
     window.marketingSlider1.destroy();
     window.marketingSlider1 = null;
   }
 
-  window.marketingSlider1 = new Splide('#marketingSlider1', {
-    type: 'loop',
-    drag: 'free',
-    focus: '1',
-    arrows: false,
-    pagination: false,
-    autoWidth: true,
-    autoplay: false,
-    snap: true,
-    perMove: 1,
-    padding: { left: 29 },
-    easing: 'cubic-bezier(.09,1.88,.5,.92)',
+  const el = document.querySelector('#marketingSlider1');
+  if (!el) return;
+
+  // Force Splide to recalculate after layout is real
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      window.marketingSlider1 = new Splide('#marketingSlider1', {
+        type: 'loop',
+        drag: 'free',
+        focus: '1',
+        arrows: false,
+        pagination: false,
+        autoWidth: true,
+        autoplay: false,
+        snap: true,
+        perMove: 1,
+        padding: { left: 29 },
+        easing: 'cubic-bezier(.09,1.88,.5,.92)',
+      });
+      window.marketingSlider1.mount();
+      
+      // Force refresh after mount in case dimensions were still settling
+      setTimeout(() => {
+        window.marketingSlider1.refresh();
+      }, 100);
+    });
   });
-  window.marketingSlider1.mount();
-  
 }
 
 
