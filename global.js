@@ -43,6 +43,7 @@ function initSmoother(restoreScroll = false) {
     content: '#smooth-content',
     smooth: 1,
     effects: true,
+    normalizeScroll: true,
   });
   if (!pendingHash) {
     window.smoother.scrollTo(scrollY, false);
@@ -402,14 +403,11 @@ function initEntranceAnimations() {
       const indexInRow = row ? row.indexOf(el) : 0;
       const staggerDelay = (row && row.length > 1) ? indexInRow * STAGGER_OFFSET : 0;
 
-      const isTall = el.offsetHeight > window.innerHeight * 0.5;
-      const startPos = isTall ? 'top 80%' : 'top bottom';
-
       gsap.set(el, { y: Y_OFFSET });
 
       const st = ScrollTrigger.create({
         trigger: el,
-        start: startPos,
+        start: 'top bottom',
         invalidateOnRefresh: true,
         onEnter: () => {
           el._entranceComplete = true;
@@ -1473,6 +1471,7 @@ window.smoother = ScrollSmoother.create({
   content: '#smooth-content',
   smooth: 1,
   effects: true,
+  normalizeScroll: true,
 });
 
 
