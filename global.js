@@ -407,6 +407,8 @@ function initEntranceAnimations() {
     entranceTriggers = [];
 
     const rows = {};
+    const elData = new WeakMap();
+
     elements.forEach(el => {
       const top = Math.round(getDocumentTop(el) / 10) * 10;
       if (!rows[top]) rows[top] = [];
@@ -415,6 +417,14 @@ function initEntranceAnimations() {
 
     elements.forEach(el => {
       if (el._entranceComplete) return;
+
+      const top = Math.round(getDocumentTop(el) / 10) * 10;
+      const row = rows[top];
+      const indexInRow = row ? row.indexOf(el) : 0;
+      const staggerDelay = (row && row.length > 1) ? indexInRow * STAGGER_OFFSET : 0;
+      const docTop = getDocumentTop(el);
+
+      elData.set(el, { docTop, staggerDelay });
       gsap.set(el, { y: Y_OFFSET });
     });
 
@@ -426,13 +436,10 @@ function initEntranceAnimations() {
       elements.forEach(el => {
         if (el._entranceComplete) return;
         allDone = false;
-        const elTop = getDocumentTop(el);
-        if (elTop <= viewportBottom) {
-          const top = Math.round(elTop / 10) * 10;
-          const row = rows[top];
-          const indexInRow = row ? row.indexOf(el) : 0;
-          const staggerDelay = (row && row.length > 1) ? indexInRow * STAGGER_OFFSET : 0;
-          triggerEntrance(el, staggerDelay);
+        const data = elData.get(el);
+        if (!data) return;
+        if (data.docTop <= viewportBottom) {
+          triggerEntrance(el, data.staggerDelay);
         }
       });
 
