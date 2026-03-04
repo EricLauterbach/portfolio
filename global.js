@@ -1268,20 +1268,20 @@ function initCopyleaksMarketing() {
     snap: true,
     speed: 3000,
     interval: 5000,
-    padding: { left: css('--_portfolio-spacing---spacing-large') },
+    padding: { left: css('--_portfolio-spacing---spacing-large'), right: css('--_portfolio-spacing---spacing-large') },
     easing: 'cubic-bezier(.09,1.88,.5,.92)',
 
     breakpoints: {
   		992: {
-  			padding: css('--_portfolio-spacing---spacing-medium'),
+  			padding: { left: css('--_portfolio-spacing---spacing-medium'), right: css('--_portfolio-spacing---spacing-medium') },
         perPage: 4,
   		},
       768: {
-  			padding: css('--_portfolio-spacing---spacing-small'),
+  			padding: { left: css('--_portfolio-spacing---spacing-small'), right: css('--_portfolio-spacing---spacing-small') },
         perPage: 3,
   		},
       480: {
-  			padding: css('--_portfolio-spacing---spacing-tiny'),
+  			padding: { left: css('--_portfolio-spacing---spacing-tiny'), right: css('--_portfolio-spacing---spacing-tiny') },
         perPage: 2,
   		},
     }
