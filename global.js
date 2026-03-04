@@ -241,10 +241,14 @@ if (namespace === 'copyleaks-website') {
 }
 
 // Entrance animations — every page, always last
-setTimeout(() => {
-  ScrollTrigger.refresh();
-  initEntranceAnimations();
-}, 500);
+document.fonts.ready.then(() => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+        initEntranceAnimations();
+      });
+    });
+  });
 
   if (pendingHash) {
     const hash = pendingHash;
@@ -1529,10 +1533,14 @@ function onPageLoad() {
     }, 100);
   }
 
-  setTimeout(() => {
-    ScrollTrigger.refresh();
-    initEntranceAnimations();
-  }, 300);
+  document.fonts.ready.then(() => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+        initEntranceAnimations();
+      });
+    });
+  });
 }
 
 // Handle both cases — already loaded or not yet
