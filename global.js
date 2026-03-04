@@ -205,6 +205,13 @@ barba.hooks.beforeEnter((data) => {
   }
 
   gsap.set(data.next.container, { opacity: 0 });
+
+  // Prime entrance elements before container is visible
+  ENTRANCE_SELECTORS.forEach(selector => {
+    data.next.container.querySelectorAll(selector).forEach(el => {
+      gsap.set(el, { y: 100 });
+    });
+  });
 });
 
 barba.hooks.after((data) => {
@@ -212,9 +219,6 @@ barba.hooks.after((data) => {
   initSmoother(true);
   reinitWebflow();
   initAll();
-
-  // Prime entrance positions immediately so elements never flash natural position
-  primeEntranceAnimations();
 
   const namespace = data.next.namespace;
   if (namespace === 'home') initHomePage();
@@ -377,7 +381,7 @@ function initEntranceAnimations() {
   const Y_OFFSET = 100;
   const DURATION = 1.5;
   const STAGGER_OFFSET = 0.15;
-  const INITIAL_DELAY = 0.3; // minimum delay for elements already in viewport on load
+  const INITIAL_DELAY = 0.6; // minimum delay for elements already in viewport on load
 
   const elements = [];
   ENTRANCE_SELECTORS.forEach(selector => {
@@ -459,16 +463,6 @@ function initEntranceAnimations() {
       buildTriggers();
       ScrollTrigger.refresh();
     }, 250);
-  });
-}
-
-function primeEntranceAnimations() {
-  ENTRANCE_SELECTORS.forEach(selector => {
-    document.querySelectorAll(selector).forEach(el => {
-      if (!el._entranceComplete) {
-        gsap.set(el, { y: 100 });
-      }
-    });
   });
 }
 
@@ -1534,8 +1528,6 @@ function onPageLoad() {
       initCopyleaksMarketing();
     }, 100);
   }
-
-  primeEntranceAnimations(); // prime before delay
 
   setTimeout(() => {
     ScrollTrigger.refresh();
