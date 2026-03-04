@@ -1281,7 +1281,7 @@ function initCopyleaksMarketing() {
   		},
       480: {
   			padding: { left: css('--_portfolio-spacing---spacing-tiny'), right: css('--_portfolio-spacing---spacing-tiny') },
-        perPage: 1,
+        perPage: 2,
   		},
     }
     
