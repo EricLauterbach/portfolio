@@ -403,43 +403,59 @@ function initEntranceAnimations() {
   function buildTriggers() {
     entranceTriggers.forEach(st => st.kill());
     entranceTriggers = [];
-
+  
     const rows = {};
     elements.forEach(el => {
       const top = Math.round(getDocumentTop(el) / 10) * 10;
       if (!rows[top]) rows[top] = [];
       rows[top].push(el);
     });
-
-    const scrollY = window.smoother ? window.smoother.scrollTop() : window.scrollY;
-    const viewportBottom = scrollY + window.innerHeight;
-
+  
     elements.forEach(el => {
       if (el._entranceComplete) return;
-
+  
       const top = Math.round(getDocumentTop(el) / 10) * 10;
       const row = rows[top];
       const indexInRow = row.indexOf(el);
       const isInRow = row.length > 1;
       const staggerDelay = isInRow ? indexInRow * STAGGER_OFFSET : 0;
-
+  
       gsap.set(el, { y: Y_OFFSET });
-
-      // If already in viewport at init time, trigger immediately
-      if (getDocumentTop(el) < viewportBottom) {
-        triggerEntrance(el, staggerDelay);
-        return;
-      }
-
-      const st = ScrollTrigger.create({
-        trigger: el,
-        start: 'top bottom',
-        invalidateOnRefresh: true,
-        onEnter: () => triggerEntrance(el, staggerDelay),
-      });
-
-      entranceTriggers.push(st);
     });
+  
+    function checkElements() {
+      const scrollY = window.smoother ? window.smoother.scrollTop() : window.scrollY;
+      const viewportBottom = scrollY + window.innerHeight;
+  
+      elements.forEach(el => {
+        if (el._entranceComplete) return;
+        const elTop = getDocumentTop(el);
+        if (elTop <= viewportBottom) {
+          const top = Math.round(elTop / 10) * 10;
+          const row = rows[top];
+          const indexInRow = row ? row.indexOf(el) : 0;
+          const isInRow = row ? row.length > 1 : false;
+          const staggerDelay = isInRow ? indexInRow * STAGGER_OFFSET : 0;
+          triggerEntrance(el, staggerDelay);
+        }
+      });
+    }
+  
+    // Check immediately in case elements are already in view
+    checkElements();
+  
+    // Use ScrollSmoother's scroll event if available, otherwise window scroll
+    if (window.smoother) {
+      window.smoother.el.addEventListener('scroll', checkElements);
+      entranceTriggers.push({
+        kill: () => window.smoother?.el.removeEventListener('scroll', checkElements)
+      });
+    } else {
+      window.addEventListener('scroll', checkElements);
+      entranceTriggers.push({
+        kill: () => window.removeEventListener('scroll', checkElements)
+      });
+    }
   }
 
   buildTriggers();
