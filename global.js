@@ -1261,7 +1261,7 @@ function initCopyleaksMarketing() {
     focus: '1',
     arrows: false,
     pagination: false,
-    autoWidth: false,
+    autoWidth: true,
     fixedWidth: '400px',
     autoplay: false,
     snap: true,
