@@ -361,13 +361,9 @@ const ENTRANCE_SELECTORS = [
 ];
 
 function getDocumentTop(el) {
-  let top = 0;
-  let current = el;
-  while (current) {
-    top += current.offsetTop;
-    current = current.offsetParent;
-  }
-  return top;
+  const rect = el.getBoundingClientRect();
+  const scrollY = window.smoother ? window.smoother.scrollTop() : window.scrollY;
+  return rect.top + scrollY;
 }
 
 function initEntranceAnimations() {
