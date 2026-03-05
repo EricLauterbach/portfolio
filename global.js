@@ -1358,10 +1358,10 @@ function initCopyleaksWebsite() {
       return y;
     });
   
-    gsap.to(optionWrapper, { height: currentY, duration: 0.35, ease: 'power3.out' });
+    gsap.to(optionWrapper, { height: currentY, duration: 0.6, ease: 'elastic.out(1,1)' });
   
     visibleOptions.forEach((el, i) => {
-      gsap.to(el, { y: positions[i], duration: 0.35, ease: 'power3.out' });
+      gsap.to(el, { y: positions[i], duration: 0.6, ease: 'elastic.out(1,1)' });
     });
   }
   
@@ -1371,10 +1371,10 @@ function initCopyleaksWebsite() {
     const visibleOptions = Array.from(optionWrapper.children)
       .filter(el => getComputedStyle(el).display !== 'none');
 
-    gsap.to(optionWrapper, { height: 0, duration: 0.25, ease: 'power3.in' });
+    gsap.to(optionWrapper, { height: 0, duration: 0.3, ease: 'power3.inOut' });
 
     visibleOptions.forEach(el => {
-      gsap.to(el, { y: 0, duration: 0.25, ease: 'power3.in' });
+      gsap.to(el, { y: 0, duration: 0.3, ease: 'power3.inOut' });
     });
   }
 
