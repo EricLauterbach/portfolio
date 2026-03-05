@@ -1340,18 +1340,31 @@ function initCopyleaksWebsite() {
   // ── Open / close dropdown ─────────────────────────────
   function openDropdown() {
     isOpen = true;
-    
-    // Calculate height from visible children directly
-    const fullHeight = Array.from(optionWrapper.children)
-      .filter(el => getComputedStyle(el).display !== 'none')
-      .reduce((sum, el) => sum + el.offsetHeight, 0);
   
-    gsap.to(optionWrapper, { height: fullHeight, overflow: 'hidden', duration: 0.4, ease: 'power2.out' });
+    const visibleOptions = Array.from(optionWrapper.children)
+      .filter(el => getComputedStyle(el).display !== 'none');
+  
+    const itemHeight = visibleOptions[0]?.offsetHeight || 72;
+    const fullHeight = visibleOptions.length * itemHeight;
+  
+    gsap.to(optionWrapper, { height: fullHeight, duration: 0.4, ease: 'power2.out' });
+  
+    visibleOptions.forEach((el, i) => {
+      gsap.to(el, { y: i * itemHeight, duration: 0.4, ease: 'power2.out' });
+    });
   }
-
+  
   function closeDropdown() {
     isOpen = false;
+  
+    const visibleOptions = Array.from(optionWrapper.children)
+      .filter(el => getComputedStyle(el).display !== 'none');
+  
     gsap.to(optionWrapper, { height: 0, duration: 0.3, ease: 'power2.in' });
+  
+    visibleOptions.forEach(el => {
+      gsap.to(el, { y: 0, duration: 0.3, ease: 'power2.in' });
+    });
   }
 
   selectedEl.addEventListener('click', () => {
@@ -1398,6 +1411,8 @@ function initCopyleaksWebsite() {
     dropdown.querySelector(`[data-target="${targetKey}"]`)?.style.setProperty('display', 'none');
 
     currentTarget = targetKey;
+    const newlyShownOption = dropdown.querySelector(`[data-target="${currentTarget}"]`);
+    if (newlyShownOption) gsap.set(newlyShownOption, { y: 0 });
     closeDropdown();
   }
 
