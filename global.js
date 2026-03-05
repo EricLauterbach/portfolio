@@ -54,10 +54,15 @@ function initSmoother(restoreScroll = false) {
 function reinitWebflow() {
   document.querySelectorAll('video[autoplay]').forEach(video => video.play());
 
+  // Re-execute Webflow's inline core script to reinitialize components like lightbox
   setTimeout(() => {
-    if (window.Webflow && window.Webflow.require) {
-      const lightbox = window.Webflow.require('lightbox');
-      if (lightbox && lightbox.ready) lightbox.ready();
+    const webflowScript = Array.from(document.querySelectorAll('head script:not([src])')).find(s =>
+      s.textContent.includes('w-mod-')
+    );
+    if (webflowScript) {
+      const script = document.createElement('script');
+      script.textContent = webflowScript.textContent;
+      document.head.appendChild(script);
     }
   }, 300);
 }
