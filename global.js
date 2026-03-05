@@ -1310,6 +1310,7 @@ function initCopyleaksWebsite() {
   const optionWrapper = dropdown.querySelector('.dropdownoptionwrapper');
   const options = dropdown.querySelectorAll('.dropdownoption');
   const parentContainer = document.querySelector('.introinfodropdowncontainerportfolioproject');
+  const graphicContainer = document.querySelector('.intrographiccontainerportfolioproject');
 
   let isOpen = false;
   let currentTarget = 'homepage';
@@ -1363,11 +1364,8 @@ function initCopyleaksWebsite() {
     gsap.killTweensOf(arrow);
     gsap.to(arrow, { rotate: 180, duration: 1, ease: 'elastic.out(1,1)' });
 
-    document.querySelectorAll('.introportfolioproject > *').forEach(el => {
-      gsap.killTweensOf(el);
-      gsap.to(el, { filter: 'blur(20px)', duration: 0.3, ease: 'power2.out' });
-    });
-    gsap.to(parentContainer, { filter: 'blur(0px)', duration: 0.3, ease: 'power2.out' });
+    gsap.killTweensOf(graphicContainer);
+    gsap.to(graphicContainer, { filter: 'blur(20px)', duration: 0.3, ease: 'power2.out' });
 
     visibleOptions.forEach(el => gsap.killTweensOf(el));
 
@@ -1390,11 +1388,8 @@ function initCopyleaksWebsite() {
     gsap.killTweensOf(arrow);
     gsap.to(arrow, { rotate: 0, duration: 1, ease: 'elastic.out(1,1)' });
 
-    document.querySelectorAll('.introportfolioproject > *').forEach(el => {
-      gsap.killTweensOf(el);
-      gsap.to(el, { filter: 'blur(0px)', duration: 0.3, ease: 'power2.out' });
-    });
-    gsap.set(parentContainer, { filter: 'none' });
+    gsap.killTweensOf(graphicContainer);
+    gsap.to(graphicContainer, { filter: 'blur(0px)', duration: 0.3, ease: 'power2.out' });
 
     visibleOptions.forEach(el => gsap.killTweensOf(el));
 
