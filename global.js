@@ -1304,7 +1304,7 @@ function initCopyleaksMarketing() {
   window.marketingSlider1 = new Splide('#marketingSlider1', {
     type: 'slide',
     drag: 'free',
-    perPage: 4,
+    perPage: 3,
     perMove: 1,
     focus: '1',
     arrows: false,
@@ -1319,15 +1319,15 @@ function initCopyleaksMarketing() {
     breakpoints: {
       992: {
         padding: { left: css('--_portfolio-spacing---spacing-medium'), right: css('--_portfolio-spacing---spacing-medium') },
-        perPage: 4,
+        perPage: 3,
       },
       768: {
         padding: { left: css('--_portfolio-spacing---spacing-small'), right: css('--_portfolio-spacing---spacing-small') },
-        perPage: 3,
+        perPage: 2,
       },
       480: {
         padding: { left: css('--_portfolio-spacing---spacing-tiny'), right: css('--_portfolio-spacing---spacing-tiny') },
-        perPage: 2,
+        perPage: 1,
       },
     }
   });
@@ -1335,7 +1335,7 @@ function initCopyleaksMarketing() {
   window.marketingSlider2 = new Splide('#marketingSlider2', {
     type: 'slide',
     drag: 'free',
-    perPage: 4,
+    perPage: 3,
     perMove: 1,
     focus: '1',
     arrows: false,
@@ -1350,15 +1350,15 @@ function initCopyleaksMarketing() {
     breakpoints: {
       992: {
         padding: { left: css('--_portfolio-spacing---spacing-medium'), right: css('--_portfolio-spacing---spacing-medium') },
-        perPage: 4,
+        perPage: 3,
       },
       768: {
         padding: { left: css('--_portfolio-spacing---spacing-small'), right: css('--_portfolio-spacing---spacing-small') },
-        perPage: 3,
+        perPage: 2,
       },
       480: {
         padding: { left: css('--_portfolio-spacing---spacing-tiny'), right: css('--_portfolio-spacing---spacing-tiny') },
-        perPage: 2,
+        perPage: 1,
       },
     }
   });
@@ -1366,7 +1366,7 @@ function initCopyleaksMarketing() {
   window.marketingSlider3 = new Splide('#marketingSlider3', {
     type: 'slide',
     drag: 'free',
-    perPage: 4,
+    perPage: 3,
     perMove: 1,
     focus: '1',
     arrows: false,
@@ -1381,15 +1381,15 @@ function initCopyleaksMarketing() {
     breakpoints: {
       992: {
         padding: { left: css('--_portfolio-spacing---spacing-medium'), right: css('--_portfolio-spacing---spacing-medium') },
-        perPage: 4,
+        perPage: 3,
       },
       768: {
         padding: { left: css('--_portfolio-spacing---spacing-small'), right: css('--_portfolio-spacing---spacing-small') },
-        perPage: 3,
+        perPage: 2,
       },
       480: {
         padding: { left: css('--_portfolio-spacing---spacing-tiny'), right: css('--_portfolio-spacing---spacing-tiny') },
-        perPage: 2,
+        perPage: 1,
       },
     }
   });
@@ -1397,7 +1397,7 @@ function initCopyleaksMarketing() {
   window.marketingSlider4 = new Splide('#marketingSlider4', {
     type: 'slide',
     drag: 'free',
-    perPage: 4,
+    perPage: 3,
     perMove: 1,
     focus: '1',
     arrows: false,
@@ -1412,15 +1412,15 @@ function initCopyleaksMarketing() {
     breakpoints: {
       992: {
         padding: { left: css('--_portfolio-spacing---spacing-medium'), right: css('--_portfolio-spacing---spacing-medium') },
-        perPage: 4,
+        perPage: 3,
       },
       768: {
         padding: { left: css('--_portfolio-spacing---spacing-small'), right: css('--_portfolio-spacing---spacing-small') },
-        perPage: 3,
+        perPage: 2,
       },
       480: {
         padding: { left: css('--_portfolio-spacing---spacing-tiny'), right: css('--_portfolio-spacing---spacing-tiny') },
-        perPage: 2,
+        perPage: 1,
       },
     }
   });
