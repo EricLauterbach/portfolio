@@ -1358,10 +1358,10 @@ function initCopyleaksWebsite() {
       return y;
     });
   
-    gsap.to(optionWrapper, { height: currentY, duration: 0.6, ease: 'elastic.out(1,1)' });
+    gsap.to(optionWrapper, { height: currentY, duration: 1, ease: 'elastic.out(1,1)' });
   
     visibleOptions.forEach((el, i) => {
-      gsap.to(el, { y: positions[i], duration: 0.6, ease: 'elastic.out(1,1)' });
+      gsap.to(el, { y: positions[i], duration: 1, ease: 'elastic.out(1,1)' });
     });
   }
   
