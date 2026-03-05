@@ -1305,17 +1305,11 @@ function initCopyleaksWebsite() {
   const dropdown = document.querySelector('.dropdownportfolio');
   if (!dropdown) return;
 
-  console.log('initCopyleaksWebsite running', {
-    selectedEl: dropdown.querySelector('.dropdownselected'),
-    optionWrapper: dropdown.querySelector('.dropdownoptionwrapper'),
-    scrollHeight: dropdown.querySelector('.dropdownoptionwrapper')?.scrollHeight,
-    options: dropdown.querySelectorAll('.dropdownoption').length
-  });
-
   const selectedEl = dropdown.querySelector('.dropdownselected');
   const selectedLabel = dropdown.querySelector('.dropdownselectedlabel .paragraphportfolio');
   const optionWrapper = dropdown.querySelector('.dropdownoptionwrapper');
   const options = dropdown.querySelectorAll('.dropdownoption');
+  const parentContainer = document.querySelector('.introinfodropdowncontainerportfolioproject');
 
   let isOpen = false;
   let currentTarget = 'homepage';
@@ -1323,6 +1317,11 @@ function initCopyleaksWebsite() {
   // ── Initial state ─────────────────────────────────────
   dropdown.querySelector('[data-target="homepage"]')?.style.setProperty('display', 'none');
   gsap.set(optionWrapper, { height: 0, overflow: 'hidden' });
+
+  // Set parent height to selected element height + 20px
+  if (parentContainer) {
+    gsap.set(parentContainer, { height: selectedEl.offsetHeight + 20 });
+  }
 
   document.querySelectorAll('[data-panel]').forEach(el => {
     gsap.set(el, {
@@ -1340,30 +1339,30 @@ function initCopyleaksWebsite() {
   // ── Open / close dropdown ─────────────────────────────
   function openDropdown() {
     isOpen = true;
-  
+
     const visibleOptions = Array.from(optionWrapper.children)
       .filter(el => getComputedStyle(el).display !== 'none');
-  
+
     const itemHeight = visibleOptions[0]?.offsetHeight || 72;
     const fullHeight = visibleOptions.length * itemHeight;
-  
-    gsap.to(optionWrapper, { height: fullHeight, duration: 0.4, ease: 'power2.out' });
-  
+
+    gsap.to(optionWrapper, { height: fullHeight, duration: 0.35, ease: 'power3.out' });
+
     visibleOptions.forEach((el, i) => {
-      gsap.to(el, { y: i * itemHeight, duration: 0.4, ease: 'power2.out' });
+      gsap.to(el, { y: i * itemHeight, duration: 0.35, ease: 'power3.out' });
     });
   }
-  
+
   function closeDropdown() {
     isOpen = false;
-  
+
     const visibleOptions = Array.from(optionWrapper.children)
       .filter(el => getComputedStyle(el).display !== 'none');
-  
-    gsap.to(optionWrapper, { height: 0, duration: 0.3, ease: 'power2.in' });
-  
+
+    gsap.to(optionWrapper, { height: 0, duration: 0.25, ease: 'power3.in' });
+
     visibleOptions.forEach(el => {
-      gsap.to(el, { y: 0, duration: 0.3, ease: 'power2.in' });
+      gsap.to(el, { y: 0, duration: 0.25, ease: 'power3.in' });
     });
   }
 
