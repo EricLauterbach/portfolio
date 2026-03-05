@@ -1318,9 +1318,17 @@ function initCopyleaksWebsite() {
   dropdown.querySelector('[data-target="homepage"]')?.style.setProperty('display', 'none');
   gsap.set(optionWrapper, { height: 0, overflow: 'hidden' });
 
-  // Set parent height to selected element height + 20px
-  if (parentContainer) {
-    gsap.set(parentContainer, { height: selectedEl.offsetHeight + 20 });
+  // Set parent height after fonts are ready to avoid jump
+  function setParentHeight() {
+    if (parentContainer) {
+      gsap.set(parentContainer, { height: selectedEl.offsetHeight + 20 });
+    }
+  }
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(setParentHeight);
+  } else {
+    setParentHeight();
   }
 
   document.querySelectorAll('[data-panel]').forEach(el => {
