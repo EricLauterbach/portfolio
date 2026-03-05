@@ -1367,8 +1367,8 @@ function initCopyleaksWebsite() {
 
     gsap.killTweensOf(graphicContainer);
     gsap.killTweensOf(contentWrapper);
-    gsap.to(graphicContainer, { filter: 'blur(20px)', duration: 0.3, ease: 'power2.out' });
-    gsap.to(contentWrapper, { filter: 'blur(20px)', duration: 0.3, ease: 'power2.out' });
+    gsap.to(graphicContainer, { filter: 'blur(20px)', duration: 0.6, ease: 'power2.out' });
+    gsap.to(contentWrapper, { filter: 'blur(20px)', duration: 0.6, ease: 'power2.out' });
 
     visibleOptions.forEach(el => gsap.killTweensOf(el));
 
@@ -1393,15 +1393,15 @@ function initCopyleaksWebsite() {
 
     gsap.killTweensOf(graphicContainer);
     gsap.killTweensOf(contentWrapper);
-    gsap.to(graphicContainer, { filter: 'blur(0px)', duration: 0.3, ease: 'power2.out' });
-    gsap.to(contentWrapper, { filter: 'blur(0px)', duration: 0.3, ease: 'power2.out' });
+    gsap.to(graphicContainer, { filter: 'blur(0px)', duration: 0.4, ease: 'power2.out' });
+    gsap.to(contentWrapper, { filter: 'blur(0px)', duration: 0.4, ease: 'power2.out' });
 
     visibleOptions.forEach(el => gsap.killTweensOf(el));
 
-    gsap.to(optionWrapper, { height: 0, duration: 0.6, ease: 'power3.out' });
+    gsap.to(optionWrapper, { height: 0, duration: 0.4, ease: 'power3.out' });
 
     visibleOptions.forEach(el => {
-      gsap.to(el, { y: 0, duration: 0.6, ease: 'power3.out' });
+      gsap.to(el, { y: 0, duration: 0.4, ease: 'power3.out' });
     });
   }
 
