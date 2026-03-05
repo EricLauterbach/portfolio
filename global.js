@@ -308,8 +308,8 @@ barba.init({
         await gsap.to(data.current.container, {
           opacity: 0,
           top: `-=${TRANSITION_Y}`,
-          duration: 0.4,
-          ease: "power2.out",
+          duration: 0.6,
+          ease: "power2.inOut",
         });
       },
     
@@ -317,7 +317,7 @@ barba.init({
         gsap.set('#navSecondaryUnderline', { clipPath: 'inset(0 100% 0 0)' });
         gsap.set(data.next.container, { opacity: 0, y: TRANSITION_Y, zIndex: 2 });
         await gsap.to(data.next.container, {
-          opacity: 1, y: 0, duration: 0.8, ease: 'elastic.out(1,1)', clearProps: 'all'
+          opacity: 1, y: 0, duration: 1, ease: 'elastic.out(1.35,1)', clearProps: 'all'
         });
       }
     },
@@ -355,8 +355,8 @@ barba.init({
         await gsap.to(data.current.container, {
           opacity: 0,
           top: `-=${TRANSITION_Y}`,
-          duration: 0.4,
-          ease: "power2.out",
+          duration: 0.6,
+          ease: "power2.inOut",
         });
       },
     
@@ -364,7 +364,7 @@ barba.init({
         gsap.set('#navSecondaryUnderline', { clipPath: 'inset(0 0% 0 0)' });
         gsap.set(data.next.container, { opacity: 0, y: TRANSITION_Y, zIndex: 2 });
         await gsap.to(data.next.container, {
-          opacity: 1, y: 0, duration: 0.8, ease: 'elastic.out(1,1)', clearProps: 'all'
+          opacity: 1, y: 0, duration: 1, ease: 'elastic.out(1.35,1)', clearProps: 'all'
         });
       }
     }
