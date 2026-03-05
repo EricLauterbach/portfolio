@@ -1306,7 +1306,7 @@ function initCopyleaksWebsite() {
   if (!dropdown) return;
 
   const selectedEl = dropdown.querySelector('.dropdownselected');
-  const selectedLabel = dropdown.querySelector('.dropdownselectedlabel');
+  const selectedLabel = dropdown.querySelector('.dropdownselectedlabel .paragraphportfolio');
   const optionWrapper = dropdown.querySelector('.dropdownoptionwrapper');
   const options = dropdown.querySelectorAll('.dropdownoption');
 
