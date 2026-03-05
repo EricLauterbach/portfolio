@@ -375,17 +375,17 @@ const ENTRANCE_SELECTORS = [
   '.contentcontainerportfolioproject',
 ];
 
+// Inject immediately at script parse time to prevent FOUC on first load
+(function() {
+  const style = document.createElement('style');
+  style.id = 'entrance-animation-styles';
+  style.textContent = ENTRANCE_SELECTORS.map(sel => sel.trim()).join(',\n') +
+    ' { transform: translateY(100px); }';
+  document.head.appendChild(style);
+})();
+
 function initEntranceAnimations() {
   if (!ENTRANCE_SELECTORS.length) return;
-
-  // Inject CSS immediately to prevent FOUC — applies before first paint
-  if (!document.getElementById('entrance-animation-styles')) {
-    const style = document.createElement('style');
-    style.id = 'entrance-animation-styles';
-    style.textContent = ENTRANCE_SELECTORS.map(sel => sel.trim()).join(',\n') +
-      ' { transform: translateY(100px); }';
-    document.head.appendChild(style);
-  }
 
   const Y_OFFSET = 100;
   const DURATION = 1.5;
