@@ -1302,6 +1302,116 @@ function initCopyleaksAnimations() {
 
 function initCopyleaksWebsite() {
 
+  const dropdown = document.querySelector('.dropdownportfolio');
+  if (!dropdown) return;
+
+  const selectedEl = dropdown.querySelector('.dropdownselected');
+  const selectedLabel = dropdown.querySelector('.dropdownselectedlabel');
+  const optionWrapper = dropdown.querySelector('.dropdownoptionwrapper');
+  const options = dropdown.querySelectorAll('.dropdownoption');
+
+  let isOpen = false;
+  let currentTarget = 'homepage';
+
+  // ── Initial state ─────────────────────────────────────
+  // Hide the homepage option in the list since it's already the default
+  dropdown.querySelector('[data-target="homepage"]')?.style.setProperty('display', 'none');
+
+  // Set dropdown options wrapper to height 0 (closed)
+  gsap.set(optionWrapper, { height: 0, overflow: 'hidden' });
+
+  // Show default panel and image, hide all others
+  document.querySelectorAll('[data-panel]').forEach(el => {
+    gsap.set(el, { opacity: el.dataset.panel === 'homepage' ? 1 : 0, display: el.dataset.panel === 'homepage' ? 'block' : 'none' });
+  });
+  document.querySelectorAll('[data-image]').forEach(el => {
+    gsap.set(el, { opacity: el.dataset.image === 'homepage' ? 1 : 0, display: el.dataset.image === 'homepage' ? 'block' : 'none' });
+  });
+
+  // ── Open / close dropdown ─────────────────────────────
+  function openDropdown() {
+    isOpen = true;
+    const fullHeight = optionWrapper.scrollHeight;
+    gsap.to(optionWrapper, { height: fullHeight, duration: 0.4, ease: 'power2.out' });
+  }
+
+  function closeDropdown() {
+    isOpen = false;
+    gsap.to(optionWrapper, { height: 0, duration: 0.3, ease: 'power2.in' });
+  }
+
+  selectedEl.addEventListener('click', () => {
+    if (isOpen) closeDropdown(); else openDropdown();
+  });
+
+  // Close on outside click
+  document.addEventListener('click', (e) => {
+    if (!dropdown.contains(e.target)) closeDropdown();
+  });
+
+  // ── Switch panels ─────────────────────────────────────
+  function switchContent(targetKey) {
+    if (targetKey === currentTarget) { closeDropdown(); return; }
+
+    const outPanel = document.querySelector(`[data-panel="${currentTarget}"]`);
+    const inPanel  = document.querySelector(`[data-panel="${targetKey}"]`);
+    const outImage = document.querySelector(`[data-image="${currentTarget}"]`);
+    const inImage  = document.querySelector(`[data-image="${targetKey}"]`);
+
+    // Fade out current
+    gsap.to([outPanel, outImage].filter(Boolean), {
+      opacity: 0,
+      duration: 0.2,
+      ease: 'power2.out',
+      onComplete: () => {
+        gsap.set(outPanel, { display: 'none' });
+        gsap.set(outImage, { display: 'none' });
+
+        // Show and fade in new
+        gsap.set(inPanel, { display: 'block', opacity: 0 });
+        gsap.set(inImage, { display: 'block', opacity: 0 });
+        gsap.to([inPanel, inImage].filter(Boolean), {
+          opacity: 1,
+          duration: 0.3,
+          ease: 'power2.in'
+        });
+      }
+    });
+
+    // Update selected label
+    const clickedOption = dropdown.querySelector(`[data-target="${targetKey}"]`);
+    if (selectedLabel && clickedOption) {
+      selectedLabel.textContent = clickedOption.textContent.trim();
+    }
+
+    // Hide newly selected option in list, show previous
+    dropdown.querySelector(`[data-target="${currentTarget}"]`)?.style.setProperty('display', '');
+    dropdown.querySelector(`[data-target="${targetKey}"]`)?.style.setProperty('display', 'none');
+
+    currentTarget = targetKey;
+    closeDropdown();
+  }
+
+  // ── Option click handlers ─────────────────────────────
+  options.forEach(option => {
+    option.addEventListener('click', () => {
+      const target = option.dataset.target;
+      if (target) switchContent(target);
+    });
+
+    // Preload on hover — trigger browser to fetch images inside the panel
+    option.addEventListener('mouseenter', () => {
+      const target = option.dataset.target;
+      const panel = document.querySelector(`[data-panel="${target}"]`);
+      const image = document.querySelector(`[data-image="${target}"]`);
+      [panel, image].filter(Boolean).forEach(el => {
+        el.querySelectorAll('img[loading="lazy"]').forEach(img => {
+          img.loading = 'eager';
+        });
+      });
+    });
+  });
+
 }
 
 
