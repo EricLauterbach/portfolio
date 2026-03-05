@@ -1372,25 +1372,107 @@ function initCopyleaksWebsite() {
       gsap.to(el, { y: positions[i], duration: .6, ease: 'power3.out' });
     });
   }
-  
-  function closeDropdown() {
-    isOpen = false;
-  
+  function initCopyleaksWebsite() {
+
+  const dropdown = document.querySelector('.dropdownportfolio');
+  if (!dropdown) return;
+
+  const selectedEl = dropdown.querySelector('.dropdownselected');
+  const selectedLabel = dropdown.querySelector('.dropdownselectedlabel .paragraphportfolio');
+  const optionWrapper = dropdown.querySelector('.dropdownoptionwrapper');
+  const options = dropdown.querySelectorAll('.dropdownoption');
+  const parentContainer = document.querySelector('.introinfodropdowncontainerportfolioproject');
+
+  let isOpen = false;
+  let currentTarget = 'homepage';
+
+  // ── Initial state ─────────────────────────────────────
+  dropdown.querySelector('[data-target="homepage"]')?.style.setProperty('display', 'none');
+  gsap.set(optionWrapper, { height: 0, overflow: 'hidden' });
+
+  // Set parent height after fonts are ready to avoid jump
+  function setParentHeight() {
+    if (parentContainer) {
+      gsap.set(parentContainer, { height: selectedEl.offsetHeight + 20 });
+    }
+  }
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(setParentHeight);
+  } else {
+    setParentHeight();
+  }
+
+  document.querySelectorAll('[data-panel]').forEach(el => {
+    gsap.set(el, {
+      opacity: el.dataset.panel === 'homepage' ? 1 : 0,
+      display: el.dataset.panel === 'homepage' ? 'block' : 'none'
+    });
+  });
+  document.querySelectorAll('[data-image]').forEach(el => {
+    gsap.set(el, {
+      opacity: el.dataset.image === 'homepage' ? 1 : 0,
+      display: el.dataset.image === 'homepage' ? 'block' : 'none'
+    });
+  });
+
+  // ── Open / close dropdown ─────────────────────────────
+  function openDropdown() {
+    isOpen = true;
+
     const visibleOptions = Array.from(optionWrapper.children)
       .filter(el => getComputedStyle(el).display !== 'none');
-  
+
+    let currentY = 0;
+    const positions = visibleOptions.map(el => {
+      const y = currentY;
+      currentY += el.offsetHeight;
+      return y;
+    });
+
+    gsap.killTweensOf(optionWrapper);
+
+    const arrow = dropdown.querySelector('.downarrowportfolio');
+    gsap.killTweensOf(arrow);
+    gsap.to(arrow, { rotate: 180, duration: 1, ease: 'elastic.out(1,1)' });
+
+    document.querySelectorAll('.introportfolioproject > *:not(.introinfodropdowncontainerportfolioproject)').forEach(el => {
+      gsap.killTweensOf(el);
+      gsap.to(el, { filter: 'blur(20px)', duration: 0.3, ease: 'power2.out' });
+    });
+
+    visibleOptions.forEach(el => gsap.killTweensOf(el));
+
+    gsap.to(optionWrapper, { height: currentY, duration: 0.6, ease: 'power3.out' });
+
+    visibleOptions.forEach((el, i) => {
+      gsap.to(el, { y: positions[i], duration: 0.6, ease: 'power3.out' });
+    });
+  }
+
+  function closeDropdown() {
+    isOpen = false;
+
+    const visibleOptions = Array.from(optionWrapper.children)
+      .filter(el => getComputedStyle(el).display !== 'none');
+
     gsap.killTweensOf(optionWrapper);
 
     const arrow = dropdown.querySelector('.downarrowportfolio');
     gsap.killTweensOf(arrow);
     gsap.to(arrow, { rotate: 0, duration: 1, ease: 'elastic.out(1,1)' });
-    
+
+    document.querySelectorAll('.introportfolioproject > *:not(.introinfodropdowncontainerportfolioproject)').forEach(el => {
+      gsap.killTweensOf(el);
+      gsap.to(el, { filter: 'blur(0px)', duration: 0.3, ease: 'power2.out' });
+    });
+
     visibleOptions.forEach(el => gsap.killTweensOf(el));
-  
-    gsap.to(optionWrapper, { height: 0, duration: 0.6, ease: 'power3.inOut' });
-  
+
+    gsap.to(optionWrapper, { height: 0, duration: 0.6, ease: 'power3.out' });
+
     visibleOptions.forEach(el => {
-      gsap.to(el, { y: 0, duration: 0.6, ease: 'power3.inOut' });
+      gsap.to(el, { y: 0, duration: 0.6, ease: 'power3.out' });
     });
   }
 
@@ -1466,10 +1548,12 @@ function initCopyleaksWebsite() {
       });
     });
   });
+
   window.addEventListener('resize', () => {
     setParentHeight();
     if (isOpen) openDropdown();
   });
+
 }
 
 
