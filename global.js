@@ -1314,25 +1314,30 @@ function initCopyleaksWebsite() {
   let currentTarget = 'homepage';
 
   // ── Initial state ─────────────────────────────────────
-  // Hide the homepage option in the list since it's already the default
   dropdown.querySelector('[data-target="homepage"]')?.style.setProperty('display', 'none');
-
-  // Set dropdown options wrapper to height 0 (closed)
   gsap.set(optionWrapper, { height: 0, overflow: 'hidden' });
 
-  // Show default panel and image, hide all others
   document.querySelectorAll('[data-panel]').forEach(el => {
-    gsap.set(el, { opacity: el.dataset.panel === 'homepage' ? 1 : 0, display: el.dataset.panel === 'homepage' ? 'block' : 'none' });
+    gsap.set(el, {
+      opacity: el.dataset.panel === 'homepage' ? 1 : 0,
+      display: el.dataset.panel === 'homepage' ? 'block' : 'none'
+    });
   });
   document.querySelectorAll('[data-image]').forEach(el => {
-    gsap.set(el, { opacity: el.dataset.image === 'homepage' ? 1 : 0, display: el.dataset.image === 'homepage' ? 'block' : 'none' });
+    gsap.set(el, {
+      opacity: el.dataset.image === 'homepage' ? 1 : 0,
+      display: el.dataset.image === 'homepage' ? 'block' : 'none'
+    });
   });
 
   // ── Open / close dropdown ─────────────────────────────
   function openDropdown() {
     isOpen = true;
+    // Temporarily make visible to measure
+    gsap.set(optionWrapper, { height: 'auto', overflow: 'visible' });
     const fullHeight = optionWrapper.scrollHeight;
-    gsap.to(optionWrapper, { height: fullHeight, duration: 0.4, ease: 'power2.out' });
+    gsap.set(optionWrapper, { height: 0, overflow: 'hidden' });
+    gsap.to(optionWrapper, { height: fullHeight, overflow: 'hidden', duration: 0.4, ease: 'power2.out' });
   }
 
   function closeDropdown() {
@@ -1344,7 +1349,6 @@ function initCopyleaksWebsite() {
     if (isOpen) closeDropdown(); else openDropdown();
   });
 
-  // Close on outside click
   document.addEventListener('click', (e) => {
     if (!dropdown.contains(e.target)) closeDropdown();
   });
@@ -1358,18 +1362,16 @@ function initCopyleaksWebsite() {
     const outImage = document.querySelector(`[data-image="${currentTarget}"]`);
     const inImage  = document.querySelector(`[data-image="${targetKey}"]`);
 
-    // Fade out current
     gsap.to([outPanel, outImage].filter(Boolean), {
       opacity: 0,
       duration: 0.2,
       ease: 'power2.out',
       onComplete: () => {
-        gsap.set(outPanel, { display: 'none' });
-        gsap.set(outImage, { display: 'none' });
+        if (outPanel) gsap.set(outPanel, { display: 'none' });
+        if (outImage) gsap.set(outImage, { display: 'none' });
 
-        // Show and fade in new
-        gsap.set(inPanel, { display: 'block', opacity: 0 });
-        gsap.set(inImage, { display: 'block', opacity: 0 });
+        if (inPanel) gsap.set(inPanel, { display: 'block', opacity: 0 });
+        if (inImage) gsap.set(inImage, { display: 'block', opacity: 0 });
         gsap.to([inPanel, inImage].filter(Boolean), {
           opacity: 1,
           duration: 0.3,
@@ -1378,13 +1380,11 @@ function initCopyleaksWebsite() {
       }
     });
 
-    // Update selected label
     const clickedOption = dropdown.querySelector(`[data-target="${targetKey}"]`);
     if (selectedLabel && clickedOption) {
       selectedLabel.textContent = clickedOption.textContent.trim();
     }
 
-    // Hide newly selected option in list, show previous
     dropdown.querySelector(`[data-target="${currentTarget}"]`)?.style.setProperty('display', '');
     dropdown.querySelector(`[data-target="${targetKey}"]`)?.style.setProperty('display', 'none');
 
@@ -1399,7 +1399,6 @@ function initCopyleaksWebsite() {
       if (target) switchContent(target);
     });
 
-    // Preload on hover — trigger browser to fetch images inside the panel
     option.addEventListener('mouseenter', () => {
       const target = option.dataset.target;
       const panel = document.querySelector(`[data-panel="${target}"]`);
