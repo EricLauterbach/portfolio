@@ -96,9 +96,14 @@ function initLightbox() {
       const backdrop = document.createElement('div');
       backdrop.className = 'w-lightbox-backdrop';
       Object.assign(backdrop.style, {
-        position: 'fixed', inset: '0', background: 'rgba(0,0,0,0.9)',
-        zIndex: '2000', display: 'flex', alignItems: 'center',
-        justifyContent: 'center', cursor: 'zoom-out',
+        position: 'fixed',
+        inset: '0',
+        background: 'rgba(0,0,0,0.9)',
+        zIndex: '99999',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'zoom-out',
       });
 
       const img = document.createElement('img');
@@ -130,7 +135,7 @@ function initLightbox() {
 
       img.addEventListener('click', e => e.stopPropagation());
 
-      document.body.appendChild(backdrop);
+      document.getElementById('smooth-wrapper').appendChild(backdrop);
     });
   });
 }
