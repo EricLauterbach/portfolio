@@ -53,91 +53,6 @@ function initSmoother(restoreScroll = false) {
 
 function reinitWebflow() {
   document.querySelectorAll('video[autoplay]').forEach(video => video.play());
-
-  // Re-execute Webflow's inline core script to reinitialize components like lightbox
-  setTimeout(() => {
-    const webflowScript = Array.from(document.querySelectorAll('head script:not([src])')).find(s =>
-      s.textContent.includes('w-mod-')
-    );
-    if (webflowScript) {
-      const script = document.createElement('script');
-      script.textContent = webflowScript.textContent;
-      document.head.appendChild(script);
-    }
-  }, 300);
-}
-
-// ─── Lightbox Loader ────────────────────────────────────────────────
-
-function initLightbox() {
-  // Remove any existing lightbox overlay from previous init
-  document.querySelectorAll('.w-lightbox-backdrop').forEach(el => el.remove());
-
-  document.querySelectorAll('.w-lightbox').forEach(el => {
-    // Avoid double-binding
-    if (el._lightboxBound) return;
-    el._lightboxBound = true;
-
-    el.addEventListener('click', function(e) {
-      e.preventDefault();
-
-      const json = el.querySelector('script.w-json');
-      if (!json) return;
-
-      let data;
-      try { data = JSON.parse(json.textContent); } catch(err) { return; }
-
-      const items = data.items;
-      if (!items || !items.length) return;
-
-      let currentIndex = 0;
-
-      // Build overlay
-      const backdrop = document.createElement('div');
-      backdrop.className = 'w-lightbox-backdrop';
-      Object.assign(backdrop.style, {
-        position: 'fixed',
-        inset: '0',
-        background: 'rgba(0,0,0,0.9)',
-        zIndex: '99999',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        cursor: 'zoom-out',
-      });
-
-      const img = document.createElement('img');
-      Object.assign(img.style, {
-        maxWidth: '90vw', maxHeight: '90vh',
-        objectFit: 'contain', cursor: 'default',
-        borderRadius: '4px',
-      });
-
-      function showItem(index) {
-        img.src = items[index].url;
-      }
-
-      showItem(currentIndex);
-      backdrop.appendChild(img);
-
-      // Close on backdrop click
-      backdrop.addEventListener('click', function(e) {
-        if (e.target === backdrop) backdrop.remove();
-      });
-
-      // Close on escape
-      function onKeyDown(e) {
-        if (e.key === 'Escape') { backdrop.remove(); document.removeEventListener('keydown', onKeyDown); }
-        if (e.key === 'ArrowRight' && items.length > 1) { currentIndex = (currentIndex + 1) % items.length; showItem(currentIndex); }
-        if (e.key === 'ArrowLeft' && items.length > 1) { currentIndex = (currentIndex - 1 + items.length) % items.length; showItem(currentIndex); }
-      }
-      document.addEventListener('keydown', onKeyDown);
-
-      img.addEventListener('click', e => e.stopPropagation());
-
-      document.getElementById('smooth-wrapper').appendChild(backdrop);
-    });
-  });
 }
 
 // ─── Dynamic Lottie loader ────────────────────────────────────────────────
@@ -224,9 +139,7 @@ function injectPageStyles(nextDocument) {
   });
 
   nextDocument.querySelectorAll('head script').forEach((el) => {
-    // Skip Webflow's core JS but allow component scripts (lightbox, etc.)
-    if (el.src && el.src.includes('webflow.js')) return;
-    if (el.src && el.src.includes('webflow.modules')) return;
+    if (el.src && el.src.includes('webflow')) return;
     const alreadyExists = el.textContent &&
       [...document.querySelectorAll('head script')]
         .some(existing => existing.textContent === el.textContent);
@@ -238,6 +151,7 @@ function injectPageStyles(nextDocument) {
     }
   });
 }
+
 // ── Lock overflow + capture hash at earliest moment ─────────
 
 document.addEventListener('click', (e) => {
@@ -317,7 +231,6 @@ barba.hooks.after((data) => {
   }
   if (namespace === 'copyleaks-marketing') {
     setTimeout(() => {
-      initLightbox();
       initCopyleaksMarketing();
     }, 300);
   }
@@ -1718,7 +1631,6 @@ function onPageLoad() {
   if (namespace === 'copyleaks-website') initCopyleaksWebsite();
   if (namespace === 'copyleaks-marketing') {
     setTimeout(() => {
-      initLightbox();
       initCopyleaksMarketing();
     }, 100);
   }
