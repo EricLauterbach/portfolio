@@ -1359,6 +1359,11 @@ function initCopyleaksWebsite() {
     });
   
     gsap.killTweensOf(optionWrapper);
+
+    const arrow = dropdown.querySelector('.downarrowportfolio');
+    gsap.killTweensOf(arrow);
+    gsap.to(arrow, { rotate: 180, duration: 0.3, ease: 'power3.out' });
+        
     visibleOptions.forEach(el => gsap.killTweensOf(el));
   
     gsap.to(optionWrapper, { height: currentY, duration: 1, ease: 'elastic.out(1,1)' });
@@ -1375,6 +1380,11 @@ function initCopyleaksWebsite() {
       .filter(el => getComputedStyle(el).display !== 'none');
   
     gsap.killTweensOf(optionWrapper);
+
+    const arrow = dropdown.querySelector('.downarrowportfolio');
+    gsap.killTweensOf(arrow);
+    gsap.to(arrow, { rotate: 0, duration: 0.3, ease: 'power3.inOut' });
+    
     visibleOptions.forEach(el => gsap.killTweensOf(el));
   
     gsap.to(optionWrapper, { height: 0, duration: 0.3, ease: 'power3.inOut' });
