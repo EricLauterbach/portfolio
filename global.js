@@ -54,11 +54,13 @@ function initSmoother(restoreScroll = false) {
 function reinitWebflow() {
   document.querySelectorAll('video[autoplay]').forEach(video => video.play());
 
-  // Delay to ensure new page DOM is fully rendered before reinitializing
   setTimeout(() => {
     if (window.Webflow && window.Webflow.require) {
       const lightbox = window.Webflow.require('lightbox');
-      if (lightbox && lightbox.ready) lightbox.ready();
+      if (lightbox) {
+        if (lightbox.destroy) lightbox.destroy();
+        if (lightbox.ready) lightbox.ready();
+      }
     }
   }, 300);
 }
