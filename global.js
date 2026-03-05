@@ -1330,9 +1330,105 @@ function initCopyleaksMarketing() {
         perPage: 2,
       },
     }
-
   });
+
+  window.marketingSlider2 = new Splide('#marketingSlider2', {
+    type: 'slide',
+    drag: 'free',
+    perPage: 4,
+    perMove: 1,
+    focus: '1',
+    arrows: false,
+    pagination: false,
+    autoplay: false,
+    snap: true,
+    speed: 3000,
+    interval: 5000,
+    padding: { left: css('--_portfolio-spacing---spacing-large'), right: css('--_portfolio-spacing---spacing-large') },
+    easing: 'cubic-bezier(.09,1.88,.5,.92)',
+
+    breakpoints: {
+      992: {
+        padding: { left: css('--_portfolio-spacing---spacing-medium'), right: css('--_portfolio-spacing---spacing-medium') },
+        perPage: 4,
+      },
+      768: {
+        padding: { left: css('--_portfolio-spacing---spacing-small'), right: css('--_portfolio-spacing---spacing-small') },
+        perPage: 3,
+      },
+      480: {
+        padding: { left: css('--_portfolio-spacing---spacing-tiny'), right: css('--_portfolio-spacing---spacing-tiny') },
+        perPage: 2,
+      },
+    }
+  });
+
+  window.marketingSlider3 = new Splide('#marketingSlider3', {
+    type: 'slide',
+    drag: 'free',
+    perPage: 4,
+    perMove: 1,
+    focus: '1',
+    arrows: false,
+    pagination: false,
+    autoplay: false,
+    snap: true,
+    speed: 3000,
+    interval: 5000,
+    padding: { left: css('--_portfolio-spacing---spacing-large'), right: css('--_portfolio-spacing---spacing-large') },
+    easing: 'cubic-bezier(.09,1.88,.5,.92)',
+
+    breakpoints: {
+      992: {
+        padding: { left: css('--_portfolio-spacing---spacing-medium'), right: css('--_portfolio-spacing---spacing-medium') },
+        perPage: 4,
+      },
+      768: {
+        padding: { left: css('--_portfolio-spacing---spacing-small'), right: css('--_portfolio-spacing---spacing-small') },
+        perPage: 3,
+      },
+      480: {
+        padding: { left: css('--_portfolio-spacing---spacing-tiny'), right: css('--_portfolio-spacing---spacing-tiny') },
+        perPage: 2,
+      },
+    }
+  });
+
+  window.marketingSlider4 = new Splide('#marketingSlider4', {
+    type: 'slide',
+    drag: 'free',
+    perPage: 4,
+    perMove: 1,
+    focus: '1',
+    arrows: false,
+    pagination: false,
+    autoplay: false,
+    snap: true,
+    speed: 3000,
+    interval: 5000,
+    padding: { left: css('--_portfolio-spacing---spacing-large'), right: css('--_portfolio-spacing---spacing-large') },
+    easing: 'cubic-bezier(.09,1.88,.5,.92)',
+
+    breakpoints: {
+      992: {
+        padding: { left: css('--_portfolio-spacing---spacing-medium'), right: css('--_portfolio-spacing---spacing-medium') },
+        perPage: 4,
+      },
+      768: {
+        padding: { left: css('--_portfolio-spacing---spacing-small'), right: css('--_portfolio-spacing---spacing-small') },
+        perPage: 3,
+      },
+      480: {
+        padding: { left: css('--_portfolio-spacing---spacing-tiny'), right: css('--_portfolio-spacing---spacing-tiny') },
+        perPage: 2,
+      },
+    }
+  });
+  
   window.marketingSlider1.mount();
+  window.marketingSlider2.mount();
+  window.marketingSlider3.mount();
+  window.marketingSlider4.mount();
 }
 
 
