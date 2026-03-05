@@ -280,10 +280,8 @@ barba.init({
       to:   { namespace: projectPages },
     
       async leave(data) {
-
         const scrollY = window.smoother ? window.smoother.scrollTop() : (window.scrollY || window.pageYOffset);
         killSmoother();
-        
         gsap.set(data.current.container, {
           position: 'fixed',
           top: -scrollY,
@@ -303,11 +301,14 @@ barba.init({
           duration: 0.6, ease: 'elastic.out(1,1)'
         });
     
-        await gsap.to(['#navSecondaryUnderline', data.current.container], {
+        gsap.to('#navSecondaryUnderline', {
+          opacity: 0, duration: 0.4
+        });
+    
+        await gsap.to(data.current.container, {
           opacity: 0,
-          top: `-=${scrollY + TRANSITION_Y}`,
-          duration: 0.4,
-          stagger: 0.1
+          top: `-=${TRANSITION_Y}`,
+          duration: 0.4
         });
       },
     
@@ -331,7 +332,6 @@ barba.init({
     
         const scrollY = window.smoother ? window.smoother.scrollTop() : (window.scrollY || window.pageYOffset);
         killSmoother();
-        
         gsap.set(data.current.container, {
           position: 'fixed',
           top: -scrollY,
@@ -353,7 +353,7 @@ barba.init({
     
         await gsap.to(data.current.container, {
           opacity: 0,
-          top: `-=${scrollY + TRANSITION_Y}`,
+          top: `-=${TRANSITION_Y}`,
           duration: 0.4
         });
       },
