@@ -1311,6 +1311,7 @@ function initCopyleaksWebsite() {
   const options = dropdown.querySelectorAll('.dropdownoption');
   const parentContainer = document.querySelector('.introinfodropdowncontainerportfolioproject');
   const graphicContainer = document.querySelector('.intrographiccontainerportfolioproject');
+  const contentWrapper = document.querySelector('.dropdowncontentwrapperclw');
 
   let isOpen = false;
   let currentTarget = 'homepage';
@@ -1365,7 +1366,9 @@ function initCopyleaksWebsite() {
     gsap.to(arrow, { rotate: 180, duration: 1, ease: 'elastic.out(1,1)' });
 
     gsap.killTweensOf(graphicContainer);
+    gsap.killTweensOf(contentWrapper);
     gsap.to(graphicContainer, { filter: 'blur(20px)', duration: 0.3, ease: 'power2.out' });
+    gsap.to(contentWrapper, { filter: 'blur(20px)', duration: 0.3, ease: 'power2.out' });
 
     visibleOptions.forEach(el => gsap.killTweensOf(el));
 
@@ -1389,7 +1392,9 @@ function initCopyleaksWebsite() {
     gsap.to(arrow, { rotate: 0, duration: 1, ease: 'elastic.out(1,1)' });
 
     gsap.killTweensOf(graphicContainer);
+    gsap.killTweensOf(contentWrapper);
     gsap.to(graphicContainer, { filter: 'blur(0px)', duration: 0.3, ease: 'power2.out' });
+    gsap.to(contentWrapper, { filter: 'blur(0px)', duration: 0.3, ease: 'power2.out' });
 
     visibleOptions.forEach(el => gsap.killTweensOf(el));
 
