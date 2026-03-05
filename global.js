@@ -53,6 +53,13 @@ function initSmoother(restoreScroll = false) {
 
 function reinitWebflow() {
   document.querySelectorAll('video[autoplay]').forEach(video => video.play());
+
+  setTimeout(() => {
+    if (window.Webflow) {
+      window.Webflow.destroy();
+      window.Webflow.ready();
+    }
+  }, 300);
 }
 
 // ─── Dynamic Lottie loader ────────────────────────────────────────────────
