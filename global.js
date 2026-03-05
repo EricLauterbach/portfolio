@@ -280,8 +280,10 @@ barba.init({
       to:   { namespace: projectPages },
     
       async leave(data) {
+
+        const scrollY = window.smoother ? window.smoother.scrollTop() : (window.scrollY || window.pageYOffset);
         killSmoother();
-        const scrollY = window.scrollY || window.pageYOffset;
+        
         gsap.set(data.current.container, {
           position: 'fixed',
           top: -scrollY,
@@ -327,8 +329,9 @@ barba.init({
       async leave(data) {
         if (window.forceCloseMobileContactMenu) window.forceCloseMobileContactMenu();
     
+        const scrollY = window.smoother ? window.smoother.scrollTop() : (window.scrollY || window.pageYOffset);
         killSmoother();
-        const scrollY = window.scrollY || window.pageYOffset;
+        
         gsap.set(data.current.container, {
           position: 'fixed',
           top: -scrollY,
