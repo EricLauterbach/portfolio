@@ -1415,7 +1415,7 @@ function initCopyleaksWebsite() {
 
     const clickedOption = dropdown.querySelector(`[data-target="${targetKey}"]`);
     if (selectedLabel && clickedOption) {
-      selectedLabel.textContent = clickedOption.textContent.trim();
+      selectedLabel.innerHTML = clickedOption.innerHTML;
     }
 
     dropdown.querySelector(`[data-target="${currentTarget}"]`)?.style.setProperty('display', '');
