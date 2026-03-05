@@ -1358,6 +1358,9 @@ function initCopyleaksWebsite() {
       return y;
     });
   
+    gsap.killTweensOf(optionWrapper);
+    visibleOptions.forEach(el => gsap.killTweensOf(el));
+  
     gsap.to(optionWrapper, { height: currentY, duration: 1, ease: 'elastic.out(1,1)' });
   
     visibleOptions.forEach((el, i) => {
@@ -1367,12 +1370,15 @@ function initCopyleaksWebsite() {
   
   function closeDropdown() {
     isOpen = false;
-
+  
     const visibleOptions = Array.from(optionWrapper.children)
       .filter(el => getComputedStyle(el).display !== 'none');
-
+  
+    gsap.killTweensOf(optionWrapper);
+    visibleOptions.forEach(el => gsap.killTweensOf(el));
+  
     gsap.to(optionWrapper, { height: 0, duration: 0.3, ease: 'power3.inOut' });
-
+  
     visibleOptions.forEach(el => {
       gsap.to(el, { y: 0, duration: 0.3, ease: 'power3.inOut' });
     });
