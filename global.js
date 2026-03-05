@@ -375,15 +375,6 @@ const ENTRANCE_SELECTORS = [
   '.contentcontainerportfolioproject',
 ];
 
-// Inject immediately at script parse time to prevent FOUC on first load
-(function() {
-  const style = document.createElement('style');
-  style.id = 'entrance-animation-styles';
-  style.textContent = ENTRANCE_SELECTORS.map(sel => sel.trim()).join(',\n') +
-    ' { transform: translateY(100px); }';
-  document.head.appendChild(style);
-})();
-
 function initEntranceAnimations() {
   if (!ENTRANCE_SELECTORS.length) return;
 
@@ -400,14 +391,6 @@ function initEntranceAnimations() {
   });
 
   if (!elements.length) return;
-
-  // Set initial state immediately — elements already primed in beforeEnter for Barba,
-  // but this covers fresh loads and any elements missed
-  elements.forEach(el => {
-    if (!el._entranceComplete) {
-      gsap.set(el, { y: Y_OFFSET });
-    }
-  });
 
   let entranceTriggers = [];
 
@@ -487,10 +470,6 @@ function initEntranceAnimations() {
 
       entranceTriggers.push(st);
     });
-
-    // Remove injected style once GSAP has taken over
-    const injectedStyle = document.getElementById('entrance-animation-styles');
-    if (injectedStyle) injectedStyle.remove();
   }
 
   buildTriggers();
@@ -504,6 +483,7 @@ function initEntranceAnimations() {
     }, 250);
   });
 }
+
 
 // ============================================================
 // GLOBAL INIT — runs on load + after every Barba transition
