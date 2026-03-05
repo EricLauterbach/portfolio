@@ -57,10 +57,7 @@ function reinitWebflow() {
   setTimeout(() => {
     if (window.Webflow && window.Webflow.require) {
       const lightbox = window.Webflow.require('lightbox');
-      if (lightbox) {
-        if (lightbox.destroy) lightbox.destroy();
-        if (lightbox.ready) lightbox.ready();
-      }
+      if (lightbox && lightbox.ready) lightbox.ready();
     }
   }, 300);
 }
@@ -149,7 +146,9 @@ function injectPageStyles(nextDocument) {
   });
 
   nextDocument.querySelectorAll('head script').forEach((el) => {
-    if (el.src && el.src.includes('webflow')) return;
+    // Skip Webflow's core JS but allow component scripts (lightbox, etc.)
+    if (el.src && el.src.includes('webflow.js')) return;
+    if (el.src && el.src.includes('webflow.modules')) return;
     const alreadyExists = el.textContent &&
       [...document.querySelectorAll('head script')]
         .some(existing => existing.textContent === el.textContent);
@@ -161,7 +160,6 @@ function injectPageStyles(nextDocument) {
     }
   });
 }
-
 // ── Lock overflow + capture hash at earliest moment ─────────
 
 document.addEventListener('click', (e) => {
