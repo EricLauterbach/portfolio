@@ -1415,7 +1415,12 @@ function initCopyleaksWebsite() {
 
     const clickedOption = dropdown.querySelector(`[data-target="${targetKey}"]`);
     if (selectedLabel && clickedOption) {
-      selectedLabel.innerHTML = clickedOption.innerHTML;
+      const labelContent = clickedOption.querySelector('.paragraphportfolio');
+      if (labelContent) {
+        selectedLabel.innerHTML = labelContent.innerHTML;
+      } else {
+        selectedLabel.innerHTML = clickedOption.innerHTML;
+      }
     }
 
     dropdown.querySelector(`[data-target="${currentTarget}"]`)?.style.setProperty('display', '');
