@@ -1362,14 +1362,14 @@ function initCopyleaksWebsite() {
 
     const arrow = dropdown.querySelector('.downarrowportfolio');
     gsap.killTweensOf(arrow);
-    gsap.to(arrow, { rotate: 180, duration: 0.6, ease: 'elastic.out(1,1)' });
+    gsap.to(arrow, { rotate: 180, duration: 1, ease: 'elastic.out(1,1)' });
         
     visibleOptions.forEach(el => gsap.killTweensOf(el));
   
     gsap.to(optionWrapper, { height: currentY, duration: 1, ease: 'elastic.out(1,1)' });
   
     visibleOptions.forEach((el, i) => {
-      gsap.to(el, { y: positions[i], duration: .6, ease: 'power3.inOut' });
+      gsap.to(el, { y: positions[i], duration: .8, ease: 'power3.out' });
     });
   }
   
@@ -1383,14 +1383,14 @@ function initCopyleaksWebsite() {
 
     const arrow = dropdown.querySelector('.downarrowportfolio');
     gsap.killTweensOf(arrow);
-    gsap.to(arrow, { rotate: 0, duration: 0.6, ease: 'elastic.out(1,1)' });
+    gsap.to(arrow, { rotate: 0, duration: 1, ease: 'elastic.out(1,1)' });
     
     visibleOptions.forEach(el => gsap.killTweensOf(el));
   
-    gsap.to(optionWrapper, { height: 0, duration: 0.3, ease: 'power3.inOut' });
+    gsap.to(optionWrapper, { height: 0, duration: 0.5, ease: 'power3.inOut' });
   
     visibleOptions.forEach(el => {
-      gsap.to(el, { y: 0, duration: 0.3, ease: 'power3.inOut' });
+      gsap.to(el, { y: 0, duration: 0.5, ease: 'power3.inOut' });
     });
   }
 
