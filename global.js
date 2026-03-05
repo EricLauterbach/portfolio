@@ -1340,10 +1340,12 @@ function initCopyleaksWebsite() {
   // ── Open / close dropdown ─────────────────────────────
   function openDropdown() {
     isOpen = true;
-    // Temporarily make visible to measure
-    gsap.set(optionWrapper, { height: 'auto', overflow: 'visible' });
-    const fullHeight = optionWrapper.scrollHeight;
-    gsap.set(optionWrapper, { height: 0, overflow: 'hidden' });
+    
+    // Calculate height from visible children directly
+    const fullHeight = Array.from(optionWrapper.children)
+      .filter(el => getComputedStyle(el).display !== 'none')
+      .reduce((sum, el) => sum + el.offsetHeight, 0);
+  
     gsap.to(optionWrapper, { height: fullHeight, overflow: 'hidden', duration: 0.4, ease: 'power2.out' });
   }
 
