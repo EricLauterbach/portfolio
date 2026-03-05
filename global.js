@@ -53,6 +53,12 @@ function initSmoother(restoreScroll = false) {
 
 function reinitWebflow() {
   document.querySelectorAll('video[autoplay]').forEach(video => video.play());
+
+  // Reinitialize Webflow lightbox after Barba transition
+  if (window.Webflow && window.Webflow.require) {
+    const lightbox = window.Webflow.require('lightbox');
+    if (lightbox && lightbox.ready) lightbox.ready();
+  }
 }
 
 // ─── Dynamic Lottie loader ────────────────────────────────────────────────
