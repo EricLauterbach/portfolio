@@ -54,11 +54,13 @@ function initSmoother(restoreScroll = false) {
 function reinitWebflow() {
   document.querySelectorAll('video[autoplay]').forEach(video => video.play());
 
-  // Reinitialize Webflow lightbox after Barba transition
-  if (window.Webflow && window.Webflow.require) {
-    const lightbox = window.Webflow.require('lightbox');
-    if (lightbox && lightbox.ready) lightbox.ready();
-  }
+  // Delay to ensure new page DOM is fully rendered before reinitializing
+  setTimeout(() => {
+    if (window.Webflow && window.Webflow.require) {
+      const lightbox = window.Webflow.require('lightbox');
+      if (lightbox && lightbox.ready) lightbox.ready();
+    }
+  }, 300);
 }
 
 // ─── Dynamic Lottie loader ────────────────────────────────────────────────
