@@ -1305,6 +1305,13 @@ function initCopyleaksWebsite() {
   const dropdown = document.querySelector('.dropdownportfolio');
   if (!dropdown) return;
 
+  console.log('initCopyleaksWebsite running', {
+    selectedEl: dropdown.querySelector('.dropdownselected'),
+    optionWrapper: dropdown.querySelector('.dropdownoptionwrapper'),
+    scrollHeight: dropdown.querySelector('.dropdownoptionwrapper')?.scrollHeight,
+    options: dropdown.querySelectorAll('.dropdownoption').length
+  });
+
   const selectedEl = dropdown.querySelector('.dropdownselected');
   const selectedLabel = dropdown.querySelector('.dropdownselectedlabel .paragraphportfolio');
   const optionWrapper = dropdown.querySelector('.dropdownoptionwrapper');
@@ -1749,7 +1756,11 @@ function onPageLoad() {
       initCopyleaksAnimations();
     }, 100);
   }
-  if (namespace === 'copyleaks-website') initCopyleaksWebsite();
+  if (namespace === 'copyleaks-website') {
+     setTimeout(() => {
+      initCopyleaksWebsite();
+    }, 100);
+  }
   if (namespace === 'copyleaks-marketing') {
     setTimeout(() => {
       initCopyleaksMarketing();
