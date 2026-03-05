@@ -309,7 +309,7 @@ barba.init({
           opacity: 0,
           top: `-=${TRANSITION_Y}`,
           duration: 0.6,
-          ease: "power2.inOut",
+          ease: "power4.out",
         });
       },
     
@@ -317,7 +317,7 @@ barba.init({
         gsap.set('#navSecondaryUnderline', { clipPath: 'inset(0 100% 0 0)' });
         gsap.set(data.next.container, { opacity: 0, y: TRANSITION_Y, zIndex: 2 });
         await gsap.to(data.next.container, {
-          opacity: 1, y: 0, duration: 1, ease: 'power4.out', clearProps: 'all'
+          opacity: 1, y: 0, duration: 0.6, ease: 'power4.out', clearProps: 'all'
         });
       }
     },
@@ -356,7 +356,7 @@ barba.init({
           opacity: 0,
           top: `-=${TRANSITION_Y}`,
           duration: 0.6,
-          ease: "power2.inOut",
+          ease: "power4.out",
         });
       },
     
@@ -364,7 +364,7 @@ barba.init({
         gsap.set('#navSecondaryUnderline', { clipPath: 'inset(0 0% 0 0)' });
         gsap.set(data.next.container, { opacity: 0, y: TRANSITION_Y, zIndex: 2 });
         await gsap.to(data.next.container, {
-          opacity: 1, y: 0, duration: 1, ease: 'power4.out', clearProps: 'all'
+          opacity: 1, y: 0, duration: 0.6, ease: 'power4.out', clearProps: 'all'
         });
       }
     }
