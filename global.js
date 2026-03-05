@@ -53,13 +53,6 @@ function initSmoother(restoreScroll = false) {
 
 function reinitWebflow() {
   document.querySelectorAll('video[autoplay]').forEach(video => video.play());
-
-  setTimeout(() => {
-    if (window.Webflow) {
-      window.Webflow.destroy();
-      window.Webflow.ready();
-    }
-  }, 300);
 }
 
 // ─── Dynamic Lottie loader ────────────────────────────────────────────────
@@ -226,16 +219,6 @@ barba.hooks.after((data) => {
   initSmoother(true);
   reinitWebflow();
   initAll();
-
-   // Re-execute Webflow's inline core script to restore document-level listeners
-  const webflowInline = Array.from(document.querySelectorAll('head script:not([src])')).find(s =>
-    s.textContent.includes('w-mod-')
-  );
-  if (webflowInline) {
-    const script = document.createElement('script');
-    script.textContent = webflowInline.textContent;
-    document.head.appendChild(script);
-  }
 
   const namespace = data.next.namespace;
   if (namespace === 'home') initHomePage();
