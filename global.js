@@ -302,7 +302,7 @@ barba.init({
         });
 
         await gsap.to(['#navSecondaryUnderline', data.current.container], {
-          opacity: 0, y: TRANSITION_Y, duration: 0.4, stagger: 0.1
+          opacity: 0, y: -TRANSITION_Y, duration: 0.4, stagger: 0.1
         });
       },
 
@@ -346,7 +346,7 @@ barba.init({
         });
 
         await gsap.to(data.current.container, {
-          opacity: 0, y: TRANSITION_Y, duration: 0.4
+          opacity: 0, y: -TRANSITION_Y, duration: 0.4
         });
       },
 
@@ -356,6 +356,10 @@ barba.init({
         await gsap.to(data.next.container, {
           opacity: 1, y: 0, duration: 0.4, clearProps: 'all'
         });
+      }
+    }
+  ]
+});
       }
     }
   ]
