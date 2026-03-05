@@ -1347,20 +1347,24 @@ function initCopyleaksWebsite() {
   // ── Open / close dropdown ─────────────────────────────
   function openDropdown() {
     isOpen = true;
-
+  
     const visibleOptions = Array.from(optionWrapper.children)
       .filter(el => getComputedStyle(el).display !== 'none');
-
-    const itemHeight = visibleOptions[0]?.offsetHeight || 72;
-    const fullHeight = visibleOptions.length * itemHeight;
-
-    gsap.to(optionWrapper, { height: fullHeight, duration: 0.35, ease: 'power3.out' });
-
+  
+    let currentY = 0;
+    const positions = visibleOptions.map(el => {
+      const y = currentY;
+      currentY += el.offsetHeight;
+      return y;
+    });
+  
+    gsap.to(optionWrapper, { height: currentY, duration: 0.35, ease: 'power3.out' });
+  
     visibleOptions.forEach((el, i) => {
-      gsap.to(el, { y: i * itemHeight, duration: 0.35, ease: 'power3.out' });
+      gsap.to(el, { y: positions[i], duration: 0.35, ease: 'power3.out' });
     });
   }
-
+  
   function closeDropdown() {
     isOpen = false;
 
@@ -1441,7 +1445,10 @@ function initCopyleaksWebsite() {
       });
     });
   });
-
+  window.addEventListener('resize', () => {
+    setParentHeight();
+    if (isOpen) openDropdown();
+  });
 }
 
 
