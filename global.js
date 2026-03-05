@@ -317,7 +317,7 @@ barba.init({
         gsap.set('#navSecondaryUnderline', { clipPath: 'inset(0 100% 0 0)' });
         gsap.set(data.next.container, { opacity: 0, y: TRANSITION_Y, zIndex: 2 });
         await gsap.to(data.next.container, {
-          opacity: 1, y: 0, duration: 1.25, ease: 'elastic.out(1.5,.75)', clearProps: 'all'
+          opacity: 1, y: 0, duration: 1, ease: 'elastic.out(1,1)', clearProps: 'all'
         });
       }
     },
@@ -364,7 +364,7 @@ barba.init({
         gsap.set('#navSecondaryUnderline', { clipPath: 'inset(0 0% 0 0)' });
         gsap.set(data.next.container, { opacity: 0, y: TRANSITION_Y, zIndex: 2 });
         await gsap.to(data.next.container, {
-          opacity: 1, y: 0, duration: 1.25, ease: 'elastic.out(1.5,.75)', clearProps: 'all'
+          opacity: 1, y: 0, duration: 1, ease: 'elastic.out(1,1)', clearProps: 'all'
         });
       }
     }
