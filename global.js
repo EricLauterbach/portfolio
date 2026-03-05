@@ -278,7 +278,7 @@ barba.init({
       name: 'home-to-project',
       from: { namespace: ['home'] },
       to:   { namespace: projectPages },
-
+    
       async leave(data) {
         killSmoother();
         const scrollY = window.scrollY || window.pageYOffset;
@@ -289,7 +289,7 @@ barba.init({
           width: '100%',
           zIndex: 1
         });
-
+    
         gsap.to('.backbuttoncontainerportfolio', {
           y: 0, opacity: 1, duration: 0.6, ease: 'elastic.out(1,1)'
         });
@@ -300,12 +300,15 @@ barba.init({
           width: $('.backbuttoncontainerportfolio').outerWidth(),
           duration: 0.6, ease: 'elastic.out(1,1)'
         });
-
+    
         await gsap.to(['#navSecondaryUnderline', data.current.container], {
-          opacity: 0, y: -TRANSITION_Y, duration: 0.4, stagger: 0.1
+          opacity: 0,
+          top: `-=${scrollY + TRANSITION_Y}`,
+          duration: 0.4,
+          stagger: 0.1
         });
       },
-
+    
       async enter(data) {
         gsap.set('#navSecondaryUnderline', { clipPath: 'inset(0 100% 0 0)' });
         gsap.set(data.next.container, { opacity: 0, y: TRANSITION_Y, zIndex: 2 });
@@ -314,16 +317,16 @@ barba.init({
         });
       }
     },
-
+    
     // ─── Project Page → Home ───────────────────────────────
     {
       name: 'project-to-home',
       from: { namespace: projectPages },
       to:   { namespace: ['home'] },
-
+    
       async leave(data) {
         if (window.forceCloseMobileContactMenu) window.forceCloseMobileContactMenu();
-
+    
         killSmoother();
         const scrollY = window.scrollY || window.pageYOffset;
         gsap.set(data.current.container, {
@@ -333,7 +336,7 @@ barba.init({
           width: '100%',
           zIndex: 1
         });
-
+    
         gsap.to('.backbuttoncontainerportfolio', {
           y: 60, opacity: 0, duration: 0.6, ease: 'elastic.out(1,1)'
         });
@@ -344,12 +347,14 @@ barba.init({
           width: $('#profileTextName').outerWidth(),
           duration: 0.6, ease: 'elastic.out(1,1)'
         });
-
+    
         await gsap.to(data.current.container, {
-          opacity: 0, y: -TRANSITION_Y, duration: 0.4
+          opacity: 0,
+          top: `-=${scrollY + TRANSITION_Y}`,
+          duration: 0.4
         });
       },
-
+    
       async enter(data) {
         gsap.set('#navSecondaryUnderline', { clipPath: 'inset(0 0% 0 0)' });
         gsap.set(data.next.container, { opacity: 0, y: TRANSITION_Y, zIndex: 2 });
