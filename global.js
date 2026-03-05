@@ -262,7 +262,7 @@ barba.hooks.after((data) => {
 
 // ── Transitions ─────────────────────────────────────────────
 
-const TRANSITION_Y = 60;
+const TRANSITION_Y = 30;
 
 barba.init({
   preventRunning: true,
