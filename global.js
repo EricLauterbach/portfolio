@@ -262,6 +262,8 @@ barba.hooks.after((data) => {
 
 // ── Transitions ─────────────────────────────────────────────
 
+const TRANSITION_Y = 60;
+
 barba.init({
   preventRunning: true,
   sync: true,
@@ -300,15 +302,15 @@ barba.init({
         });
 
         await gsap.to(['#navSecondaryUnderline', data.current.container], {
-          opacity: 0, duration: 0.4, stagger: 0.1
+          opacity: 0, y: TRANSITION_Y, duration: 0.4, stagger: 0.1
         });
       },
 
       async enter(data) {
         gsap.set('#navSecondaryUnderline', { clipPath: 'inset(0 100% 0 0)' });
-        gsap.set(data.next.container, { opacity: 0, zIndex: 2 });
+        gsap.set(data.next.container, { opacity: 0, y: TRANSITION_Y, zIndex: 2 });
         await gsap.to(data.next.container, {
-          opacity: 1, duration: 0.4, clearProps: 'all'
+          opacity: 1, y: 0, duration: 0.4, clearProps: 'all'
         });
       }
     },
@@ -344,15 +346,15 @@ barba.init({
         });
 
         await gsap.to(data.current.container, {
-          opacity: 0, duration: 0.4
+          opacity: 0, y: TRANSITION_Y, duration: 0.4
         });
       },
 
       async enter(data) {
         gsap.set('#navSecondaryUnderline', { clipPath: 'inset(0 0% 0 0)' });
-        gsap.set(data.next.container, { opacity: 0, zIndex: 2 });
+        gsap.set(data.next.container, { opacity: 0, y: TRANSITION_Y, zIndex: 2 });
         await gsap.to(data.next.container, {
-          opacity: 1, duration: 0.4, clearProps: 'all'
+          opacity: 1, y: 0, duration: 0.4, clearProps: 'all'
         });
       }
     }
