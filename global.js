@@ -1530,7 +1530,71 @@ function initCopyleaksWebsite() {
     }
   });
 
+  window.websiteDemoSlider2 = new Splide('#websiteDemoSlider2', {
+    type: 'slide',
+    drag: 'free',
+    perPage: 2,
+    perMove: 1,
+    focus: '1',
+    arrows: false,
+    pagination: false,
+    autoplay: false,
+    snap: true,
+    speed: 3000,
+    interval: 5000,
+    padding: { left: css('--_portfolio-spacing---spacing-large'), right: css('--_portfolio-spacing---spacing-large') },
+    easing: 'cubic-bezier(.09,1.88,.5,.92)',
+
+    breakpoints: {
+      992: {
+        padding: { left: css('--_portfolio-spacing---spacing-medium'), right: css('--_portfolio-spacing---spacing-medium') },
+        perPage: 2,
+      },
+      768: {
+        padding: { left: css('--_portfolio-spacing---spacing-small'), right: css('--_portfolio-spacing---spacing-small') },
+        perPage: 1,
+      },
+      480: {
+        padding: { left: css('--_portfolio-spacing---spacing-tiny'), right: css('--_portfolio-spacing---spacing-tiny') },
+        perPage: 1,
+      },
+    }
+  });
+
+  window.websiteDemoSlider3 = new Splide('#websiteDemoSlider3', {
+    type: 'slide',
+    drag: 'free',
+    perPage: 2,
+    perMove: 1,
+    focus: '1',
+    arrows: false,
+    pagination: false,
+    autoplay: false,
+    snap: true,
+    speed: 3000,
+    interval: 5000,
+    padding: { left: css('--_portfolio-spacing---spacing-large'), right: css('--_portfolio-spacing---spacing-large') },
+    easing: 'cubic-bezier(.09,1.88,.5,.92)',
+
+    breakpoints: {
+      992: {
+        padding: { left: css('--_portfolio-spacing---spacing-medium'), right: css('--_portfolio-spacing---spacing-medium') },
+        perPage: 2,
+      },
+      768: {
+        padding: { left: css('--_portfolio-spacing---spacing-small'), right: css('--_portfolio-spacing---spacing-small') },
+        perPage: 1,
+      },
+      480: {
+        padding: { left: css('--_portfolio-spacing---spacing-tiny'), right: css('--_portfolio-spacing---spacing-tiny') },
+        perPage: 1,
+      },
+    }
+  });
+
   window.websiteDemoSlider1.mount();
+  window.websiteDemoSlider2.mount();
+  window.websiteDemoSlider3.mount();
 
 }
 
