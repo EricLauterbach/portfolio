@@ -1494,6 +1494,44 @@ function initCopyleaksWebsite() {
     if (isOpen) openDropdown();
   });
 
+
+
+  // Demo page Sliders init
+  const css = (variable) => getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+
+  window.websiteDemoSlider1 = new Splide('#websiteDemoSlider1', {
+    type: 'slide',
+    drag: 'free',
+    perPage: 2,
+    perMove: 1,
+    focus: '1',
+    arrows: false,
+    pagination: false,
+    autoplay: false,
+    snap: true,
+    speed: 3000,
+    interval: 5000,
+    padding: { left: css('--_portfolio-spacing---spacing-large'), right: css('--_portfolio-spacing---spacing-large') },
+    easing: 'cubic-bezier(.09,1.88,.5,.92)',
+
+    breakpoints: {
+      992: {
+        padding: { left: css('--_portfolio-spacing---spacing-medium'), right: css('--_portfolio-spacing---spacing-medium') },
+        perPage: 2,
+      },
+      768: {
+        padding: { left: css('--_portfolio-spacing---spacing-small'), right: css('--_portfolio-spacing---spacing-small') },
+        perPage: 1,
+      },
+      480: {
+        padding: { left: css('--_portfolio-spacing---spacing-tiny'), right: css('--_portfolio-spacing---spacing-tiny') },
+        perPage: 1,
+      },
+    }
+  });
+
+  window.websiteDemoSlider1.mount();
+
 }
 
 
