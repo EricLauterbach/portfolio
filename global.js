@@ -385,6 +385,7 @@ const ENTRANCE_SELECTORS = [
   '.projectportfoliohome',
   '.contactbuttonportfolio',
   '.contentcontainerportfolioproject',
+  '.websitemockupportfolio',
 ];
 
 function initEntranceAnimations() {
