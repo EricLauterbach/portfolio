@@ -1344,6 +1344,12 @@ function initCopyleaksWebsite() {
       display: el.dataset.image === 'homepage' ? 'block' : 'none'
     });
   });
+  document.querySelectorAll('[data-video]').forEach(el => {
+    gsap.set(el, {
+      opacity: el.dataset.video === 'homepage' ? 1 : 0,
+      display: el.dataset.video === 'homepage' ? 'block' : 'none'
+    });
+  });
 
   // ── Open / close dropdown ─────────────────────────────
   function openDropdown() {
@@ -1421,18 +1427,22 @@ function initCopyleaksWebsite() {
     const inPanel  = document.querySelector(`[data-panel="${targetKey}"]`);
     const outImage = document.querySelector(`[data-image="${currentTarget}"]`);
     const inImage  = document.querySelector(`[data-image="${targetKey}"]`);
+    const outVideo = document.querySelector(`[data-video="${currentTarget}"]`);
+    const inVideo  = document.querySelector(`[data-video="${targetKey}"]`);
 
-    gsap.to([outPanel, outImage].filter(Boolean), {
+    gsap.to([outPanel, outImage, outVideo].filter(Boolean), {
       opacity: 0,
       duration: 0.2,
       ease: 'power2.out',
       onComplete: () => {
         if (outPanel) gsap.set(outPanel, { display: 'none' });
         if (outImage) gsap.set(outImage, { display: 'none' });
+        if (outVideo) gsap.set(outVideo, { display: 'none' });
 
         if (inPanel) gsap.set(inPanel, { display: 'block', opacity: 0 });
         if (inImage) gsap.set(inImage, { display: 'block', opacity: 0 });
-        gsap.to([inPanel, inImage].filter(Boolean), {
+        if (inVideo) gsap.set(inVideo, { display: 'block', opacity: 0 });
+        gsap.to([inPanel, inImage, inVideo].filter(Boolean), {
           opacity: 1,
           duration: 0.3,
           ease: 'power2.in'
@@ -1470,7 +1480,8 @@ function initCopyleaksWebsite() {
       const target = option.dataset.target;
       const panel = document.querySelector(`[data-panel="${target}"]`);
       const image = document.querySelector(`[data-image="${target}"]`);
-      [panel, image].filter(Boolean).forEach(el => {
+      const video = document.querySelector(`[data-video="${target}"]`);
+      [panel, image, video].filter(Boolean).forEach(el => {
         el.querySelectorAll('img[loading="lazy"]').forEach(img => {
           img.loading = 'eager';
         });
