@@ -518,16 +518,19 @@ function initAll() {
       const tag  = hotspot.querySelector('.tagportfolio.hotspot');
       if (!icon || !tag) return;
   
-      // Capture initial padding once
-      hotspot._initialPR = parseFloat(getComputedStyle(hotspot).paddingRight)  || 0;
-      hotspot._initialPB = parseFloat(getComputedStyle(hotspot).paddingBottom) || 0;
       hotspot._isOpen    = false;
-  
-      // Prime GSAP with inline values
-      gsap.set(hotspot, { paddingRight: hotspot._initialPR, paddingBottom: hotspot._initialPB });
+      hotspot._initialPR = null;
+      hotspot._initialPB = null;
   
       hotspot.addEventListener('click', () => {
-        const iconRect   = icon.getBoundingClientRect();
+        // Capture initial padding on first click (element is guaranteed visible by then)
+        if (hotspot._initialPR === null) {
+          hotspot._initialPR = parseFloat(getComputedStyle(hotspot).paddingRight)  || 0;
+          hotspot._initialPB = parseFloat(getComputedStyle(hotspot).paddingBottom) || 0;
+          gsap.set(hotspot, { paddingRight: hotspot._initialPR, paddingBottom: hotspot._initialPB });
+        }
+  
+        const iconRect    = icon.getBoundingClientRect();
         const extraRight  = Math.max(0, tag.offsetWidth  - iconRect.width);
         const extraBottom = tag.offsetHeight > iconRect.height ? tag.offsetHeight - iconRect.height : 0;
   
@@ -560,6 +563,9 @@ function initAll() {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
         hotspots.forEach(hotspot => {
+          // Skip if never interacted with (still hidden or untouched)
+          if (hotspot._initialPR === null) return;
+  
           if (!hotspot._isOpen) {
             hotspot._initialPR = parseFloat(getComputedStyle(hotspot).paddingRight)  || 0;
             hotspot._initialPB = parseFloat(getComputedStyle(hotspot).paddingBottom) || 0;
