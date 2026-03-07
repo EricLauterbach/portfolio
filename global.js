@@ -505,6 +505,132 @@ function initAll() {
 
   ScrollTrigger.getAll().forEach(st => st.kill());
 
+  // ============================================================
+  // HOTSPOT SYSTEM
+  // Runs on all pages — handles .hotspotportfolio toggle behavior
+  // ============================================================
+  
+  function initHotspots() {
+    const hotspots = document.querySelectorAll('.hotspotportfolio');
+    if (!hotspots.length) return;
+  
+    // Store initial padding values and measurements per element
+    const hotspotData = new WeakMap();
+  
+    function measureHotspot(hotspot) {
+      const icon = hotspot.querySelector('.hotspoticonportfolio');
+      const tag  = hotspot.querySelector('.tagportfolio.hotspot');
+      if (!icon || !tag) return null;
+  
+      // Temporarily make tag measurable if it's invisible/zero-size
+      const prevVisibility = tag.style.visibility;
+      const prevPosition   = tag.style.position;
+      tag.style.visibility = 'hidden';
+      tag.style.position   = 'static';
+  
+      const tagWidth  = tag.offsetWidth;
+      const tagHeight = tag.offsetHeight;
+      const iconWidth = icon.offsetWidth;
+      const iconHeight = icon.offsetHeight;
+  
+      tag.style.visibility = prevVisibility;
+      tag.style.position   = prevPosition;
+  
+      const extraRight  = Math.max(0, tagWidth  - iconWidth);
+      const extraBottom = tagHeight > iconHeight ? tagHeight - iconHeight : 0;
+  
+      return { extraRight, extraBottom };
+    }
+  
+    function setupHotspot(hotspot) {
+      const initialPaddingRight  = parseFloat(getComputedStyle(hotspot).paddingRight)  || 0;
+      const initialPaddingBottom = parseFloat(getComputedStyle(hotspot).paddingBottom) || 0;
+  
+      hotspotData.set(hotspot, {
+        isOpen: false,
+        initialPaddingRight,
+        initialPaddingBottom,
+      });
+    }
+  
+    function openHotspot(hotspot) {
+      const data = hotspotData.get(hotspot);
+      if (!data || data.isOpen) return;
+  
+      const measurements = measureHotspot(hotspot);
+      if (!measurements) return;
+  
+      // Cache measurements for potential resize correction
+      data.measurements = measurements;
+      data.isOpen = true;
+      hotspot.classList.add('is-open');
+  
+      gsap.killTweensOf(hotspot);
+      gsap.to(hotspot, {
+        paddingRight:  data.initialPaddingRight  + measurements.extraRight,
+        paddingBottom: data.initialPaddingBottom + measurements.extraBottom,
+        duration: 0.7,
+        ease: 'elastic.out(1, 1)',
+      });
+    }
+  
+    function closeHotspot(hotspot) {
+      const data = hotspotData.get(hotspot);
+      if (!data || !data.isOpen) return;
+  
+      data.isOpen = false;
+      hotspot.classList.remove('is-open');
+  
+      gsap.killTweensOf(hotspot);
+      gsap.to(hotspot, {
+        paddingRight:  data.initialPaddingRight,
+        paddingBottom: data.initialPaddingBottom,
+        duration: 0.5,
+        ease: 'power3.out',
+      });
+    }
+  
+    // Init each hotspot
+    hotspots.forEach(hotspot => {
+      setupHotspot(hotspot);
+  
+      hotspot.addEventListener('click', () => {
+        const data = hotspotData.get(hotspot);
+        if (!data) return;
+        if (data.isOpen) closeHotspot(hotspot);
+        else openHotspot(hotspot);
+      });
+    });
+  
+    // Recalculate on resize — re-snap open hotspots to new measurements
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        hotspots.forEach(hotspot => {
+          const data = hotspotData.get(hotspot);
+          if (!data) return;
+  
+          // Re-capture base padding in case layout shifted
+          if (!data.isOpen) {
+            data.initialPaddingRight  = parseFloat(getComputedStyle(hotspot).paddingRight)  || 0;
+            data.initialPaddingBottom = parseFloat(getComputedStyle(hotspot).paddingBottom) || 0;
+          } else {
+            // Snap to updated measurements without animation
+            const measurements = measureHotspot(hotspot);
+            if (measurements) {
+              data.measurements = measurements;
+              gsap.set(hotspot, {
+                paddingRight:  data.initialPaddingRight  + measurements.extraRight,
+                paddingBottom: data.initialPaddingBottom + measurements.extraBottom,
+              });
+            }
+          }
+        });
+      }, 250);
+    });
+  }
+
   // UPDATE NAVIGATION URLS BASED ON PAGE
   (function() {
     const namespace = document.querySelector('[data-barba="container"]')?.dataset?.barbaNamespace;
