@@ -513,87 +513,45 @@ function initAll() {
     const hotspots = document.querySelectorAll('.hotspotportfolio');
     if (!hotspots.length) return;
   
-    const hotspotData = new WeakMap();
-  
-    function getSize(el) {
-      const rect = el.getBoundingClientRect();
-      return { w: rect.width, h: rect.height };
-    }
-  
-    function setupHotspot(hotspot) {
+    hotspots.forEach(hotspot => {
       const icon = hotspot.querySelector('.hotspoticonportfolio');
       const tag  = hotspot.querySelector('.tagportfolio.hotspot');
       if (!icon || !tag) return;
   
-      const initialPaddingRight  = parseFloat(getComputedStyle(hotspot).paddingRight)  || 0;
-      const initialPaddingBottom = parseFloat(getComputedStyle(hotspot).paddingBottom) || 0;
+      // Capture initial padding once
+      hotspot._initialPR = parseFloat(getComputedStyle(hotspot).paddingRight)  || 0;
+      hotspot._initialPB = parseFloat(getComputedStyle(hotspot).paddingBottom) || 0;
+      hotspot._isOpen    = false;
   
-      gsap.set(hotspot, { paddingRight: initialPaddingRight, paddingBottom: initialPaddingBottom });
+      // Prime GSAP with inline values
+      gsap.set(hotspot, { paddingRight: hotspot._initialPR, paddingBottom: hotspot._initialPB });
   
-      hotspotData.set(hotspot, {
-        isOpen: false,
-        initialPaddingRight,
-        initialPaddingBottom,
-      });
-    }
-  
-    function getMeasurements(hotspot) {
-      const icon = hotspot.querySelector('.hotspoticonportfolio');
-      const tag  = hotspot.querySelector('.tagportfolio.hotspot');
-      if (!icon || !tag) return null;
-  
-      const iconSize = getSize(icon);
-      const tagW  = tag.offsetWidth;
-      const tagH  = tag.offsetHeight;
-  
-      const extraRight  = Math.max(0, tagW - iconSize.w);
-      const extraBottom = tagH > iconSize.h ? tagH - iconSize.h : 0;
-  
-      return { extraRight, extraBottom };
-    }
-  
-    function openHotspot(hotspot) {
-      const data = hotspotData.get(hotspot);
-      if (!data || data.isOpen) return;
-  
-      const m = getMeasurements(hotspot);
-      if (!m) return;
-  
-      data.isOpen = true;
-      data.measurements = m;
-      hotspot.classList.add('is-open');
-  
-      gsap.killTweensOf(hotspot);
-      gsap.to(hotspot, {
-        paddingRight:  data.initialPaddingRight  + m.extraRight,
-        paddingBottom: data.initialPaddingBottom + m.extraBottom,
-        duration: 0.7,
-        ease: 'elastic.out(1, 1)',
-      });
-    }
-  
-    function closeHotspot(hotspot) {
-      const data = hotspotData.get(hotspot);
-      if (!data || !data.isOpen) return;
-  
-      data.isOpen = false;
-      hotspot.classList.remove('is-open');
-  
-      gsap.killTweensOf(hotspot);
-      gsap.to(hotspot, {
-        paddingRight:  data.initialPaddingRight,
-        paddingBottom: data.initialPaddingBottom,
-        duration: 0.5,
-        ease: 'power3.out',
-      });
-    }
-  
-    hotspots.forEach(hotspot => {
-      setupHotspot(hotspot);
       hotspot.addEventListener('click', () => {
-        const data = hotspotData.get(hotspot);
-        if (!data) return;
-        data.isOpen ? closeHotspot(hotspot) : openHotspot(hotspot);
+        const iconRect   = icon.getBoundingClientRect();
+        const extraRight  = Math.max(0, tag.offsetWidth  - iconRect.width);
+        const extraBottom = tag.offsetHeight > iconRect.height ? tag.offsetHeight - iconRect.height : 0;
+  
+        gsap.killTweensOf(hotspot);
+  
+        if (!hotspot._isOpen) {
+          hotspot._isOpen = true;
+          hotspot.classList.add('is-open');
+          gsap.to(hotspot, {
+            paddingRight:  hotspot._initialPR + extraRight,
+            paddingBottom: hotspot._initialPB + extraBottom,
+            duration: 0.7,
+            ease: 'elastic.out(1, 1)',
+          });
+        } else {
+          hotspot._isOpen = false;
+          hotspot.classList.remove('is-open');
+          gsap.to(hotspot, {
+            paddingRight:  hotspot._initialPR,
+            paddingBottom: hotspot._initialPB,
+            duration: 0.5,
+            ease: 'power3.out',
+          });
+        }
       });
     });
   
@@ -602,24 +560,21 @@ function initAll() {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
         hotspots.forEach(hotspot => {
-          const data = hotspotData.get(hotspot);
-          if (!data) return;
-  
-          if (!data.isOpen) {
-            const pr = parseFloat(getComputedStyle(hotspot).paddingRight)  || 0;
-            const pb = parseFloat(getComputedStyle(hotspot).paddingBottom) || 0;
-            data.initialPaddingRight  = pr;
-            data.initialPaddingBottom = pb;
-            gsap.set(hotspot, { paddingRight: pr, paddingBottom: pb });
+          if (!hotspot._isOpen) {
+            hotspot._initialPR = parseFloat(getComputedStyle(hotspot).paddingRight)  || 0;
+            hotspot._initialPB = parseFloat(getComputedStyle(hotspot).paddingBottom) || 0;
+            gsap.set(hotspot, { paddingRight: hotspot._initialPR, paddingBottom: hotspot._initialPB });
           } else {
-            const m = getMeasurements(hotspot);
-            if (m) {
-              data.measurements = m;
-              gsap.set(hotspot, {
-                paddingRight:  data.initialPaddingRight  + m.extraRight,
-                paddingBottom: data.initialPaddingBottom + m.extraBottom,
-              });
-            }
+            const icon = hotspot.querySelector('.hotspoticonportfolio');
+            const tag  = hotspot.querySelector('.tagportfolio.hotspot');
+            if (!icon || !tag) return;
+            const iconRect    = icon.getBoundingClientRect();
+            const extraRight  = Math.max(0, tag.offsetWidth  - iconRect.width);
+            const extraBottom = tag.offsetHeight > iconRect.height ? tag.offsetHeight - iconRect.height : 0;
+            gsap.set(hotspot, {
+              paddingRight:  hotspot._initialPR + extraRight,
+              paddingBottom: hotspot._initialPB + extraBottom,
+            });
           }
         });
       }, 250);
