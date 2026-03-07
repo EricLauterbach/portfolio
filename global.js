@@ -515,6 +515,11 @@ function initAll() {
   
     const hotspotData = new WeakMap();
   
+    function getSize(el) {
+      const rect = el.getBoundingClientRect();
+      return { w: rect.width, h: rect.height };
+    }
+  
     function setupHotspot(hotspot) {
       const icon = hotspot.querySelector('.hotspoticonportfolio');
       const tag  = hotspot.querySelector('.tagportfolio.hotspot');
@@ -523,7 +528,6 @@ function initAll() {
       const initialPaddingRight  = parseFloat(getComputedStyle(hotspot).paddingRight)  || 0;
       const initialPaddingBottom = parseFloat(getComputedStyle(hotspot).paddingBottom) || 0;
   
-      // Prime GSAP with inline values so it can animate from a known state
       gsap.set(hotspot, { paddingRight: initialPaddingRight, paddingBottom: initialPaddingBottom });
   
       hotspotData.set(hotspot, {
@@ -538,10 +542,12 @@ function initAll() {
       const tag  = hotspot.querySelector('.tagportfolio.hotspot');
       if (!icon || !tag) return null;
   
-      const extraRight  = Math.max(0, tag.offsetWidth  - icon.offsetWidth);
-      const extraBottom = tag.offsetHeight > icon.offsetHeight
-        ? tag.offsetHeight - icon.offsetHeight
-        : 0;
+      const iconSize = getSize(icon);
+      const tagW  = tag.offsetWidth;
+      const tagH  = tag.offsetHeight;
+  
+      const extraRight  = Math.max(0, tagW - iconSize.w);
+      const extraBottom = tagH > iconSize.h ? tagH - iconSize.h : 0;
   
       return { extraRight, extraBottom };
     }
@@ -600,14 +606,12 @@ function initAll() {
           if (!data) return;
   
           if (!data.isOpen) {
-            // Re-capture base padding after reflow
             const pr = parseFloat(getComputedStyle(hotspot).paddingRight)  || 0;
             const pb = parseFloat(getComputedStyle(hotspot).paddingBottom) || 0;
             data.initialPaddingRight  = pr;
             data.initialPaddingBottom = pb;
             gsap.set(hotspot, { paddingRight: pr, paddingBottom: pb });
           } else {
-            // Snap open hotspot to new measurements
             const m = getMeasurements(hotspot);
             if (m) {
               data.measurements = m;
