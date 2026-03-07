@@ -505,46 +505,26 @@ function initAll() {
 
   ScrollTrigger.getAll().forEach(st => st.kill());
 
-  // ============================================================
-  // HOTSPOT SYSTEM
-  // Runs on all pages — handles .hotspotportfolio toggle behavior
-  // ============================================================
+
+
+
   
   function initHotspots() {
     const hotspots = document.querySelectorAll('.hotspotportfolio');
     if (!hotspots.length) return;
   
-    // Store initial padding values and measurements per element
     const hotspotData = new WeakMap();
   
-    function measureHotspot(hotspot) {
+    function setupHotspot(hotspot) {
       const icon = hotspot.querySelector('.hotspoticonportfolio');
       const tag  = hotspot.querySelector('.tagportfolio.hotspot');
-      if (!icon || !tag) return null;
+      if (!icon || !tag) return;
   
-      // Temporarily make tag measurable if it's invisible/zero-size
-      const prevVisibility = tag.style.visibility;
-      const prevPosition   = tag.style.position;
-      tag.style.visibility = 'hidden';
-      tag.style.position   = 'static';
-  
-      const tagWidth  = tag.offsetWidth;
-      const tagHeight = tag.offsetHeight;
-      const iconWidth = icon.offsetWidth;
-      const iconHeight = icon.offsetHeight;
-  
-      tag.style.visibility = prevVisibility;
-      tag.style.position   = prevPosition;
-  
-      const extraRight  = Math.max(0, tagWidth  - iconWidth);
-      const extraBottom = tagHeight > iconHeight ? tagHeight - iconHeight : 0;
-  
-      return { extraRight, extraBottom };
-    }
-  
-    function setupHotspot(hotspot) {
       const initialPaddingRight  = parseFloat(getComputedStyle(hotspot).paddingRight)  || 0;
       const initialPaddingBottom = parseFloat(getComputedStyle(hotspot).paddingBottom) || 0;
+  
+      // Prime GSAP with inline values so it can animate from a known state
+      gsap.set(hotspot, { paddingRight: initialPaddingRight, paddingBottom: initialPaddingBottom });
   
       hotspotData.set(hotspot, {
         isOpen: false,
@@ -553,22 +533,34 @@ function initAll() {
       });
     }
   
+    function getMeasurements(hotspot) {
+      const icon = hotspot.querySelector('.hotspoticonportfolio');
+      const tag  = hotspot.querySelector('.tagportfolio.hotspot');
+      if (!icon || !tag) return null;
+  
+      const extraRight  = Math.max(0, tag.offsetWidth  - icon.offsetWidth);
+      const extraBottom = tag.offsetHeight > icon.offsetHeight
+        ? tag.offsetHeight - icon.offsetHeight
+        : 0;
+  
+      return { extraRight, extraBottom };
+    }
+  
     function openHotspot(hotspot) {
       const data = hotspotData.get(hotspot);
       if (!data || data.isOpen) return;
   
-      const measurements = measureHotspot(hotspot);
-      if (!measurements) return;
+      const m = getMeasurements(hotspot);
+      if (!m) return;
   
-      // Cache measurements for potential resize correction
-      data.measurements = measurements;
       data.isOpen = true;
+      data.measurements = m;
       hotspot.classList.add('is-open');
   
       gsap.killTweensOf(hotspot);
       gsap.to(hotspot, {
-        paddingRight:  data.initialPaddingRight  + measurements.extraRight,
-        paddingBottom: data.initialPaddingBottom + measurements.extraBottom,
+        paddingRight:  data.initialPaddingRight  + m.extraRight,
+        paddingBottom: data.initialPaddingBottom + m.extraBottom,
         duration: 0.7,
         ease: 'elastic.out(1, 1)',
       });
@@ -590,19 +582,15 @@ function initAll() {
       });
     }
   
-    // Init each hotspot
     hotspots.forEach(hotspot => {
       setupHotspot(hotspot);
-  
       hotspot.addEventListener('click', () => {
         const data = hotspotData.get(hotspot);
         if (!data) return;
-        if (data.isOpen) closeHotspot(hotspot);
-        else openHotspot(hotspot);
+        data.isOpen ? closeHotspot(hotspot) : openHotspot(hotspot);
       });
     });
   
-    // Recalculate on resize — re-snap open hotspots to new measurements
     let resizeTimer;
     window.addEventListener('resize', () => {
       clearTimeout(resizeTimer);
@@ -611,18 +599,21 @@ function initAll() {
           const data = hotspotData.get(hotspot);
           if (!data) return;
   
-          // Re-capture base padding in case layout shifted
           if (!data.isOpen) {
-            data.initialPaddingRight  = parseFloat(getComputedStyle(hotspot).paddingRight)  || 0;
-            data.initialPaddingBottom = parseFloat(getComputedStyle(hotspot).paddingBottom) || 0;
+            // Re-capture base padding after reflow
+            const pr = parseFloat(getComputedStyle(hotspot).paddingRight)  || 0;
+            const pb = parseFloat(getComputedStyle(hotspot).paddingBottom) || 0;
+            data.initialPaddingRight  = pr;
+            data.initialPaddingBottom = pb;
+            gsap.set(hotspot, { paddingRight: pr, paddingBottom: pb });
           } else {
-            // Snap to updated measurements without animation
-            const measurements = measureHotspot(hotspot);
-            if (measurements) {
-              data.measurements = measurements;
+            // Snap open hotspot to new measurements
+            const m = getMeasurements(hotspot);
+            if (m) {
+              data.measurements = m;
               gsap.set(hotspot, {
-                paddingRight:  data.initialPaddingRight  + measurements.extraRight,
-                paddingBottom: data.initialPaddingBottom + measurements.extraBottom,
+                paddingRight:  data.initialPaddingRight  + m.extraRight,
+                paddingBottom: data.initialPaddingBottom + m.extraBottom,
               });
             }
           }
