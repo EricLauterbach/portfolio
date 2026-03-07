@@ -1505,7 +1505,7 @@ function initCopyleaksWebsite() {
     perPage: 2,
     perMove: 1,
     focus: '1',
-    arrows: false,
+    arrows: true,
     pagination: false,
     autoplay: false,
     snap: true,
