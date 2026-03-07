@@ -1502,7 +1502,7 @@ function initCopyleaksWebsite() {
   window.websiteDemoSlider1 = new Splide('#websiteDemoSlider1', {
     type: 'slide',
     drag: 'free',
-    perPage: 1.5,
+    perPage: 2,
     perMove: 1,
     focus: '1',
     arrows: false,
@@ -1533,7 +1533,7 @@ function initCopyleaksWebsite() {
   window.websiteDemoSlider2 = new Splide('#websiteDemoSlider2', {
     type: 'slide',
     drag: 'free',
-    perPage: 1.5,
+    perPage: 2,
     perMove: 1,
     focus: '1',
     arrows: false,
@@ -1564,7 +1564,7 @@ function initCopyleaksWebsite() {
   window.websiteDemoSlider3 = new Splide('#websiteDemoSlider3', {
     type: 'slide',
     drag: 'free',
-    perPage: 1.5,
+    perPage: 2,
     perMove: 1,
     focus: '1',
     arrows: false,
