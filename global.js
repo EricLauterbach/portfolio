@@ -498,18 +498,10 @@ function initEntranceAnimations() {
 
 
 // ============================================================
-// GLOBAL INIT — runs on load + after every Barba transition
+// Hotspots function code
 // ============================================================
 
-function initAll() {
-
-  ScrollTrigger.getAll().forEach(st => st.kill());
-
-
-
-
-  
-  function initHotspots() {
+function initHotspots() {
     const hotspots = document.querySelectorAll('.hotspotportfolio');
     if (!hotspots.length) return;
   
@@ -586,6 +578,22 @@ function initAll() {
       }, 250);
     });
   }
+
+
+
+
+
+
+
+// ============================================================
+// GLOBAL INIT — runs on load + after every Barba transition
+// ============================================================
+
+function initAll() {
+
+  ScrollTrigger.getAll().forEach(st => st.kill());
+
+  initHotspots();
 
   // UPDATE NAVIGATION URLS BASED ON PAGE
   (function() {
