@@ -502,82 +502,140 @@ function initEntranceAnimations() {
 // ============================================================
 
 function initHotspots() {
-    const hotspots = document.querySelectorAll('.hotspotportfolio');
-    if (!hotspots.length) return;
-  
-    hotspots.forEach(hotspot => {
-      const icon = hotspot.querySelector('.hotspoticonportfolio');
-      const tag  = hotspot.querySelector('.tagportfolio.hotspot');
-      if (!icon || !tag) return;
-  
-      hotspot._isOpen    = false;
-      hotspot._initialPR = null;
-      hotspot._initialPB = null;
-  
-      hotspot.addEventListener('click', () => {
-        // Capture initial padding on first click (element is guaranteed visible by then)
-        if (hotspot._initialPR === null) {
-          hotspot._initialPR = parseFloat(getComputedStyle(hotspot).paddingRight)  || 0;
-          hotspot._initialPB = parseFloat(getComputedStyle(hotspot).paddingBottom) || 0;
-          gsap.set(hotspot, { paddingRight: hotspot._initialPR, paddingBottom: hotspot._initialPB });
-        }
-  
-        const iconRect    = icon.getBoundingClientRect();
-        const extraRight  = Math.max(0, tag.offsetWidth  - iconRect.width);
-        const extraBottom = tag.offsetHeight > iconRect.height ? tag.offsetHeight - iconRect.height : 0;
-  
-        gsap.killTweensOf(hotspot);
-  
-        if (!hotspot._isOpen) {
-          hotspot._isOpen = true;
-          hotspot.classList.add('is-open');
-          gsap.to(hotspot, {
-            paddingRight:  hotspot._initialPR + extraRight,
-            paddingBottom: hotspot._initialPB + extraBottom,
+  const hotspots = document.querySelectorAll('.hotspotportfolio');
+  if (!hotspots.length) return;
+
+  hotspots.forEach(hotspot => {
+    const icon = hotspot.querySelector('.hotspoticonportfolio');
+    const tag  = hotspot.querySelector('.tagportfolio.hotspot');
+    const plusIconVertical = hotspot.querySelector('.plusiconvertical');
+    if (!icon || !tag) return;
+
+    hotspot._isOpen    = false;
+    hotspot._initialPR = null;
+    hotspot._initialPB = null;
+    hotspot._initialPT = null;
+    hotspot._initialPL = null;
+
+    hotspot.addEventListener('click', () => {
+      // Capture initial padding on first click (element guaranteed visible)
+      if (hotspot._initialPR === null) {
+        const cs = getComputedStyle(hotspot);
+        hotspot._initialPR = parseFloat(cs.paddingRight)  || 0;
+        hotspot._initialPB = parseFloat(cs.paddingBottom) || 0;
+        hotspot._initialPT = parseFloat(cs.paddingTop)    || 0;
+        hotspot._initialPL = parseFloat(cs.paddingLeft)   || 0;
+        gsap.set(hotspot, {
+          paddingRight:  hotspot._initialPR,
+          paddingBottom: hotspot._initialPB,
+          paddingTop:    hotspot._initialPT,
+          paddingLeft:   hotspot._initialPL,
+          x: 0,
+          y: 0,
+        });
+      }
+
+      const iconRect    = icon.getBoundingClientRect();
+      const extraRight  = Math.max(0, tag.offsetWidth  - iconRect.width)  + 10;
+      const extraBottom = tag.offsetHeight > iconRect.height ? tag.offsetHeight - iconRect.height : 0;
+
+      // Dynamic offset — difference between expanded and initial top/left padding
+      const extraTopLeft = 10 - hotspot._initialPT;
+
+      gsap.killTweensOf(hotspot);
+      if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
+
+      if (!hotspot._isOpen) {
+        hotspot._isOpen = true;
+        hotspot.classList.add('is-open');
+
+        gsap.to(hotspot, {
+          paddingRight:  hotspot._initialPR + extraRight,
+          paddingBottom: hotspot._initialPB + extraBottom,
+          paddingTop:    hotspot._initialPT + extraTopLeft,
+          paddingLeft:   hotspot._initialPL + extraTopLeft,
+          x: -extraTopLeft,
+          y: -extraTopLeft,
+          duration: 0.7,
+          ease: 'elastic.out(1, 1)',
+        });
+
+        if (plusIconVertical) {
+          gsap.to(plusIconVertical, {
+            rotate: 90,
             duration: 0.7,
             ease: 'elastic.out(1, 1)',
           });
-        } else {
-          hotspot._isOpen = false;
-          hotspot.classList.remove('is-open');
-          gsap.to(hotspot, {
-            paddingRight:  hotspot._initialPR,
-            paddingBottom: hotspot._initialPB,
+        }
+
+      } else {
+        hotspot._isOpen = false;
+        hotspot.classList.remove('is-open');
+
+        gsap.to(hotspot, {
+          paddingRight:  hotspot._initialPR,
+          paddingBottom: hotspot._initialPB,
+          paddingTop:    hotspot._initialPT,
+          paddingLeft:   hotspot._initialPL,
+          x: 0,
+          y: 0,
+          duration: 0.5,
+          ease: 'power3.out',
+        });
+
+        if (plusIconVertical) {
+          gsap.to(plusIconVertical, {
+            rotate: 0,
             duration: 0.5,
             ease: 'power3.out',
           });
         }
+      }
+    });
+  });
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      hotspots.forEach(hotspot => {
+        if (hotspot._initialPR === null) return;
+
+        const icon = hotspot.querySelector('.hotspoticonportfolio');
+        const tag  = hotspot.querySelector('.tagportfolio.hotspot');
+        if (!icon || !tag) return;
+
+        if (!hotspot._isOpen) {
+          const cs = getComputedStyle(hotspot);
+          hotspot._initialPR = parseFloat(cs.paddingRight)  || 0;
+          hotspot._initialPB = parseFloat(cs.paddingBottom) || 0;
+          hotspot._initialPT = parseFloat(cs.paddingTop)    || 0;
+          hotspot._initialPL = parseFloat(cs.paddingLeft)   || 0;
+          gsap.set(hotspot, {
+            paddingRight:  hotspot._initialPR,
+            paddingBottom: hotspot._initialPB,
+            paddingTop:    hotspot._initialPT,
+            paddingLeft:   hotspot._initialPL,
+            x: 0, y: 0,
+          });
+        } else {
+          const iconRect     = icon.getBoundingClientRect();
+          const extraRight   = Math.max(0, tag.offsetWidth - iconRect.width) + 10;
+          const extraBottom  = tag.offsetHeight > iconRect.height ? tag.offsetHeight - iconRect.height : 0;
+          const extraTopLeft = 10 - hotspot._initialPT;
+          gsap.set(hotspot, {
+            paddingRight:  hotspot._initialPR + extraRight,
+            paddingBottom: hotspot._initialPB + extraBottom,
+            paddingTop:    hotspot._initialPT + extraTopLeft,
+            paddingLeft:   hotspot._initialPL + extraTopLeft,
+            x: -extraTopLeft,
+            y: -extraTopLeft,
+          });
+        }
       });
-    });
-  
-    let resizeTimer;
-    window.addEventListener('resize', () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-        hotspots.forEach(hotspot => {
-          // Skip if never interacted with (still hidden or untouched)
-          if (hotspot._initialPR === null) return;
-  
-          if (!hotspot._isOpen) {
-            hotspot._initialPR = parseFloat(getComputedStyle(hotspot).paddingRight)  || 0;
-            hotspot._initialPB = parseFloat(getComputedStyle(hotspot).paddingBottom) || 0;
-            gsap.set(hotspot, { paddingRight: hotspot._initialPR, paddingBottom: hotspot._initialPB });
-          } else {
-            const icon = hotspot.querySelector('.hotspoticonportfolio');
-            const tag  = hotspot.querySelector('.tagportfolio.hotspot');
-            if (!icon || !tag) return;
-            const iconRect    = icon.getBoundingClientRect();
-            const extraRight  = Math.max(0, tag.offsetWidth  - iconRect.width);
-            const extraBottom = tag.offsetHeight > iconRect.height ? tag.offsetHeight - iconRect.height : 0;
-            gsap.set(hotspot, {
-              paddingRight:  hotspot._initialPR + extraRight,
-              paddingBottom: hotspot._initialPB + extraBottom,
-            });
-          }
-        });
-      }, 250);
-    });
-  }
+    }, 250);
+  });
+}
 
 
 
