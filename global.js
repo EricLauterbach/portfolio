@@ -552,8 +552,8 @@ function initHotspots() {
         height: '2px',
         y: 6,
         transformOrigin: '50% 50%',
-        duration: 0.3,
-        delay: 0.3,
+        duration: 0.45,
+        delay: 0.15,
         ease: 'power3.out',
       });
     }
@@ -580,7 +580,7 @@ function initHotspots() {
         height: '14px',
         y: 0,
         transformOrigin: '50% 50%',
-        duration: 0.3,
+        duration: 0.45,
         ease: 'power3.out',
       });
     }
