@@ -2228,7 +2228,7 @@ function initCopyleaksMarketing() {
   function hideTooltip() {
     isVisible = false;
     nudgeY = 0;
-    currentNudgeY = 0;
+    // currentNudgeY intentionally NOT reset here — let ticker ease it back smoothly
     currentHovered = null;
     setSide('right');
     gsap.killTweensOf(container);
@@ -2241,7 +2241,7 @@ function initCopyleaksMarketing() {
   function forceHideTooltip() {
     isVisible = false;
     nudgeY = 0;
-    currentNudgeY = 0;
+    currentNudgeY = 0; // intentional instant reset for page transitions
     currentHovered = null;
     setSide('right');
     gsap.killTweensOf(container);
@@ -2279,7 +2279,7 @@ function initCopyleaksMarketing() {
       });
     });
 
-    // Keep separate loop for nudge-only elements (no tooltip)
+    // Separate loop for nudge-only elements (no tooltip)
     document.querySelectorAll('[data-tooltip-nudge]:not([data-tooltip])').forEach((el) => {
       if (bound.has(el)) return;
       bound.add(el);
