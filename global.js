@@ -541,24 +541,18 @@ function initHotspots() {
       const cs = getComputedStyle(hotspot);
       hotspot._initialPR = parseFloat(cs.paddingRight)  || 0;
       hotspot._initialPB = parseFloat(cs.paddingBottom) || 0;
-      hotspot._initialPT = parseFloat(cs.paddingTop)    || 0;
-      hotspot._initialPL = parseFloat(cs.paddingLeft)   || 0;
       gsap.set(hotspot, {
         paddingRight:  hotspot._initialPR,
         paddingBottom: hotspot._initialPB,
-        paddingTop:    hotspot._initialPT,
-        paddingLeft:   hotspot._initialPL,
-        x: 0, y: 0,
       });
     }
 
-    const iconRect     = icon.getBoundingClientRect();
-    const iconHeight   = iconRect.height;
-    const tagWidth     = tag.offsetWidth;
-    const tagHeight    = tag.offsetHeight;
-    const targetPR     = hotspot._initialPR + tagWidth + 28;
-    const extraBottom  = (tagHeight > iconHeight ? tagHeight - iconHeight : 0) + 4;
-    const extraTopLeft = Math.max(0, 10 - hotspot._initialPT);
+    const iconRect    = icon.getBoundingClientRect();
+    const iconHeight  = iconRect.height;
+    const tagWidth    = tag.offsetWidth;
+    const tagHeight   = tag.offsetHeight;
+    const targetPR    = hotspot._initialPR + tagWidth + 28;
+    const extraBottom = (tagHeight > iconHeight ? tagHeight - iconHeight : 0) + 4;
 
     hotspot._isOpen = true;
     hotspot.classList.add('is-open');
@@ -567,15 +561,10 @@ function initHotspots() {
     gsap.killTweensOf(hotspot);
     if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
-    // Instantly offset position so padding expansion doesn't cause visual shift
-    gsap.set(hotspot, { x: -extraTopLeft, y: -extraTopLeft });
-
     gsap.to(hotspot, {
       scale: 1,
       paddingRight:  targetPR,
       paddingBottom: hotspot._initialPB + extraBottom,
-      paddingTop:    hotspot._initialPT + extraTopLeft,
-      paddingLeft:   hotspot._initialPL + extraTopLeft,
       duration: 0.6,
       ease: 'power3.inOut',
     });
@@ -598,14 +587,9 @@ function initHotspots() {
     gsap.killTweensOf(hotspot);
     if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
-    // Instantly restore position so padding collapse doesn't cause visual shift
-    gsap.set(hotspot, { x: 0, y: 0 });
-
     gsap.to(hotspot, {
       paddingRight:  hotspot._initialPR,
       paddingBottom: hotspot._initialPB,
-      paddingTop:    hotspot._initialPT,
-      paddingLeft:   hotspot._initialPL,
       duration: 0.6,
       ease: 'power3.out',
       onComplete: () => {
@@ -637,8 +621,6 @@ function initHotspots() {
     hotspot._isOpen    = false;
     hotspot._initialPR = null;
     hotspot._initialPB = null;
-    hotspot._initialPT = null;
-    hotspot._initialPL = null;
 
     // Only pulse if visible
     if (hotspot.offsetParent !== null) startPulse(hotspot);
@@ -673,30 +655,20 @@ function initHotspots() {
           const cs = getComputedStyle(hotspot);
           hotspot._initialPR = parseFloat(cs.paddingRight)  || 0;
           hotspot._initialPB = parseFloat(cs.paddingBottom) || 0;
-          hotspot._initialPT = parseFloat(cs.paddingTop)    || 0;
-          hotspot._initialPL = parseFloat(cs.paddingLeft)   || 0;
           gsap.set(hotspot, {
             paddingRight:  hotspot._initialPR,
             paddingBottom: hotspot._initialPB,
-            paddingTop:    hotspot._initialPT,
-            paddingLeft:   hotspot._initialPL,
-            x: 0, y: 0,
           });
         } else {
-          const iconRect     = icon.getBoundingClientRect();
-          const iconHeight   = iconRect.height;
-          const tagWidth     = tag.offsetWidth;
-          const tagHeight    = tag.offsetHeight;
-          const targetPR     = hotspot._initialPR + tagWidth + 28;
-          const extraBottom  = (tagHeight > iconHeight ? tagHeight - iconHeight : 0) + 4;
-          const extraTopLeft = Math.max(0, 10 - hotspot._initialPT);
+          const iconRect    = icon.getBoundingClientRect();
+          const iconHeight  = iconRect.height;
+          const tagWidth    = tag.offsetWidth;
+          const tagHeight   = tag.offsetHeight;
+          const targetPR    = hotspot._initialPR + tagWidth + 28;
+          const extraBottom = (tagHeight > iconHeight ? tagHeight - iconHeight : 0) + 4;
           gsap.set(hotspot, {
             paddingRight:  targetPR,
             paddingBottom: hotspot._initialPB + extraBottom,
-            paddingTop:    hotspot._initialPT + extraTopLeft,
-            paddingLeft:   hotspot._initialPL + extraTopLeft,
-            x: -extraTopLeft,
-            y: -extraTopLeft,
           });
         }
       });
