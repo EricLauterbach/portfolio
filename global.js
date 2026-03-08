@@ -539,8 +539,8 @@ function initHotspots() {
       const tagWidth     = tag.offsetWidth;
       const tagHeight    = tag.offsetHeight;
 
-      const targetPR     = hotspot._initialPR + tagWidth + 40;
-      const extraBottom  = tagHeight > iconHeight ? tagHeight - iconHeight : 0;
+      const targetPR     = hotspot._initialPR + tagWidth + 28;
+      const extraBottom  = (tagHeight > iconHeight ? tagHeight - iconHeight : 0) + 4;
       const extraTopLeft = 10 - hotspot._initialPT;
 
       gsap.killTweensOf(hotspot);
