@@ -550,6 +550,7 @@ function initHotspots() {
     if (plusIconVertical) {
       gsap.to(plusIconVertical, {
         height: '2px',
+        y: 6,
         transformOrigin: '50% 50%',
         duration: 0.5,
         ease: 'power3.inOut',
@@ -575,7 +576,8 @@ function initHotspots() {
 
     if (plusIconVertical) {
       gsap.to(plusIconVertical, {
-        rotate: 0,
+        height: '14px',
+        y: 0,
         transformOrigin: '50% 50%',
         duration: 0.5,
         ease: 'power3.inOut',
