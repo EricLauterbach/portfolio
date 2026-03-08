@@ -559,7 +559,7 @@ function initHotspots() {
       { scale: 1 },
       {
         scale: 32 / 26,
-        duration: 3,
+        duration: 2,
         delay: Math.random() * 3,
         ease: 'power4.inOut',
         repeat: -1,
