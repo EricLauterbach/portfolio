@@ -508,27 +508,23 @@ function initHotspots() {
   const isMobile = () => window.innerWidth < 768;
 
   function startPulse(hotspot) {
-    if (hotspot._pulseTl) {
-      hotspot._pulseTl.kill();
-      hotspot._pulseTl = null;
-    }
     gsap.killTweensOf(hotspot, 'scale');
 
-    const tl = gsap.timeline({ repeat: -1 });
-    tl.set(hotspot, { scale: 0.85 })
-      .to(hotspot, { scale: 1.15, duration: 1.5, ease: 'sine.inOut' })
-      .to(hotspot, { scale: 1.15, duration: 1.5, ease: 'none' })
-      .to(hotspot, { scale: 0.85, duration: 1.5, ease: 'sine.inOut' })
-      .to(hotspot, { scale: 0.85, duration: 1.5, ease: 'none' });
-
-    hotspot._pulseTl = tl;
+    gsap.fromTo(hotspot,
+      { scale: 0.85 },
+      {
+        scale: 1.15,
+        duration: 3,
+        delay: Math.random() * 3,
+        ease: 'power4.inOut',
+        repeat: -1,
+        yoyo: true,
+        yoyoEase: 'power4.inOut',
+      }
+    );
   }
 
   function stopPulse(hotspot) {
-    if (hotspot._pulseTl) {
-      hotspot._pulseTl.kill();
-      hotspot._pulseTl = null;
-    }
     gsap.killTweensOf(hotspot, 'scale');
   }
 
@@ -554,7 +550,7 @@ function initHotspots() {
     const tagHeight    = tag.offsetHeight;
     const targetPR     = hotspot._initialPR + tagWidth + 28;
     const extraBottom  = (tagHeight > iconHeight ? tagHeight - iconHeight : 0) + 4;
-    const extraTopLeft = 10 - hotspot._initialPT;
+    const extraTopLeft = Math.max(0, 10 - hotspot._initialPT);
 
     hotspot._isOpen = true;
     hotspot.classList.add('is-open');
@@ -601,7 +597,9 @@ function initHotspots() {
       x: 0, y: 0,
       duration: 0.6,
       ease: 'power3.out',
-      onComplete: () => startPulse(hotspot),
+      onComplete: () => {
+        if (hotspot.offsetParent !== null) startPulse(hotspot);
+      },
     });
 
     if (plusIconVertical) {
@@ -621,14 +619,18 @@ function initHotspots() {
     const plusIconVertical = hotspot.querySelector('.plusiconvertical');
     if (!icon || !tag) return;
 
+    // Fix 1 — prevent duplicate listeners on re-init
+    if (hotspot._hotspotBound) return;
+    hotspot._hotspotBound = true;
+
     hotspot._isOpen    = false;
     hotspot._initialPR = null;
     hotspot._initialPB = null;
     hotspot._initialPT = null;
     hotspot._initialPL = null;
-    hotspot._pulseTl   = null;
 
-    startPulse(hotspot);
+    // Fix 2 — only pulse if visible
+    if (hotspot.offsetParent !== null) startPulse(hotspot);
 
     if (!isMobile()) {
       hotspot.addEventListener('mouseenter', () => {
@@ -676,7 +678,7 @@ function initHotspots() {
           const tagHeight    = tag.offsetHeight;
           const targetPR     = hotspot._initialPR + tagWidth + 28;
           const extraBottom  = (tagHeight > iconHeight ? tagHeight - iconHeight : 0) + 4;
-          const extraTopLeft = 10 - hotspot._initialPT;
+          const extraTopLeft = Math.max(0, 10 - hotspot._initialPT);
           gsap.set(hotspot, {
             paddingRight:  targetPR,
             paddingBottom: hotspot._initialPB + extraBottom,
