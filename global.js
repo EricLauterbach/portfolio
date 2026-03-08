@@ -578,12 +578,6 @@ function initHotspots() {
       hotspot._initialH    = bg.offsetHeight;
       hotspot._initialTop  = parseFloat(getComputedStyle(bg).top)  || 0;
       hotspot._initialLeft = parseFloat(getComputedStyle(bg).left) || 0;
-      gsap.set(bg, {
-        width:  hotspot._initialW,
-        height: hotspot._initialH,
-        top:    hotspot._initialTop,
-        left:   hotspot._initialLeft,
-      });
     }
 
     const iconRect   = icon.getBoundingClientRect();
@@ -603,11 +597,12 @@ function initHotspots() {
     gsap.killTweensOf(iconPaths);
     if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
-    // Reset scale before animating width/height so there's no compound transform
-    gsap.set(bg, { scale: 1, transformOrigin: '0% 0%' });
-    gsap.set(iconPaths, { scale: 1 });
+    // Get current scale so we can factor it into the width/height start point
+    const currentScale = gsap.getProperty(bg, 'scale');
 
+    // Animate scale back to 1 AND width/height to target simultaneously
     gsap.to(bg, {
+      scale:  1,
       width:  targetW,
       height: targetH,
       top:    hotspot._initialTop  - 5,
@@ -620,6 +615,13 @@ function initHotspots() {
       onComplete: () => {
         tag.style.clipPath = getClipInset(bg, tag);
       },
+    });
+
+    // Animate icon paths back to scale 1
+    gsap.to(iconPaths, {
+      scale: 1,
+      duration: 0.6,
+      ease: 'power3.inOut',
     });
 
     if (plusIconVertical) {
@@ -642,6 +644,7 @@ function initHotspots() {
     if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
     gsap.to(bg, {
+      scale:  1,
       width:  hotspot._initialW,
       height: hotspot._initialH,
       top:    hotspot._initialTop,
@@ -680,8 +683,6 @@ function initHotspots() {
     hotspot._hotspotBound = true;
 
     hotspot._isOpen      = false;
-    hotspot._initialW    = null;
-    hotspot._initialH    = null;
     hotspot._initialTop  = parseFloat(getComputedStyle(bg).top)  || 0;
     hotspot._initialLeft = parseFloat(getComputedStyle(bg).left) || 0;
     hotspot._initialW    = bg.offsetWidth;
@@ -709,8 +710,6 @@ function initHotspots() {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
       hotspots.forEach(hotspot => {
-        if (hotspot._initialW === null) return;
-
         const bg   = hotspot.querySelector('.hotspotbackgroundportfolio');
         const icon = hotspot.querySelector('.hotspoticonportfolio');
         const tag  = hotspot.querySelector('.tagportfolio.hotspot');
@@ -737,6 +736,7 @@ function initHotspots() {
           const targetW    = iconWidth + tagWidth + 10;
           const targetH    = tagHeight + 15 > iconHeight ? tagHeight + 15 : iconHeight;
           gsap.set(bg, {
+            scale:  1,
             width:  targetW,
             height: targetH,
             top:    hotspot._initialTop  - 5,
