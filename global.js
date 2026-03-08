@@ -543,8 +543,8 @@ function initHotspots() {
       paddingLeft:   hotspot._initialPL + extraTopLeft,
       x: -extraTopLeft,
       y: -extraTopLeft,
-      duration: 1,
-      ease: 'elastic.out(1, 1)',
+      duration: 0.6,
+      ease: 'power3.inOut',
     });
 
     if (plusIconVertical) {
@@ -552,8 +552,8 @@ function initHotspots() {
         height: '2px',
         y: 6,
         transformOrigin: '50% 50%',
-        duration: 0.5,
-        ease: 'power3.inOut',
+        duration: 0.3,
+        ease: 'power3.out',
       });
     }
   }
@@ -570,7 +570,7 @@ function initHotspots() {
       paddingTop:    hotspot._initialPT,
       paddingLeft:   hotspot._initialPL,
       x: 0, y: 0,
-      duration: 0.5,
+      duration: 0.6,
       ease: 'power3.out',
     });
 
@@ -579,8 +579,8 @@ function initHotspots() {
         height: '14px',
         y: 0,
         transformOrigin: '50% 50%',
-        duration: 0.5,
-        ease: 'power3.inOut',
+        duration: 0.3,
+        ease: 'power3.out',
       });
     }
   }
