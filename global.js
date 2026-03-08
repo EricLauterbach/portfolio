@@ -193,13 +193,22 @@ barba.hooks.before(() => {
 
   // Cleanup hotspots before Barba transition
   document.querySelectorAll('.hotspotportfolio').forEach(el => {
-    gsap.killTweensOf(el);
+    const bg   = el.querySelector('.hotspotbackgroundportfolio');
+    const icon = el.querySelector('.hotspoticonportfolio');
+    const tag  = el.querySelector('.tagportfolio.hotspot');
+    if (bg)   gsap.killTweensOf(bg);
+    if (icon) gsap.killTweensOf(icon);
+    if (tag) {
+      gsap.killTweensOf(tag);
+      tag.style.clipPath = '';
+      gsap.set(tag, { opacity: 0 });
+    }
     el._hotspotBound = false;
     el._isOpen       = false;
-    el._initialPR    = null;
-    el._initialPB    = null;
-    el._initialPT    = null;
-    el._initialPL    = null;
+    el._initialW     = null;
+    el._initialH     = null;
+    el._initialTop   = null;
+    el._initialLeft  = null;
   });
 });
 
