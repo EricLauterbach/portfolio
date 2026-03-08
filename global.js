@@ -518,44 +518,65 @@ function initHotspots() {
 
   const isMobile = () => window.innerWidth < 768;
 
-  function startPulse(bg, iconPaths) {
-    gsap.killTweensOf(bg, 'scale');
+  function getClipInset(bg, tag) {
+    const bgRect  = bg.getBoundingClientRect();
+    const tagRect = tag.getBoundingClientRect();
+    const top    = Math.max(0, bgRect.top    - tagRect.top);
+    const right  = Math.max(0, tagRect.right  - bgRect.right);
+    const bottom = Math.max(0, tagRect.bottom - bgRect.bottom);
+    const left   = Math.max(0, bgRect.left   - tagRect.left);
+    return `inset(${top}px ${right}px ${bottom}px ${left}px round 999px)`;
+  }
+
+  function startPulse(bg, iconPaths, tag) {
+    gsap.killTweensOf(bg);
     gsap.killTweensOf(iconPaths, 'scale');
 
-    gsap.set(bg, { transformOrigin: '50% 50%' });
     gsap.set(iconPaths, { transformOrigin: '50% 50%' });
 
-    gsap.to(bg, {
-      scale: 1.15,
-      duration: 3,
-      delay: Math.random() * 3,
-      ease: 'power4.inOut',
-      repeat: -1,
-      yoyo: true,
-      yoyoEase: 'power4.inOut',
-    });
+    const delay = Math.random() * 3;
 
-    gsap.to(iconPaths, {
-      scale: 1.15,
-      duration: 3,
-      delay: Math.random() * 3,
-      ease: 'power4.inOut',
-      repeat: -1,
-      yoyo: true,
-      yoyoEase: 'power4.inOut',
-    });
+    gsap.fromTo(bg,
+      { width: 26, height: 26 },
+      {
+        width: 32,
+        height: 32,
+        duration: 3,
+        delay,
+        ease: 'power4.inOut',
+        repeat: -1,
+        yoyo: true,
+        yoyoEase: 'power4.inOut',
+        onUpdate: () => {
+          tag.style.clipPath = getClipInset(bg, tag);
+        },
+      }
+    );
+
+    gsap.fromTo(iconPaths,
+      { scale: 20 / 26 },
+      {
+        scale: 32 / 26,
+        duration: 3,
+        delay,
+        ease: 'power4.inOut',
+        repeat: -1,
+        yoyo: true,
+        yoyoEase: 'power4.inOut',
+      }
+    );
   }
 
   function stopPulse(bg, iconPaths) {
-    gsap.killTweensOf(bg, 'scale');
+    gsap.killTweensOf(bg);
     gsap.killTweensOf(iconPaths, 'scale');
   }
 
   function openHotspot(hotspot, bg, icon, iconPaths, tag, plusIconVertical) {
     if (hotspot._initialW === null) {
-      hotspot._initialW   = bg.offsetWidth;
-      hotspot._initialH   = bg.offsetHeight;
-      hotspot._initialTop = parseFloat(getComputedStyle(bg).top)  || 0;
+      hotspot._initialW    = bg.offsetWidth;
+      hotspot._initialH    = bg.offsetHeight;
+      hotspot._initialTop  = parseFloat(getComputedStyle(bg).top)  || 0;
       hotspot._initialLeft = parseFloat(getComputedStyle(bg).left) || 0;
       gsap.set(bg, {
         width:  hotspot._initialW,
@@ -583,13 +604,18 @@ function initHotspots() {
     if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
     gsap.to(bg, {
-      scale:  1,
       width:  targetW,
       height: targetH,
       top:    hotspot._initialTop  - 5,
       left:   hotspot._initialLeft - 5,
       duration: 0.6,
       ease: 'power3.inOut',
+      onUpdate: () => {
+        tag.style.clipPath = getClipInset(bg, tag);
+      },
+      onComplete: () => {
+        tag.style.clipPath = getClipInset(bg, tag);
+      },
     });
 
     gsap.to(iconPaths, {
@@ -610,7 +636,7 @@ function initHotspots() {
     }
   }
 
-  function closeHotspot(hotspot, bg, iconPaths, plusIconVertical) {
+  function closeHotspot(hotspot, bg, iconPaths, tag, plusIconVertical) {
     hotspot._isOpen = false;
     hotspot.classList.remove('is-open');
     gsap.killTweensOf(bg);
@@ -622,11 +648,14 @@ function initHotspots() {
       height: hotspot._initialH,
       top:    hotspot._initialTop,
       left:   hotspot._initialLeft,
-      scale:  1,
       duration: 0.6,
       ease: 'power3.out',
+      onUpdate: () => {
+        tag.style.clipPath = getClipInset(bg, tag);
+      },
       onComplete: () => {
-        if (hotspot.offsetParent !== null) startPulse(bg, iconPaths);
+        tag.style.clipPath = getClipInset(bg, tag);
+        if (hotspot.offsetParent !== null) startPulse(bg, iconPaths, tag);
       },
     });
 
@@ -664,19 +693,19 @@ function initHotspots() {
     hotspot._initialTop  = null;
     hotspot._initialLeft = null;
 
-    if (hotspot.offsetParent !== null) startPulse(bg, iconPaths);
+    if (hotspot.offsetParent !== null) startPulse(bg, iconPaths, tag);
 
     if (!isMobile()) {
       hotspot.addEventListener('mouseenter', () => {
         if (!hotspot._isOpen) openHotspot(hotspot, bg, icon, iconPaths, tag, plusIconVertical);
       });
       hotspot.addEventListener('mouseleave', () => {
-        if (hotspot._isOpen) closeHotspot(hotspot, bg, iconPaths, plusIconVertical);
+        if (hotspot._isOpen) closeHotspot(hotspot, bg, iconPaths, tag, plusIconVertical);
       });
     } else {
       hotspot.addEventListener('click', () => {
         if (!hotspot._isOpen) openHotspot(hotspot, bg, icon, iconPaths, tag, plusIconVertical);
-        else closeHotspot(hotspot, bg, iconPaths, plusIconVertical);
+        else closeHotspot(hotspot, bg, iconPaths, tag, plusIconVertical);
       });
     }
   });
@@ -704,6 +733,7 @@ function initHotspots() {
             top:    hotspot._initialTop,
             left:   hotspot._initialLeft,
           });
+          tag.style.clipPath = getClipInset(bg, tag);
         } else {
           const iconRect   = icon.getBoundingClientRect();
           const iconWidth  = iconRect.width;
@@ -717,8 +747,8 @@ function initHotspots() {
             height: targetH,
             top:    hotspot._initialTop  - 5,
             left:   hotspot._initialLeft - 5,
-            scale:  1,
           });
+          tag.style.clipPath = getClipInset(bg, tag);
         }
       });
     }, 250);
