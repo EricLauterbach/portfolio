@@ -541,12 +541,12 @@ function initHotspots() {
       { scale: 1 },
       {
         scale: 32 / 26,
-        duration: 4,
+        duration: 3,
         delay,
-        ease: 'power2.inOut',
+        ease: 'power4.inOut',
         repeat: -1,
         yoyo: true,
-        yoyoEase: 'power2.inOut',
+        yoyoEase: 'power4.inOut',
         onUpdate: () => {
           tag.style.clipPath = getClipInset(bg, tag);
         },
@@ -557,12 +557,12 @@ function initHotspots() {
       { scale: 1 },
       {
         scale: 32 / 26,
-        duration: 4,
+        duration: 3,
         delay,
-        ease: 'power2.inOut',
+        ease: 'power4.inOut',
         repeat: -1,
         yoyo: true,
-        yoyoEase: 'power2.inOut',
+        yoyoEase: 'power4.inOut',
       }
     );
   }
@@ -595,6 +595,7 @@ function initHotspots() {
     stopPulse(bg, icon);
     gsap.killTweensOf(bg);
     gsap.killTweensOf(icon);
+    gsap.killTweensOf(tag);
     if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
     gsap.to(bg, {
@@ -619,6 +620,13 @@ function initHotspots() {
       ease: 'power3.inOut',
     });
 
+    gsap.to(tag, {
+      opacity: 1,
+      duration: 0.4,
+      delay: 0.2,
+      ease: 'power2.out',
+    });
+
     if (plusIconVertical) {
       gsap.to(plusIconVertical, {
         height: '2px',
@@ -636,6 +644,7 @@ function initHotspots() {
     hotspot.classList.remove('is-open');
     gsap.killTweensOf(bg);
     gsap.killTweensOf(icon);
+    gsap.killTweensOf(tag);
     if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
     gsap.to(bg, {
@@ -659,6 +668,12 @@ function initHotspots() {
       scale: 1,
       duration: 0.6,
       ease: 'power3.out',
+    });
+
+    gsap.to(tag, {
+      opacity: 0,
+      duration: 0.2,
+      ease: 'power2.out',
     });
 
     if (plusIconVertical) {
@@ -687,6 +702,9 @@ function initHotspots() {
     hotspot._initialLeft = parseFloat(getComputedStyle(bg).left) || 0;
     hotspot._initialW    = bg.offsetWidth;
     hotspot._initialH    = bg.offsetHeight;
+
+    // Set tag to invisible initially
+    gsap.set(tag, { opacity: 0 });
 
     if (hotspot.offsetParent !== null) startPulse(bg, icon, tag, hotspot);
 
