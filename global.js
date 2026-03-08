@@ -212,6 +212,12 @@ barba.hooks.before(() => {
     el._initialLeft  = null;
   });
   
+  // Cleanup hotspots TOGGLE Barba transition
+  document.querySelectorAll('.hotspottoggle').forEach(el => {
+    el._toggleBound    = false;
+    el._hotspotVisible = true;
+  });
+  
 });
 
 barba.hooks.beforeEnter((data) => {
@@ -520,7 +526,7 @@ function initEntranceAnimations() {
 
 
 // ============================================================
-// Hotspots function code
+// Hotspots logic and animations
 // ============================================================
 
 function initHotspots() {
@@ -782,6 +788,86 @@ function initHotspots() {
 }
 
 
+// Hotspots Toggling element and system
+function initHotspotToggles() {
+  const toggles = document.querySelectorAll('.hotspottoggle');
+  if (!toggles.length) return;
+
+  toggles.forEach(toggle => {
+    if (toggle._toggleBound) return;
+    toggle._toggleBound = true;
+
+    // Find the shared ancestor
+    const ancestor = toggle.closest('.contentcontainerportfolioproject');
+    if (!ancestor) return;
+
+    // Find all hotspots within the ancestor
+    const hotspots = Array.from(ancestor.querySelectorAll('.hotspotportfolio'));
+    if (!hotspots.length) return;
+
+    const button  = toggle.querySelector('.hotspottogglebuttonportfolio');
+    const textOn  = toggle.querySelector('.tagportfolio.toggletext.on');
+    const textOff = toggle.querySelector('.tagportfolio.toggletext.off');
+
+    // Default state — visible
+    toggle._hotspotVisible = true;
+
+    // Set initial states
+    gsap.set(textOff, { opacity: 0 });
+    gsap.set(textOn,  { opacity: 1 });
+    gsap.set(button,  { x: 0 });
+
+    toggle.addEventListener('click', () => {
+      if (toggle._hotspotVisible) {
+        // Hide hotspots
+        toggle._hotspotVisible = false;
+        toggle.setAttribute('data-tooltip', 'Show Annotations');
+
+        gsap.to(textOn,  { opacity: 0, duration: 0.3, ease: 'power2.out' });
+        gsap.to(textOff, { opacity: 1, duration: 0.3, ease: 'power2.out' });
+        gsap.to(button,  { x: 41, duration: 0.6, ease: 'elastic.out(1, 1)' });
+
+        hotspots.forEach(hotspot => {
+          // Close if open first
+          if (hotspot._isOpen) {
+            const bg   = hotspot.querySelector('.hotspotbackgroundportfolio');
+            const icon = hotspot.querySelector('.hotspoticonportfolio');
+            const tag  = hotspot.querySelector('.tagportfolio.hotspot');
+            if (bg && icon && tag) closeHotspot(hotspot, bg, icon, tag);
+          }
+          gsap.to(hotspot, {
+            opacity: 0,
+            scale: 0,
+            duration: 0.4,
+            ease: 'power2.out',
+            transformOrigin: '50% 50%',
+          });
+        });
+
+      } else {
+        // Show hotspots
+        toggle._hotspotVisible = true;
+        toggle.setAttribute('data-tooltip', 'Hide Annotations');
+
+        gsap.to(textOn,  { opacity: 1, duration: 0.3, ease: 'power2.out' });
+        gsap.to(textOff, { opacity: 0, duration: 0.3, ease: 'power2.out' });
+        gsap.to(button,  { x: 0, duration: 0.6, ease: 'elastic.out(1, 1)' });
+
+        hotspots.forEach(hotspot => {
+          gsap.to(hotspot, {
+            opacity: 1,
+            scale: 1,
+            duration: 0.4,
+            ease: 'power2.out',
+            transformOrigin: '50% 50%',
+          });
+        });
+      }
+    });
+  });
+}
+
+
 
 // ============================================================
 // GLOBAL INIT — runs on load + after every Barba transition
@@ -792,6 +878,7 @@ function initAll() {
   ScrollTrigger.getAll().forEach(st => st.kill());
 
   initHotspots();
+  initHotspotToggles();
 
   // UPDATE NAVIGATION URLS BASED ON PAGE
   (function() {
