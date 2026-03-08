@@ -518,12 +518,12 @@ function initHotspots() {
 
   const isMobile = () => window.innerWidth < 768;
 
-  function startPulse(hotspot) {
-    gsap.killTweensOf(hotspot, 'scale');
+  function startPulse(bg) {
+    gsap.killTweensOf(bg, 'scale');
 
-    gsap.set(hotspot, { transformOrigin: '50% 50%' });
+    gsap.set(bg, { transformOrigin: '50% 50%' });
 
-    gsap.to(hotspot, {
+    gsap.to(bg, {
       scale: 1.15,
       duration: 3,
       delay: Math.random() * 3,
@@ -534,16 +534,16 @@ function initHotspots() {
     });
   }
 
-  function stopPulse(hotspot) {
-    gsap.killTweensOf(hotspot, 'scale');
+  function stopPulse(bg) {
+    gsap.killTweensOf(bg, 'scale');
   }
 
-  function openHotspot(hotspot, icon, tag, plusIconVertical) {
+  function openHotspot(hotspot, bg, icon, tag, plusIconVertical) {
     if (hotspot._initialPR === null) {
-      const cs = getComputedStyle(hotspot);
+      const cs = getComputedStyle(bg);
       hotspot._initialPR = parseFloat(cs.paddingRight)  || 0;
       hotspot._initialPB = parseFloat(cs.paddingBottom) || 0;
-      gsap.set(hotspot, {
+      gsap.set(bg, {
         paddingRight:  hotspot._initialPR,
         paddingBottom: hotspot._initialPB,
       });
@@ -559,25 +559,12 @@ function initHotspots() {
     hotspot._isOpen = true;
     hotspot.classList.add('is-open');
 
-    stopPulse(hotspot);
-    gsap.killTweensOf(hotspot);
+    stopPulse(bg);
+    gsap.killTweensOf(bg);
     if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
-    // Calculate visual offset introduced by center-origin scaling
-    const currentScale = gsap.getProperty(hotspot, 'scale');
-    const w = hotspot.offsetWidth;
-    const h = hotspot.offsetHeight;
-    const offsetX = (1 - currentScale) * w * 0.5;
-    const offsetY = (1 - currentScale) * h * 0.5;
-
-    // Instantly counter the offset so element doesn't jump
-    gsap.set(hotspot, { x: offsetX, y: offsetY });
-
-    // Animate everything to neutral together
-    gsap.to(hotspot, {
+    gsap.to(bg, {
       scale: 1,
-      x: 0,
-      y: 0,
       paddingRight:  targetPR,
       paddingBottom: hotspot._initialPB + extraBottom,
       duration: 0.6,
@@ -596,21 +583,20 @@ function initHotspots() {
     }
   }
 
-  function closeHotspot(hotspot, plusIconVertical) {
+  function closeHotspot(hotspot, bg, plusIconVertical) {
     hotspot._isOpen = false;
     hotspot.classList.remove('is-open');
-    gsap.killTweensOf(hotspot);
+    gsap.killTweensOf(bg);
     if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
-    gsap.to(hotspot, {
+    gsap.to(bg, {
       paddingRight:  hotspot._initialPR,
       paddingBottom: hotspot._initialPB,
-      x: 0,
-      y: 0,
+      scale: 1,
       duration: 0.6,
       ease: 'power3.out',
       onComplete: () => {
-        if (hotspot.offsetParent !== null) startPulse(hotspot);
+        if (hotspot.offsetParent !== null) startPulse(bg);
       },
     });
 
@@ -626,10 +612,11 @@ function initHotspots() {
   }
 
   hotspots.forEach(hotspot => {
-    const icon = hotspot.querySelector('.hotspoticonportfolio');
-    const tag  = hotspot.querySelector('.tagportfolio.hotspot');
+    const bg           = hotspot.querySelector('.hotspotbackgroundportfolio');
+    const icon         = hotspot.querySelector('.hotspoticonportfolio');
+    const tag          = hotspot.querySelector('.tagportfolio.hotspot');
     const plusIconVertical = hotspot.querySelector('.plusiconvertical');
-    if (!icon || !tag) return;
+    if (!bg || !icon || !tag) return;
 
     // Prevent duplicate listeners on re-init
     if (hotspot._hotspotBound) return;
@@ -640,19 +627,19 @@ function initHotspots() {
     hotspot._initialPB = null;
 
     // Only pulse if visible
-    if (hotspot.offsetParent !== null) startPulse(hotspot);
+    if (hotspot.offsetParent !== null) startPulse(bg);
 
     if (!isMobile()) {
       hotspot.addEventListener('mouseenter', () => {
-        if (!hotspot._isOpen) openHotspot(hotspot, icon, tag, plusIconVertical);
+        if (!hotspot._isOpen) openHotspot(hotspot, bg, icon, tag, plusIconVertical);
       });
       hotspot.addEventListener('mouseleave', () => {
-        if (hotspot._isOpen) closeHotspot(hotspot, plusIconVertical);
+        if (hotspot._isOpen) closeHotspot(hotspot, bg, plusIconVertical);
       });
     } else {
       hotspot.addEventListener('click', () => {
-        if (!hotspot._isOpen) openHotspot(hotspot, icon, tag, plusIconVertical);
-        else closeHotspot(hotspot, plusIconVertical);
+        if (!hotspot._isOpen) openHotspot(hotspot, bg, icon, tag, plusIconVertical);
+        else closeHotspot(hotspot, bg, plusIconVertical);
       });
     }
   });
@@ -664,15 +651,16 @@ function initHotspots() {
       hotspots.forEach(hotspot => {
         if (hotspot._initialPR === null) return;
 
+        const bg  = hotspot.querySelector('.hotspotbackgroundportfolio');
         const icon = hotspot.querySelector('.hotspoticonportfolio');
         const tag  = hotspot.querySelector('.tagportfolio.hotspot');
-        if (!icon || !tag) return;
+        if (!bg || !icon || !tag) return;
 
         if (!hotspot._isOpen) {
-          const cs = getComputedStyle(hotspot);
+          const cs = getComputedStyle(bg);
           hotspot._initialPR = parseFloat(cs.paddingRight)  || 0;
           hotspot._initialPB = parseFloat(cs.paddingBottom) || 0;
-          gsap.set(hotspot, {
+          gsap.set(bg, {
             paddingRight:  hotspot._initialPR,
             paddingBottom: hotspot._initialPB,
           });
@@ -683,12 +671,10 @@ function initHotspots() {
           const tagHeight   = tag.offsetHeight;
           const targetPR    = hotspot._initialPR + tagWidth + 28;
           const extraBottom = (tagHeight > iconHeight ? tagHeight - iconHeight : 0) + 4;
-          gsap.set(hotspot, {
+          gsap.set(bg, {
             paddingRight:  targetPR,
             paddingBottom: hotspot._initialPB + extraBottom,
             scale: 1,
-            x: 0,
-            y: 0,
           });
         }
       });
