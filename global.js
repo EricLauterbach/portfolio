@@ -518,10 +518,12 @@ function initHotspots() {
 
   const isMobile = () => window.innerWidth < 768;
 
-  function startPulse(bg) {
+  function startPulse(bg, iconPaths) {
     gsap.killTweensOf(bg, 'scale');
+    gsap.killTweensOf(iconPaths, 'scale');
 
     gsap.set(bg, { transformOrigin: '50% 50%' });
+    gsap.set(iconPaths, { transformOrigin: '50% 50%' });
 
     gsap.to(bg, {
       scale: 1.15,
@@ -532,41 +534,60 @@ function initHotspots() {
       yoyo: true,
       yoyoEase: 'power4.inOut',
     });
+
+    gsap.to(iconPaths, {
+      scale: 1.15,
+      duration: 3,
+      delay: Math.random() * 3,
+      ease: 'power4.inOut',
+      repeat: -1,
+      yoyo: true,
+      yoyoEase: 'power4.inOut',
+    });
   }
 
-  function stopPulse(bg) {
+  function stopPulse(bg, iconPaths) {
     gsap.killTweensOf(bg, 'scale');
+    gsap.killTweensOf(iconPaths, 'scale');
   }
 
-  function openHotspot(hotspot, bg, icon, tag, plusIconVertical) {
-    if (hotspot._initialPR === null) {
-      const cs = getComputedStyle(bg);
-      hotspot._initialPR = parseFloat(cs.paddingRight)  || 0;
-      hotspot._initialPB = parseFloat(cs.paddingBottom) || 0;
+  function openHotspot(hotspot, bg, icon, iconPaths, tag, plusIconVertical) {
+    if (hotspot._initialW === null) {
+      hotspot._initialW = bg.offsetWidth;
+      hotspot._initialH = bg.offsetHeight;
       gsap.set(bg, {
-        paddingRight:  hotspot._initialPR,
-        paddingBottom: hotspot._initialPB,
+        width:  hotspot._initialW,
+        height: hotspot._initialH,
       });
     }
 
-    const iconRect    = icon.getBoundingClientRect();
-    const iconHeight  = iconRect.height;
-    const tagWidth    = tag.offsetWidth;
-    const tagHeight   = tag.offsetHeight;
-    const targetPR    = hotspot._initialPR + tagWidth + 28;
-    const extraBottom = (tagHeight > iconHeight ? tagHeight - iconHeight : 0) + 4;
+    const iconRect   = icon.getBoundingClientRect();
+    const iconWidth  = iconRect.width;
+    const iconHeight = iconRect.height;
+    const tagWidth   = tag.offsetWidth;
+    const tagHeight  = tag.offsetHeight;
+
+    const targetW = iconWidth + tagWidth + 10;
+    const targetH = tagHeight + 15 > iconHeight ? tagHeight + 15 : iconHeight;
 
     hotspot._isOpen = true;
     hotspot.classList.add('is-open');
 
-    stopPulse(bg);
+    stopPulse(bg, iconPaths);
     gsap.killTweensOf(bg);
+    gsap.killTweensOf(iconPaths);
     if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
     gsap.to(bg, {
       scale: 1,
-      paddingRight:  targetPR,
-      paddingBottom: hotspot._initialPB + extraBottom,
+      width:  targetW,
+      height: targetH,
+      duration: 0.6,
+      ease: 'power3.inOut',
+    });
+
+    gsap.to(iconPaths, {
+      scale: 1,
       duration: 0.6,
       ease: 'power3.inOut',
     });
@@ -583,21 +604,28 @@ function initHotspots() {
     }
   }
 
-  function closeHotspot(hotspot, bg, plusIconVertical) {
+  function closeHotspot(hotspot, bg, iconPaths, plusIconVertical) {
     hotspot._isOpen = false;
     hotspot.classList.remove('is-open');
     gsap.killTweensOf(bg);
+    gsap.killTweensOf(iconPaths);
     if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
     gsap.to(bg, {
-      paddingRight:  hotspot._initialPR,
-      paddingBottom: hotspot._initialPB,
+      width:  hotspot._initialW,
+      height: hotspot._initialH,
       scale: 1,
       duration: 0.6,
       ease: 'power3.out',
       onComplete: () => {
-        if (hotspot.offsetParent !== null) startPulse(bg);
+        if (hotspot.offsetParent !== null) startPulse(bg, iconPaths);
       },
+    });
+
+    gsap.to(iconPaths, {
+      scale: 1,
+      duration: 0.6,
+      ease: 'power3.out',
     });
 
     if (plusIconVertical) {
@@ -614,6 +642,7 @@ function initHotspots() {
   hotspots.forEach(hotspot => {
     const bg           = hotspot.querySelector('.hotspotbackgroundportfolio');
     const icon         = hotspot.querySelector('.hotspoticonportfolio');
+    const iconPaths    = icon ? Array.from(icon.querySelectorAll('path')) : [];
     const tag          = hotspot.querySelector('.tagportfolio.hotspot');
     const plusIconVertical = hotspot.querySelector('.plusiconvertical');
     if (!bg || !icon || !tag) return;
@@ -622,24 +651,24 @@ function initHotspots() {
     if (hotspot._hotspotBound) return;
     hotspot._hotspotBound = true;
 
-    hotspot._isOpen    = false;
-    hotspot._initialPR = null;
-    hotspot._initialPB = null;
+    hotspot._isOpen  = false;
+    hotspot._initialW = null;
+    hotspot._initialH = null;
 
     // Only pulse if visible
-    if (hotspot.offsetParent !== null) startPulse(bg);
+    if (hotspot.offsetParent !== null) startPulse(bg, iconPaths);
 
     if (!isMobile()) {
       hotspot.addEventListener('mouseenter', () => {
-        if (!hotspot._isOpen) openHotspot(hotspot, bg, icon, tag, plusIconVertical);
+        if (!hotspot._isOpen) openHotspot(hotspot, bg, icon, iconPaths, tag, plusIconVertical);
       });
       hotspot.addEventListener('mouseleave', () => {
-        if (hotspot._isOpen) closeHotspot(hotspot, bg, plusIconVertical);
+        if (hotspot._isOpen) closeHotspot(hotspot, bg, iconPaths, plusIconVertical);
       });
     } else {
       hotspot.addEventListener('click', () => {
-        if (!hotspot._isOpen) openHotspot(hotspot, bg, icon, tag, plusIconVertical);
-        else closeHotspot(hotspot, bg, plusIconVertical);
+        if (!hotspot._isOpen) openHotspot(hotspot, bg, icon, iconPaths, tag, plusIconVertical);
+        else closeHotspot(hotspot, bg, iconPaths, plusIconVertical);
       });
     }
   });
@@ -649,31 +678,31 @@ function initHotspots() {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
       hotspots.forEach(hotspot => {
-        if (hotspot._initialPR === null) return;
+        if (hotspot._initialW === null) return;
 
-        const bg  = hotspot.querySelector('.hotspotbackgroundportfolio');
+        const bg   = hotspot.querySelector('.hotspotbackgroundportfolio');
         const icon = hotspot.querySelector('.hotspoticonportfolio');
         const tag  = hotspot.querySelector('.tagportfolio.hotspot');
         if (!bg || !icon || !tag) return;
 
         if (!hotspot._isOpen) {
-          const cs = getComputedStyle(bg);
-          hotspot._initialPR = parseFloat(cs.paddingRight)  || 0;
-          hotspot._initialPB = parseFloat(cs.paddingBottom) || 0;
+          hotspot._initialW = bg.offsetWidth;
+          hotspot._initialH = bg.offsetHeight;
           gsap.set(bg, {
-            paddingRight:  hotspot._initialPR,
-            paddingBottom: hotspot._initialPB,
+            width:  hotspot._initialW,
+            height: hotspot._initialH,
           });
         } else {
-          const iconRect    = icon.getBoundingClientRect();
-          const iconHeight  = iconRect.height;
-          const tagWidth    = tag.offsetWidth;
-          const tagHeight   = tag.offsetHeight;
-          const targetPR    = hotspot._initialPR + tagWidth + 28;
-          const extraBottom = (tagHeight > iconHeight ? tagHeight - iconHeight : 0) + 4;
+          const iconRect   = icon.getBoundingClientRect();
+          const iconWidth  = iconRect.width;
+          const iconHeight = iconRect.height;
+          const tagWidth   = tag.offsetWidth;
+          const tagHeight  = tag.offsetHeight;
+          const targetW    = iconWidth + tagWidth + 10;
+          const targetH    = tagHeight + 15 > iconHeight ? tagHeight + 15 : iconHeight;
           gsap.set(bg, {
-            paddingRight:  targetPR,
-            paddingBottom: hotspot._initialPB + extraBottom,
+            width:  targetW,
+            height: targetH,
             scale: 1,
           });
         }
@@ -681,7 +710,6 @@ function initHotspots() {
     }, 250);
   });
 }
-
 
 
 
