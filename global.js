@@ -565,7 +565,22 @@ function initHotspots() {
     gsap.killTweensOf(icon, 'scale');
   }
 
+  function closeAllExcept(currentHotspot) {
+    hotspots.forEach(otherHotspot => {
+      if (otherHotspot === currentHotspot) return;
+      if (!otherHotspot._isOpen) return;
+      const otherBg   = otherHotspot.querySelector('.hotspotbackgroundportfolio');
+      const otherIcon = otherHotspot.querySelector('.hotspoticonportfolio');
+      const otherTag  = otherHotspot.querySelector('.tagportfolio.hotspot');
+      const otherPlus = otherHotspot.querySelector('.plusiconvertical');
+      if (!otherBg || !otherIcon || !otherTag) return;
+      closeHotspot(otherHotspot, otherBg, otherIcon, otherTag, otherPlus);
+    });
+  }
+
   function openHotspot(hotspot, bg, icon, tag, plusIconVertical) {
+    closeAllExcept(hotspot);
+
     if (hotspot._initialW === null) {
       hotspot._initialW    = bg.offsetWidth;
       hotspot._initialH    = bg.offsetHeight;
@@ -758,7 +773,6 @@ function initHotspots() {
     }, 250);
   });
 }
-
 
 
 
