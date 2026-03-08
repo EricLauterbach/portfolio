@@ -541,12 +541,12 @@ function initHotspots() {
       { scale: 1 },
       {
         scale: 32 / 26,
-        duration: 3,
+        duration: 4,
         delay,
-        ease: 'power4.inOut',
+        ease: 'power2.inOut',
         repeat: -1,
         yoyo: true,
-        yoyoEase: 'power4.inOut',
+        yoyoEase: 'power2.inOut',
         onUpdate: () => {
           tag.style.clipPath = getClipInset(bg, tag);
         },
@@ -557,12 +557,12 @@ function initHotspots() {
       { scale: 1 },
       {
         scale: 32 / 26,
-        duration: 3,
+        duration: 4,
         delay,
-        ease: 'power4.inOut',
+        ease: 'power2.inOut',
         repeat: -1,
         yoyo: true,
-        yoyoEase: 'power4.inOut',
+        yoyoEase: 'power2.inOut',
       }
     );
   }
