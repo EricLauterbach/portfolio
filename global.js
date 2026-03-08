@@ -509,23 +509,21 @@ function initHotspots() {
 
   function startPulse(hotspot) {
     gsap.killTweensOf(hotspot, 'scale');
-    gsap.to(hotspot, {
-      scale: 1.1,
-      duration: 2,
-      ease: 'sine.inOut',
-      repeat: -1,
-      yoyo: true,
-      yoyoEase: 'sine.inOut',
-    });
+    gsap.fromTo(hotspot,
+      { scale: 1 },
+      {
+        scale: 1.15,
+        duration: 3,
+        ease: 'sine.inOut',
+        repeat: -1,
+        yoyo: true,
+        yoyoEase: 'sine.inOut',
+      }
+    );
   }
 
   function stopPulse(hotspot) {
     gsap.killTweensOf(hotspot, 'scale');
-    gsap.to(hotspot, {
-      scale: 1,
-      duration: 0.3,
-      ease: 'power2.out',
-    });
   }
 
   function openHotspot(hotspot, icon, tag, plusIconVertical) {
@@ -556,7 +554,6 @@ function initHotspots() {
     hotspot.classList.add('is-open');
 
     stopPulse(hotspot);
-
     gsap.killTweensOf(hotspot);
     if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
@@ -624,7 +621,6 @@ function initHotspots() {
     hotspot._initialPT = null;
     hotspot._initialPL = null;
 
-    // Start idle pulse immediately
     startPulse(hotspot);
 
     if (!isMobile()) {
