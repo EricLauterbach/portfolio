@@ -528,7 +528,7 @@ function initHotspots() {
     return `inset(${top}px ${right}px ${bottom}px ${left}px round 999px)`;
   }
 
-  function startPulse(bg, iconPaths, tag) {
+  function startPulse(bg, iconPaths, tag, hotspot) {
     gsap.killTweensOf(bg);
     gsap.killTweensOf(iconPaths, 'scale');
 
@@ -537,10 +537,12 @@ function initHotspots() {
     const delay = Math.random() * 3;
 
     gsap.fromTo(bg,
-      { width: 26, height: 26 },
+      { width: 26, height: 26, top: hotspot._initialTop, left: hotspot._initialLeft },
       {
-        width: 32,
+        width:  32,
         height: 32,
+        top:    hotspot._initialTop  - 3,
+        left:   hotspot._initialLeft - 3,
         duration: 3,
         delay,
         ease: 'power4.inOut',
@@ -655,7 +657,7 @@ function initHotspots() {
       },
       onComplete: () => {
         tag.style.clipPath = getClipInset(bg, tag);
-        if (hotspot.offsetParent !== null) startPulse(bg, iconPaths, tag);
+        if (hotspot.offsetParent !== null) startPulse(bg, iconPaths, tag, hotspot);
       },
     });
 
@@ -693,7 +695,13 @@ function initHotspots() {
     hotspot._initialTop  = null;
     hotspot._initialLeft = null;
 
-    if (hotspot.offsetParent !== null) startPulse(bg, iconPaths, tag);
+    // Capture initial position before any animation
+    hotspot._initialTop  = parseFloat(getComputedStyle(bg).top)  || 0;
+    hotspot._initialLeft = parseFloat(getComputedStyle(bg).left) || 0;
+    hotspot._initialW    = bg.offsetWidth;
+    hotspot._initialH    = bg.offsetHeight;
+
+    if (hotspot.offsetParent !== null) startPulse(bg, iconPaths, tag, hotspot);
 
     if (!isMobile()) {
       hotspot.addEventListener('mouseenter', () => {
@@ -754,7 +762,6 @@ function initHotspots() {
     }, 250);
   });
 }
-
 
 
 
