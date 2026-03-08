@@ -190,6 +190,17 @@ barba.hooks.before(() => {
       el._lottieInstance = null;
     }
   });
+
+  // Cleanup hotspots before Barba transition
+  document.querySelectorAll('.hotspotportfolio').forEach(el => {
+    gsap.killTweensOf(el);
+    el._hotspotBound = false;
+    el._isOpen       = false;
+    el._initialPR    = null;
+    el._initialPB    = null;
+    el._initialPT    = null;
+    el._initialPL    = null;
+  });
 });
 
 barba.hooks.beforeEnter((data) => {
@@ -510,18 +521,15 @@ function initHotspots() {
   function startPulse(hotspot) {
     gsap.killTweensOf(hotspot, 'scale');
 
-    gsap.fromTo(hotspot,
-      { scale: 0.85 },
-      {
-        scale: 1.15,
-        duration: 3,
-        delay: Math.random() * 3,
-        ease: 'power4.inOut',
-        repeat: -1,
-        yoyo: true,
-        yoyoEase: 'power4.inOut',
-      }
-    );
+    gsap.to(hotspot, {
+      scale: 1.15,
+      duration: 3,
+      delay: Math.random() * 3,
+      ease: 'power4.inOut',
+      repeat: -1,
+      yoyo: true,
+      yoyoEase: 'power4.inOut',
+    });
   }
 
   function stopPulse(hotspot) {
@@ -559,14 +567,15 @@ function initHotspots() {
     gsap.killTweensOf(hotspot);
     if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
+    // Instantly offset position so padding expansion doesn't cause visual shift
+    gsap.set(hotspot, { x: -extraTopLeft, y: -extraTopLeft });
+
     gsap.to(hotspot, {
       scale: 1,
       paddingRight:  targetPR,
       paddingBottom: hotspot._initialPB + extraBottom,
       paddingTop:    hotspot._initialPT + extraTopLeft,
       paddingLeft:   hotspot._initialPL + extraTopLeft,
-      x: -extraTopLeft,
-      y: -extraTopLeft,
       duration: 0.6,
       ease: 'power3.inOut',
     });
@@ -589,12 +598,14 @@ function initHotspots() {
     gsap.killTweensOf(hotspot);
     if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
+    // Instantly restore position so padding collapse doesn't cause visual shift
+    gsap.set(hotspot, { x: 0, y: 0 });
+
     gsap.to(hotspot, {
       paddingRight:  hotspot._initialPR,
       paddingBottom: hotspot._initialPB,
       paddingTop:    hotspot._initialPT,
       paddingLeft:   hotspot._initialPL,
-      x: 0, y: 0,
       duration: 0.6,
       ease: 'power3.out',
       onComplete: () => {
@@ -619,7 +630,7 @@ function initHotspots() {
     const plusIconVertical = hotspot.querySelector('.plusiconvertical');
     if (!icon || !tag) return;
 
-    // Fix 1 — prevent duplicate listeners on re-init
+    // Prevent duplicate listeners on re-init
     if (hotspot._hotspotBound) return;
     hotspot._hotspotBound = true;
 
@@ -629,7 +640,7 @@ function initHotspots() {
     hotspot._initialPT = null;
     hotspot._initialPL = null;
 
-    // Fix 2 — only pulse if visible
+    // Only pulse if visible
     if (hotspot.offsetParent !== null) startPulse(hotspot);
 
     if (!isMobile()) {
