@@ -540,13 +540,13 @@ function initHotspots() {
     gsap.fromTo(icon,
       { scale: 1 },
       {
-        scale: 32 / 26,
-        duration: 3,
+        scale: 130%,
+        duration: 2.5,
         delay: Math.random() * 3,
-        ease: 'power4.inOut',
+        ease: 'power3.inOut',
         repeat: -1,
         yoyo: true,
-        yoyoEase: 'power4.inOut',
+        yoyoEase: 'power3.inOut',
       }
     );
   }
