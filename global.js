@@ -507,6 +507,27 @@ function initHotspots() {
 
   const isMobile = () => window.innerWidth < 768;
 
+  function startPulse(hotspot) {
+    gsap.killTweensOf(hotspot, 'scale');
+    gsap.to(hotspot, {
+      scale: 1.1,
+      duration: 2,
+      ease: 'sine.inOut',
+      repeat: -1,
+      yoyo: true,
+      yoyoEase: 'sine.inOut',
+    });
+  }
+
+  function stopPulse(hotspot) {
+    gsap.killTweensOf(hotspot, 'scale');
+    gsap.to(hotspot, {
+      scale: 1,
+      duration: 0.3,
+      ease: 'power2.out',
+    });
+  }
+
   function openHotspot(hotspot, icon, tag, plusIconVertical) {
     if (hotspot._initialPR === null) {
       const cs = getComputedStyle(hotspot);
@@ -533,10 +554,14 @@ function initHotspots() {
 
     hotspot._isOpen = true;
     hotspot.classList.add('is-open');
+
+    stopPulse(hotspot);
+
     gsap.killTweensOf(hotspot);
     if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
     gsap.to(hotspot, {
+      scale: 1,
       paddingRight:  targetPR,
       paddingBottom: hotspot._initialPB + extraBottom,
       paddingTop:    hotspot._initialPT + extraTopLeft,
@@ -573,6 +598,7 @@ function initHotspots() {
       x: 0, y: 0,
       duration: 0.6,
       ease: 'power3.out',
+      onComplete: () => startPulse(hotspot),
     });
 
     if (plusIconVertical) {
@@ -597,6 +623,9 @@ function initHotspots() {
     hotspot._initialPB = null;
     hotspot._initialPT = null;
     hotspot._initialPL = null;
+
+    // Start idle pulse immediately
+    startPulse(hotspot);
 
     if (!isMobile()) {
       hotspot.addEventListener('mouseenter', () => {
