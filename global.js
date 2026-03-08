@@ -205,11 +205,13 @@ barba.hooks.before(() => {
     }
     el._hotspotBound = false;
     el._isOpen       = false;
+    el._initialFill  = null;
     el._initialW     = null;
     el._initialH     = null;
     el._initialTop   = null;
     el._initialLeft  = null;
   });
+  
 });
 
 barba.hooks.beforeEnter((data) => {
@@ -572,13 +574,12 @@ function initHotspots() {
       const otherBg   = otherHotspot.querySelector('.hotspotbackgroundportfolio');
       const otherIcon = otherHotspot.querySelector('.hotspoticonportfolio');
       const otherTag  = otherHotspot.querySelector('.tagportfolio.hotspot');
-      const otherPlus = otherHotspot.querySelector('.plusiconvertical');
       if (!otherBg || !otherIcon || !otherTag) return;
-      closeHotspot(otherHotspot, otherBg, otherIcon, otherTag, otherPlus);
+      closeHotspot(otherHotspot, otherBg, otherIcon, otherTag);
     });
   }
 
-  function openHotspot(hotspot, bg, icon, tag, plusIconVertical) {
+  function openHotspot(hotspot, bg, icon, tag) {
     closeAllExcept(hotspot);
 
     if (hotspot._initialW === null) {
@@ -597,6 +598,16 @@ function initHotspots() {
     const targetW = iconWidth + tagWidth + 10;
     const targetH = tagHeight + 15 > iconHeight ? tagHeight + 15 : iconHeight;
 
+    // Capture initial fill on first interaction
+    const svg   = icon.querySelector('svg');
+    const paths = svg ? Array.from(svg.querySelectorAll('path, circle, rect, polygon')) : [];
+    if (!hotspot._initialFill && paths.length) {
+      hotspot._initialFill = getComputedStyle(paths[0]).fill;
+    }
+
+    const blackColor = getComputedStyle(document.documentElement)
+      .getPropertyValue('--_portfolio-colors---black').trim();
+
     hotspot._isOpen = true;
     hotspot.classList.add('is-open');
 
@@ -604,7 +615,6 @@ function initHotspots() {
     gsap.killTweensOf(bg);
     gsap.killTweensOf(icon);
     gsap.killTweensOf(tag);
-    if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
     gsap.to(bg, {
       scale:  1,
@@ -635,25 +645,24 @@ function initHotspots() {
       ease: 'power2.out',
     });
 
-    if (plusIconVertical) {
-      gsap.to(plusIconVertical, {
-        height: '2px',
-        y: 6,
-        transformOrigin: '50% 50%',
-        duration: 0.45,
-        delay: 0.15,
-        ease: 'power3.out',
+    if (paths.length) {
+      gsap.to(paths, {
+        fill: blackColor,
+        duration: 0.4,
+        ease: 'power2.out',
       });
     }
   }
 
-  function closeHotspot(hotspot, bg, icon, tag, plusIconVertical) {
+  function closeHotspot(hotspot, bg, icon, tag) {
     hotspot._isOpen = false;
     hotspot.classList.remove('is-open');
     gsap.killTweensOf(bg);
     gsap.killTweensOf(icon);
     gsap.killTweensOf(tag);
-    if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
+
+    const svg   = icon.querySelector('svg');
+    const paths = svg ? Array.from(svg.querySelectorAll('path, circle, rect, polygon')) : [];
 
     gsap.to(bg, {
       scale:  1,
@@ -684,28 +693,26 @@ function initHotspots() {
       ease: 'power2.out',
     });
 
-    if (plusIconVertical) {
-      gsap.to(plusIconVertical, {
-        height: '14px',
-        y: 0,
-        transformOrigin: '50% 50%',
-        duration: 0.45,
-        ease: 'power3.out',
+    if (paths.length) {
+      gsap.to(paths, {
+        fill: hotspot._initialFill || '',
+        duration: 0.4,
+        ease: 'power2.out',
       });
     }
   }
 
   hotspots.forEach(hotspot => {
-    const bg           = hotspot.querySelector('.hotspotbackgroundportfolio');
-    const icon         = hotspot.querySelector('.hotspoticonportfolio');
-    const tag          = hotspot.querySelector('.tagportfolio.hotspot');
-    const plusIconVertical = hotspot.querySelector('.plusiconvertical');
+    const bg  = hotspot.querySelector('.hotspotbackgroundportfolio');
+    const icon = hotspot.querySelector('.hotspoticonportfolio');
+    const tag  = hotspot.querySelector('.tagportfolio.hotspot');
     if (!bg || !icon || !tag) return;
 
     if (hotspot._hotspotBound) return;
     hotspot._hotspotBound = true;
 
     hotspot._isOpen      = false;
+    hotspot._initialFill = null;
     hotspot._initialTop  = parseFloat(getComputedStyle(bg).top)  || 0;
     hotspot._initialLeft = parseFloat(getComputedStyle(bg).left) || 0;
     hotspot._initialW    = bg.offsetWidth;
@@ -717,15 +724,15 @@ function initHotspots() {
 
     if (!isMobile()) {
       hotspot.addEventListener('mouseenter', () => {
-        if (!hotspot._isOpen) openHotspot(hotspot, bg, icon, tag, plusIconVertical);
+        if (!hotspot._isOpen) openHotspot(hotspot, bg, icon, tag);
       });
       hotspot.addEventListener('mouseleave', () => {
-        if (hotspot._isOpen) closeHotspot(hotspot, bg, icon, tag, plusIconVertical);
+        if (hotspot._isOpen) closeHotspot(hotspot, bg, icon, tag);
       });
     } else {
       hotspot.addEventListener('click', () => {
-        if (!hotspot._isOpen) openHotspot(hotspot, bg, icon, tag, plusIconVertical);
-        else closeHotspot(hotspot, bg, icon, tag, plusIconVertical);
+        if (!hotspot._isOpen) openHotspot(hotspot, bg, icon, tag);
+        else closeHotspot(hotspot, bg, icon, tag);
       });
     }
   });
