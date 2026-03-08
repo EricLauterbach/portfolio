@@ -553,6 +553,7 @@ function initHotspots() {
         y: 6,
         transformOrigin: '50% 50%',
         duration: 0.3,
+        delay: 0.3,
         ease: 'power3.out',
       });
     }
