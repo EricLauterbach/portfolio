@@ -553,11 +553,15 @@ function initHotspots() {
 
   function openHotspot(hotspot, bg, icon, iconPaths, tag, plusIconVertical) {
     if (hotspot._initialW === null) {
-      hotspot._initialW = bg.offsetWidth;
-      hotspot._initialH = bg.offsetHeight;
+      hotspot._initialW   = bg.offsetWidth;
+      hotspot._initialH   = bg.offsetHeight;
+      hotspot._initialTop = parseFloat(getComputedStyle(bg).top)  || 0;
+      hotspot._initialLeft = parseFloat(getComputedStyle(bg).left) || 0;
       gsap.set(bg, {
         width:  hotspot._initialW,
         height: hotspot._initialH,
+        top:    hotspot._initialTop,
+        left:   hotspot._initialLeft,
       });
     }
 
@@ -579,9 +583,11 @@ function initHotspots() {
     if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
     gsap.to(bg, {
-      scale: 1,
+      scale:  1,
       width:  targetW,
       height: targetH,
+      top:    hotspot._initialTop  - 5,
+      left:   hotspot._initialLeft - 5,
       duration: 0.6,
       ease: 'power3.inOut',
     });
@@ -614,7 +620,9 @@ function initHotspots() {
     gsap.to(bg, {
       width:  hotspot._initialW,
       height: hotspot._initialH,
-      scale: 1,
+      top:    hotspot._initialTop,
+      left:   hotspot._initialLeft,
+      scale:  1,
       duration: 0.6,
       ease: 'power3.out',
       onComplete: () => {
@@ -647,15 +655,15 @@ function initHotspots() {
     const plusIconVertical = hotspot.querySelector('.plusiconvertical');
     if (!bg || !icon || !tag) return;
 
-    // Prevent duplicate listeners on re-init
     if (hotspot._hotspotBound) return;
     hotspot._hotspotBound = true;
 
-    hotspot._isOpen  = false;
-    hotspot._initialW = null;
-    hotspot._initialH = null;
+    hotspot._isOpen      = false;
+    hotspot._initialW    = null;
+    hotspot._initialH    = null;
+    hotspot._initialTop  = null;
+    hotspot._initialLeft = null;
 
-    // Only pulse if visible
     if (hotspot.offsetParent !== null) startPulse(bg, iconPaths);
 
     if (!isMobile()) {
@@ -686,11 +694,15 @@ function initHotspots() {
         if (!bg || !icon || !tag) return;
 
         if (!hotspot._isOpen) {
-          hotspot._initialW = bg.offsetWidth;
-          hotspot._initialH = bg.offsetHeight;
+          hotspot._initialW    = bg.offsetWidth;
+          hotspot._initialH    = bg.offsetHeight;
+          hotspot._initialTop  = parseFloat(getComputedStyle(bg).top)  || 0;
+          hotspot._initialLeft = parseFloat(getComputedStyle(bg).left) || 0;
           gsap.set(bg, {
             width:  hotspot._initialW,
             height: hotspot._initialH,
+            top:    hotspot._initialTop,
+            left:   hotspot._initialLeft,
           });
         } else {
           const iconRect   = icon.getBoundingClientRect();
@@ -703,7 +715,9 @@ function initHotspots() {
           gsap.set(bg, {
             width:  targetW,
             height: targetH,
-            scale: 1,
+            top:    hotspot._initialTop  - 5,
+            left:   hotspot._initialLeft - 5,
+            scale:  1,
           });
         }
       });
