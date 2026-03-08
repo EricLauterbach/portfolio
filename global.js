@@ -534,7 +534,8 @@ function initHotspots() {
     const right  = Math.max(0, tagRect.right  - bgRect.right);
     const bottom = Math.max(0, tagRect.bottom - bgRect.bottom);
     const left   = Math.max(0, bgRect.left   - tagRect.left);
-    return `inset(${top}px ${right}px ${bottom}px ${left}px round 999px)`;
+    const radius = parseFloat(getComputedStyle(bg).borderRadius) || 0;
+    return `inset(${top}px ${right}px ${bottom}px ${left}px round ${radius}px)`;
   }
 
   function startPulse(icon) {
@@ -549,13 +550,13 @@ function initHotspots() {
     gsap.fromTo(icon,
       { scale: 1 },
       {
-        scale: 1.3,
-        duration: 2.5,
+        scale: 32 / 26,
+        duration: 3,
         delay: Math.random() * 3,
-        ease: 'power3.inOut',
+        ease: 'power4.inOut',
         repeat: -1,
         yoyo: true,
-        yoyoEase: 'power3.inOut',
+        yoyoEase: 'power4.inOut',
       }
     );
   }
