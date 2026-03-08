@@ -528,37 +528,21 @@ function initHotspots() {
     return `inset(${top}px ${right}px ${bottom}px ${left}px round 999px)`;
   }
 
-  function startPulse(bg, icon, tag, hotspot) {
-    gsap.killTweensOf(bg);
+  function startPulse(icon) {
     gsap.killTweensOf(icon, 'scale');
 
-    gsap.set(bg,   { transformOrigin: '50% 50%' });
-    gsap.set(icon, { transformOrigin: '50% 50%' });
-
-    const delay = Math.random() * 3;
-
-    gsap.fromTo(bg,
-      { scale: 1 },
-      {
-        scale: 32 / 26,
-        duration: 3,
-        delay,
-        ease: 'power4.inOut',
-        repeat: -1,
-        yoyo: true,
-        yoyoEase: 'power4.inOut',
-        onUpdate: () => {
-          tag.style.clipPath = getClipInset(bg, tag);
-        },
-      }
-    );
+    gsap.set(icon, {
+      transformOrigin: '50% 50%',
+      willChange: 'transform',
+      translateZ: 0,
+    });
 
     gsap.fromTo(icon,
       { scale: 1 },
       {
         scale: 32 / 26,
         duration: 3,
-        delay,
+        delay: Math.random() * 3,
         ease: 'power4.inOut',
         repeat: -1,
         yoyo: true,
@@ -567,8 +551,7 @@ function initHotspots() {
     );
   }
 
-  function stopPulse(bg, icon) {
-    gsap.killTweensOf(bg);
+  function stopPulse(icon) {
     gsap.killTweensOf(icon, 'scale');
   }
 
@@ -592,7 +575,7 @@ function initHotspots() {
     hotspot._isOpen = true;
     hotspot.classList.add('is-open');
 
-    stopPulse(bg, icon);
+    stopPulse(icon);
     gsap.killTweensOf(bg);
     gsap.killTweensOf(icon);
     gsap.killTweensOf(tag);
@@ -660,7 +643,7 @@ function initHotspots() {
       },
       onComplete: () => {
         tag.style.clipPath = getClipInset(bg, tag);
-        if (hotspot.offsetParent !== null) startPulse(bg, icon, tag, hotspot);
+        if (hotspot.offsetParent !== null) startPulse(icon);
       },
     });
 
@@ -703,10 +686,9 @@ function initHotspots() {
     hotspot._initialW    = bg.offsetWidth;
     hotspot._initialH    = bg.offsetHeight;
 
-    // Set tag to invisible initially
     gsap.set(tag, { opacity: 0 });
 
-    if (hotspot.offsetParent !== null) startPulse(bg, icon, tag, hotspot);
+    if (hotspot.offsetParent !== null) startPulse(icon);
 
     if (!isMobile()) {
       hotspot.addEventListener('mouseenter', () => {
