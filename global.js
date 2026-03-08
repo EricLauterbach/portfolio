@@ -794,8 +794,8 @@ function initHotspotToggles() {
   if (!toggles.length) return;
 
   function getToggleSlideX(toggle, button) {
-    const toggleRect  = toggle.getBoundingClientRect();
-    const buttonRect  = button.getBoundingClientRect();
+    const toggleRect   = toggle.getBoundingClientRect();
+    const buttonRect   = button.getBoundingClientRect();
     const paddingRight = parseFloat(getComputedStyle(toggle).paddingRight) || 0;
     return (toggleRect.width - paddingRight) - (buttonRect.left - toggleRect.left) - buttonRect.width;
   }
@@ -820,10 +820,15 @@ function initHotspotToggles() {
     gsap.set(textOn,  { opacity: 1 });
     gsap.set(button,  { x: 0 });
 
+    function setToggleTooltip(text) {
+      toggle.setAttribute('data-tooltip', text);
+      if (window.updateTooltip) window.updateTooltip(toggle, text);
+    }
+
     toggle.addEventListener('click', () => {
       if (toggle._hotspotVisible) {
         toggle._hotspotVisible = false;
-        toggle.setAttribute('data-tooltip', 'Show Annotations');
+        setToggleTooltip('Show Annotations');
 
         gsap.to(textOn,  { opacity: 0, duration: 0.3, ease: 'power2.out' });
         gsap.to(textOff, { opacity: 1, duration: 0.3, ease: 'power2.out' });
@@ -847,7 +852,7 @@ function initHotspotToggles() {
 
       } else {
         toggle._hotspotVisible = true;
-        toggle.setAttribute('data-tooltip', 'Hide Annotations');
+        setToggleTooltip('Hide Annotations');
 
         gsap.to(textOn,  { opacity: 1, duration: 0.3, ease: 'power2.out' });
         gsap.to(textOff, { opacity: 0, duration: 0.3, ease: 'power2.out' });
@@ -2244,9 +2249,16 @@ function initCopyleaksMarketing() {
     gsap.set(container, { opacity: 0 });
   }
 
-  window.hideTooltip = forceHideTooltip;
-  window.lockTooltip = () => { transitionActive = true; forceHideTooltip(); };
+  window.hideTooltip   = forceHideTooltip;
+  window.lockTooltip   = () => { transitionActive = true; forceHideTooltip(); };
   window.unlockTooltip = () => { transitionActive = false; };
+
+  // Expose live update method for dynamic tooltip text
+  window.updateTooltip = function(el, text) {
+    if (currentHovered === el) {
+      tooltipEl.textContent = text;
+    }
+  };
 
   const bound = new WeakSet();
 
@@ -2258,13 +2270,17 @@ function initCopyleaksMarketing() {
         currentHovered = el;
         const t = el.getAttribute('data-tooltip');
         if (t) showTooltip(t);
+        if (el.hasAttribute('data-tooltip-nudge')) nudgeY = NUDGE_AMOUNT;
       });
       el.addEventListener('mouseleave', () => {
         currentHovered = null;
         hideTooltip();
+        nudgeY = 0;
       });
     });
-    document.querySelectorAll('[data-tooltip-nudge]').forEach((el) => {
+
+    // Keep separate loop for nudge-only elements (no tooltip)
+    document.querySelectorAll('[data-tooltip-nudge]:not([data-tooltip])').forEach((el) => {
       if (bound.has(el)) return;
       bound.add(el);
       el.addEventListener('mouseenter', () => { nudgeY = NUDGE_AMOUNT; });
