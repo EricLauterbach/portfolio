@@ -532,17 +532,15 @@ function initHotspots() {
     gsap.killTweensOf(bg);
     gsap.killTweensOf(iconPaths, 'scale');
 
+    gsap.set(bg, { transformOrigin: '50% 50%' });
     gsap.set(iconPaths, { transformOrigin: '50% 50%' });
 
     const delay = Math.random() * 3;
 
     gsap.fromTo(bg,
-      { width: 26, height: 26, top: hotspot._initialTop, left: hotspot._initialLeft },
+      { scale: 20 / 26 },
       {
-        width:  32,
-        height: 32,
-        top:    hotspot._initialTop  - 3,
-        left:   hotspot._initialLeft - 3,
+        scale: 32 / 26,
         duration: 3,
         delay,
         ease: 'power4.inOut',
@@ -605,6 +603,10 @@ function initHotspots() {
     gsap.killTweensOf(iconPaths);
     if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
+    // Reset scale before animating width/height so there's no compound transform
+    gsap.set(bg, { scale: 1, transformOrigin: '0% 0%' });
+    gsap.set(iconPaths, { scale: 1 });
+
     gsap.to(bg, {
       width:  targetW,
       height: targetH,
@@ -618,12 +620,6 @@ function initHotspots() {
       onComplete: () => {
         tag.style.clipPath = getClipInset(bg, tag);
       },
-    });
-
-    gsap.to(iconPaths, {
-      scale: 1,
-      duration: 0.6,
-      ease: 'power3.inOut',
     });
 
     if (plusIconVertical) {
@@ -661,12 +657,6 @@ function initHotspots() {
       },
     });
 
-    gsap.to(iconPaths, {
-      scale: 1,
-      duration: 0.6,
-      ease: 'power3.out',
-    });
-
     if (plusIconVertical) {
       gsap.to(plusIconVertical, {
         height: '14px',
@@ -692,10 +682,6 @@ function initHotspots() {
     hotspot._isOpen      = false;
     hotspot._initialW    = null;
     hotspot._initialH    = null;
-    hotspot._initialTop  = null;
-    hotspot._initialLeft = null;
-
-    // Capture initial position before any animation
     hotspot._initialTop  = parseFloat(getComputedStyle(bg).top)  || 0;
     hotspot._initialLeft = parseFloat(getComputedStyle(bg).left) || 0;
     hotspot._initialW    = bg.offsetWidth;
@@ -762,7 +748,6 @@ function initHotspots() {
     }, 250);
   });
 }
-
 
 
 
