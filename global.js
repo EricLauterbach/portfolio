@@ -521,6 +521,8 @@ function initHotspots() {
   function startPulse(hotspot) {
     gsap.killTweensOf(hotspot, 'scale');
 
+    gsap.set(hotspot, { transformOrigin: '50% 50%' });
+
     gsap.to(hotspot, {
       scale: 1.15,
       duration: 3,
@@ -561,8 +563,21 @@ function initHotspots() {
     gsap.killTweensOf(hotspot);
     if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
+    // Calculate visual offset introduced by center-origin scaling
+    const currentScale = gsap.getProperty(hotspot, 'scale');
+    const w = hotspot.offsetWidth;
+    const h = hotspot.offsetHeight;
+    const offsetX = (1 - currentScale) * w * 0.5;
+    const offsetY = (1 - currentScale) * h * 0.5;
+
+    // Instantly counter the offset so element doesn't jump
+    gsap.set(hotspot, { x: offsetX, y: offsetY });
+
+    // Animate everything to neutral together
     gsap.to(hotspot, {
       scale: 1,
+      x: 0,
+      y: 0,
       paddingRight:  targetPR,
       paddingBottom: hotspot._initialPB + extraBottom,
       duration: 0.6,
@@ -590,6 +605,8 @@ function initHotspots() {
     gsap.to(hotspot, {
       paddingRight:  hotspot._initialPR,
       paddingBottom: hotspot._initialPB,
+      x: 0,
+      y: 0,
       duration: 0.6,
       ease: 'power3.out',
       onComplete: () => {
@@ -669,6 +686,9 @@ function initHotspots() {
           gsap.set(hotspot, {
             paddingRight:  targetPR,
             paddingBottom: hotspot._initialPB + extraBottom,
+            scale: 1,
+            x: 0,
+            y: 0,
           });
         }
       });
