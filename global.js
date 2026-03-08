@@ -543,16 +543,16 @@ function initHotspots() {
       paddingLeft:   hotspot._initialPL + extraTopLeft,
       x: -extraTopLeft,
       y: -extraTopLeft,
-      duration: 0.7,
+      duration: 1,
       ease: 'elastic.out(1, 1)',
     });
 
     if (plusIconVertical) {
       gsap.to(plusIconVertical, {
-        rotate: 90,
+        height: '2px',
         transformOrigin: '50% 50%',
-        duration: 0.7,
-        ease: 'elastic.out(1, 1)',
+        duration: 0.5,
+        ease: 'power3.inOut',
       });
     }
   }
@@ -578,7 +578,7 @@ function initHotspots() {
         rotate: 0,
         transformOrigin: '50% 50%',
         duration: 0.5,
-        ease: 'power3.out',
+        ease: 'power3.inOut',
       });
     }
   }
