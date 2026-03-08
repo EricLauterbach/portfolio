@@ -793,15 +793,20 @@ function initHotspotToggles() {
   const toggles = document.querySelectorAll('.hotspottoggle');
   if (!toggles.length) return;
 
+  function getToggleSlideX(toggle, button) {
+    const toggleRect  = toggle.getBoundingClientRect();
+    const buttonRect  = button.getBoundingClientRect();
+    const paddingRight = parseFloat(getComputedStyle(toggle).paddingRight) || 0;
+    return (toggleRect.width - paddingRight) - (buttonRect.left - toggleRect.left) - buttonRect.width;
+  }
+
   toggles.forEach(toggle => {
     if (toggle._toggleBound) return;
     toggle._toggleBound = true;
 
-    // Find the shared ancestor
     const ancestor = toggle.closest('.contentcontainerportfolioproject');
     if (!ancestor) return;
 
-    // Find all hotspots within the ancestor
     const hotspots = Array.from(ancestor.querySelectorAll('.hotspotportfolio'));
     if (!hotspots.length) return;
 
@@ -809,26 +814,22 @@ function initHotspotToggles() {
     const textOn  = toggle.querySelector('.tagportfolio.toggletext.on');
     const textOff = toggle.querySelector('.tagportfolio.toggletext.off');
 
-    // Default state — visible
     toggle._hotspotVisible = true;
 
-    // Set initial states
     gsap.set(textOff, { opacity: 0 });
     gsap.set(textOn,  { opacity: 1 });
     gsap.set(button,  { x: 0 });
 
     toggle.addEventListener('click', () => {
       if (toggle._hotspotVisible) {
-        // Hide hotspots
         toggle._hotspotVisible = false;
         toggle.setAttribute('data-tooltip', 'Show Annotations');
 
         gsap.to(textOn,  { opacity: 0, duration: 0.3, ease: 'power2.out' });
         gsap.to(textOff, { opacity: 1, duration: 0.3, ease: 'power2.out' });
-        gsap.to(button,  { x: 41, duration: 0.6, ease: 'elastic.out(1, 1)' });
+        gsap.to(button,  { x: getToggleSlideX(toggle, button), duration: 0.6, ease: 'elastic.out(1, 1)' });
 
         hotspots.forEach(hotspot => {
-          // Close if open first
           if (hotspot._isOpen) {
             const bg   = hotspot.querySelector('.hotspotbackgroundportfolio');
             const icon = hotspot.querySelector('.hotspoticonportfolio');
@@ -845,7 +846,6 @@ function initHotspotToggles() {
         });
 
       } else {
-        // Show hotspots
         toggle._hotspotVisible = true;
         toggle.setAttribute('data-tooltip', 'Hide Annotations');
 
