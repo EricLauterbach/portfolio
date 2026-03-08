@@ -668,7 +668,7 @@ function initHotspots() {
       },
       onComplete: () => {
         tag.style.clipPath = getClipInset(bg, tag);
-        if (hotspot.offsetParent !== null) startPulse(icon);
+        if (hotspot.offsetParent !== null && !isMobile()) startPulse(icon);
       },
     });
 
@@ -713,7 +713,7 @@ function initHotspots() {
 
     gsap.set(tag, { opacity: 0 });
 
-    if (hotspot.offsetParent !== null) startPulse(icon);
+    if (hotspot.offsetParent !== null && !isMobile()) startPulse(icon);
 
     if (!isMobile()) {
       hotspot.addEventListener('mouseenter', () => {
