@@ -559,7 +559,7 @@ function initHotspots() {
       { scale: 1 },
       {
         scale: 32 / 26,
-        duration: 2,
+        duration: 3,
         delay: Math.random() * 3,
         ease: 'power4.inOut',
         repeat: -1,
@@ -589,10 +589,10 @@ function initHotspots() {
     closeAllExcept(hotspot);
 
     if (hotspot._initialW === null) {
-      hotspot._initialW    = bg.offsetWidth;
-      hotspot._initialH    = bg.offsetHeight;
-      hotspot._initialTop  = parseFloat(getComputedStyle(bg).top)  || 0;
-      hotspot._initialLeft = parseFloat(getComputedStyle(bg).left) || 0;
+      hotspot._initialW    = parseFloat(getComputedStyle(bg).width)  || 0;
+      hotspot._initialH    = parseFloat(getComputedStyle(bg).height) || 0;
+      hotspot._initialTop  = parseFloat(getComputedStyle(bg).top)    || 0;
+      hotspot._initialLeft = parseFloat(getComputedStyle(bg).left)   || 0;
     }
 
     const iconRect   = icon.getBoundingClientRect();
@@ -604,7 +604,6 @@ function initHotspots() {
     const targetW = iconWidth + tagWidth + 10;
     const targetH = tagHeight + 15 > iconHeight ? tagHeight + 15 : iconHeight;
 
-    // Capture initial fill on first interaction
     const svg   = icon.querySelector('svg');
     const paths = svg ? Array.from(svg.querySelectorAll('path, circle, rect, polygon')) : [];
     if (!hotspot._initialFill && paths.length) {
@@ -719,10 +718,18 @@ function initHotspots() {
 
     hotspot._isOpen      = false;
     hotspot._initialFill = null;
-    hotspot._initialTop  = parseFloat(getComputedStyle(bg).top)  || 0;
-    hotspot._initialLeft = parseFloat(getComputedStyle(bg).left) || 0;
-    hotspot._initialW    = bg.offsetWidth;
-    hotspot._initialH    = bg.offsetHeight;
+    hotspot._initialTop  = parseFloat(getComputedStyle(bg).top)    || 0;
+    hotspot._initialLeft = parseFloat(getComputedStyle(bg).left)   || 0;
+    hotspot._initialW    = parseFloat(getComputedStyle(bg).width)  || 0;
+    hotspot._initialH    = parseFloat(getComputedStyle(bg).height) || 0;
+
+    // Prime GSAP with initial values
+    gsap.set(bg, {
+      width:  hotspot._initialW,
+      height: hotspot._initialH,
+      top:    hotspot._initialTop,
+      left:   hotspot._initialLeft,
+    });
 
     gsap.set(tag, { opacity: 0 });
 
@@ -754,10 +761,10 @@ function initHotspots() {
         if (!bg || !icon || !tag) return;
 
         if (!hotspot._isOpen) {
-          hotspot._initialW    = bg.offsetWidth;
-          hotspot._initialH    = bg.offsetHeight;
-          hotspot._initialTop  = parseFloat(getComputedStyle(bg).top)  || 0;
-          hotspot._initialLeft = parseFloat(getComputedStyle(bg).left) || 0;
+          hotspot._initialW    = parseFloat(getComputedStyle(bg).width)  || 0;
+          hotspot._initialH    = parseFloat(getComputedStyle(bg).height) || 0;
+          hotspot._initialTop  = parseFloat(getComputedStyle(bg).top)    || 0;
+          hotspot._initialLeft = parseFloat(getComputedStyle(bg).left)   || 0;
           gsap.set(bg, {
             width:  hotspot._initialW,
             height: hotspot._initialH,
@@ -786,7 +793,6 @@ function initHotspots() {
     }, 250);
   });
 }
-
 
 // Hotspots Toggling element and system
 function initHotspotToggles() {
