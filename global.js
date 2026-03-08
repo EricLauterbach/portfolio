@@ -508,21 +508,27 @@ function initHotspots() {
   const isMobile = () => window.innerWidth < 768;
 
   function startPulse(hotspot) {
+    if (hotspot._pulseTl) {
+      hotspot._pulseTl.kill();
+      hotspot._pulseTl = null;
+    }
     gsap.killTweensOf(hotspot, 'scale');
-    gsap.fromTo(hotspot,
-      { scale: 1 },
-      {
-        scale: 1.15,
-        duration: 3,
-        ease: 'sine.inOut',
-        repeat: -1,
-        yoyo: true,
-        yoyoEase: 'sine.inOut',
-      }
-    );
+
+    const tl = gsap.timeline({ repeat: -1 });
+    tl.set(hotspot, { scale: 0.85 })
+      .to(hotspot, { scale: 1.15, duration: 1.5, ease: 'sine.inOut' })
+      .to(hotspot, { scale: 1.15, duration: 1.5, ease: 'none' })
+      .to(hotspot, { scale: 0.85, duration: 1.5, ease: 'sine.inOut' })
+      .to(hotspot, { scale: 0.85, duration: 1.5, ease: 'none' });
+
+    hotspot._pulseTl = tl;
   }
 
   function stopPulse(hotspot) {
+    if (hotspot._pulseTl) {
+      hotspot._pulseTl.kill();
+      hotspot._pulseTl = null;
+    }
     gsap.killTweensOf(hotspot, 'scale');
   }
 
@@ -620,6 +626,7 @@ function initHotspots() {
     hotspot._initialPB = null;
     hotspot._initialPT = null;
     hotspot._initialPL = null;
+    hotspot._pulseTl   = null;
 
     startPulse(hotspot);
 
