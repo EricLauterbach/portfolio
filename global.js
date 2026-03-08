@@ -538,7 +538,7 @@ function initHotspots() {
     const delay = Math.random() * 3;
 
     gsap.fromTo(bg,
-      { scale: 20 / 26 },
+      { scale: 1 },
       {
         scale: 32 / 26,
         duration: 3,
@@ -554,7 +554,7 @@ function initHotspots() {
     );
 
     gsap.fromTo(icon,
-      { scale: 20 / 26 },
+      { scale: 1 },
       {
         scale: 32 / 26,
         duration: 3,
