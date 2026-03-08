@@ -518,7 +518,6 @@ function initHotspots() {
     hotspot._initialPL = null;
 
     hotspot.addEventListener('click', () => {
-      // Capture initial padding on first click (element guaranteed visible)
       if (hotspot._initialPR === null) {
         const cs = getComputedStyle(hotspot);
         hotspot._initialPR = parseFloat(cs.paddingRight)  || 0;
@@ -535,11 +534,13 @@ function initHotspots() {
         });
       }
 
-      const iconRect    = icon.getBoundingClientRect();
-      const extraRight  = Math.max(0, tag.offsetWidth  - iconRect.width)  + 10;
-      const extraBottom = tag.offsetHeight > iconRect.height ? tag.offsetHeight - iconRect.height : 0;
+      const iconRect     = icon.getBoundingClientRect();
+      const iconHeight   = iconRect.height;
+      const tagWidth     = tag.offsetWidth;
+      const tagHeight    = tag.offsetHeight;
 
-      // Dynamic offset — difference between expanded and initial top/left padding
+      const targetPR     = hotspot._initialPR + tagWidth + 40;
+      const extraBottom  = tagHeight > iconHeight ? tagHeight - iconHeight : 0;
       const extraTopLeft = 10 - hotspot._initialPT;
 
       gsap.killTweensOf(hotspot);
@@ -550,7 +551,7 @@ function initHotspots() {
         hotspot.classList.add('is-open');
 
         gsap.to(hotspot, {
-          paddingRight:  hotspot._initialPR + extraRight,
+          paddingRight:  targetPR,
           paddingBottom: hotspot._initialPB + extraBottom,
           paddingTop:    hotspot._initialPT + extraTopLeft,
           paddingLeft:   hotspot._initialPL + extraTopLeft,
@@ -563,6 +564,7 @@ function initHotspots() {
         if (plusIconVertical) {
           gsap.to(plusIconVertical, {
             rotate: 90,
+            transformOrigin: '50% 50%',
             duration: 0.7,
             ease: 'elastic.out(1, 1)',
           });
@@ -586,6 +588,7 @@ function initHotspots() {
         if (plusIconVertical) {
           gsap.to(plusIconVertical, {
             rotate: 0,
+            transformOrigin: '50% 50%',
             duration: 0.5,
             ease: 'power3.out',
           });
@@ -616,15 +619,19 @@ function initHotspots() {
             paddingBottom: hotspot._initialPB,
             paddingTop:    hotspot._initialPT,
             paddingLeft:   hotspot._initialPL,
-            x: 0, y: 0,
+            x: 0,
+            y: 0,
           });
         } else {
           const iconRect     = icon.getBoundingClientRect();
-          const extraRight   = Math.max(0, tag.offsetWidth - iconRect.width) + 10;
-          const extraBottom  = tag.offsetHeight > iconRect.height ? tag.offsetHeight - iconRect.height : 0;
+          const iconHeight   = iconRect.height;
+          const tagWidth     = tag.offsetWidth;
+          const tagHeight    = tag.offsetHeight;
+          const targetPR     = hotspot._initialPR + tagWidth + 40;
+          const extraBottom  = tagHeight > iconHeight ? tagHeight - iconHeight : 0;
           const extraTopLeft = 10 - hotspot._initialPT;
           gsap.set(hotspot, {
-            paddingRight:  hotspot._initialPR + extraRight,
+            paddingRight:  targetPR,
             paddingBottom: hotspot._initialPB + extraBottom,
             paddingTop:    hotspot._initialPT + extraTopLeft,
             paddingLeft:   hotspot._initialPL + extraTopLeft,
