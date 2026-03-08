@@ -528,12 +528,12 @@ function initHotspots() {
     return `inset(${top}px ${right}px ${bottom}px ${left}px round 999px)`;
   }
 
-  function startPulse(bg, iconPaths, tag, hotspot) {
+  function startPulse(bg, icon, tag, hotspot) {
     gsap.killTweensOf(bg);
-    gsap.killTweensOf(iconPaths, 'scale');
+    gsap.killTweensOf(icon, 'scale');
 
-    gsap.set(bg, { transformOrigin: '50% 50%' });
-    gsap.set(iconPaths, { transformOrigin: '50% 50%' });
+    gsap.set(bg,   { transformOrigin: '50% 50%' });
+    gsap.set(icon, { transformOrigin: '50% 50%' });
 
     const delay = Math.random() * 3;
 
@@ -553,7 +553,7 @@ function initHotspots() {
       }
     );
 
-    gsap.fromTo(iconPaths,
+    gsap.fromTo(icon,
       { scale: 20 / 26 },
       {
         scale: 32 / 26,
@@ -567,12 +567,12 @@ function initHotspots() {
     );
   }
 
-  function stopPulse(bg, iconPaths) {
+  function stopPulse(bg, icon) {
     gsap.killTweensOf(bg);
-    gsap.killTweensOf(iconPaths, 'scale');
+    gsap.killTweensOf(icon, 'scale');
   }
 
-  function openHotspot(hotspot, bg, icon, iconPaths, tag, plusIconVertical) {
+  function openHotspot(hotspot, bg, icon, tag, plusIconVertical) {
     if (hotspot._initialW === null) {
       hotspot._initialW    = bg.offsetWidth;
       hotspot._initialH    = bg.offsetHeight;
@@ -592,15 +592,11 @@ function initHotspots() {
     hotspot._isOpen = true;
     hotspot.classList.add('is-open');
 
-    stopPulse(bg, iconPaths);
+    stopPulse(bg, icon);
     gsap.killTweensOf(bg);
-    gsap.killTweensOf(iconPaths);
+    gsap.killTweensOf(icon);
     if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
-    // Get current scale so we can factor it into the width/height start point
-    const currentScale = gsap.getProperty(bg, 'scale');
-
-    // Animate scale back to 1 AND width/height to target simultaneously
     gsap.to(bg, {
       scale:  1,
       width:  targetW,
@@ -617,8 +613,7 @@ function initHotspots() {
       },
     });
 
-    // Animate icon paths back to scale 1
-    gsap.to(iconPaths, {
+    gsap.to(icon, {
       scale: 1,
       duration: 0.6,
       ease: 'power3.inOut',
@@ -636,11 +631,11 @@ function initHotspots() {
     }
   }
 
-  function closeHotspot(hotspot, bg, iconPaths, tag, plusIconVertical) {
+  function closeHotspot(hotspot, bg, icon, tag, plusIconVertical) {
     hotspot._isOpen = false;
     hotspot.classList.remove('is-open');
     gsap.killTweensOf(bg);
-    gsap.killTweensOf(iconPaths);
+    gsap.killTweensOf(icon);
     if (plusIconVertical) gsap.killTweensOf(plusIconVertical);
 
     gsap.to(bg, {
@@ -656,8 +651,14 @@ function initHotspots() {
       },
       onComplete: () => {
         tag.style.clipPath = getClipInset(bg, tag);
-        if (hotspot.offsetParent !== null) startPulse(bg, iconPaths, tag, hotspot);
+        if (hotspot.offsetParent !== null) startPulse(bg, icon, tag, hotspot);
       },
+    });
+
+    gsap.to(icon, {
+      scale: 1,
+      duration: 0.6,
+      ease: 'power3.out',
     });
 
     if (plusIconVertical) {
@@ -674,7 +675,6 @@ function initHotspots() {
   hotspots.forEach(hotspot => {
     const bg           = hotspot.querySelector('.hotspotbackgroundportfolio');
     const icon         = hotspot.querySelector('.hotspoticonportfolio');
-    const iconPaths    = icon ? Array.from(icon.querySelectorAll('path')) : [];
     const tag          = hotspot.querySelector('.tagportfolio.hotspot');
     const plusIconVertical = hotspot.querySelector('.plusiconvertical');
     if (!bg || !icon || !tag) return;
@@ -688,19 +688,19 @@ function initHotspots() {
     hotspot._initialW    = bg.offsetWidth;
     hotspot._initialH    = bg.offsetHeight;
 
-    if (hotspot.offsetParent !== null) startPulse(bg, iconPaths, tag, hotspot);
+    if (hotspot.offsetParent !== null) startPulse(bg, icon, tag, hotspot);
 
     if (!isMobile()) {
       hotspot.addEventListener('mouseenter', () => {
-        if (!hotspot._isOpen) openHotspot(hotspot, bg, icon, iconPaths, tag, plusIconVertical);
+        if (!hotspot._isOpen) openHotspot(hotspot, bg, icon, tag, plusIconVertical);
       });
       hotspot.addEventListener('mouseleave', () => {
-        if (hotspot._isOpen) closeHotspot(hotspot, bg, iconPaths, tag, plusIconVertical);
+        if (hotspot._isOpen) closeHotspot(hotspot, bg, icon, tag, plusIconVertical);
       });
     } else {
       hotspot.addEventListener('click', () => {
-        if (!hotspot._isOpen) openHotspot(hotspot, bg, icon, iconPaths, tag, plusIconVertical);
-        else closeHotspot(hotspot, bg, iconPaths, tag, plusIconVertical);
+        if (!hotspot._isOpen) openHotspot(hotspot, bg, icon, tag, plusIconVertical);
+        else closeHotspot(hotspot, bg, icon, tag, plusIconVertical);
       });
     }
   });
