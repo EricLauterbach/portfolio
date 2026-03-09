@@ -267,6 +267,11 @@ barba.hooks.after((data) => {
       initCopyleaksWebsite();
     }, 300);
   }
+  if (namespace === 'ai-detector-extension') {
+    setTimeout(() => {
+      initAiDetectorExtension();
+    }, 300);
+  }
 
   // Entrance animations — every page, always last
   setTimeout(() => {
@@ -1683,6 +1688,14 @@ function initCopyleaksAnimations() {
 
 
 // ============================================================
+// AI DETECTOR EXTENSION PAGE
+// ============================================================
+
+function initAiDetectorExtension() {
+}
+
+
+// ============================================================
 // COPYLEAKS WEBSITE PAGE
 // ============================================================
 
@@ -2339,6 +2352,11 @@ function onPageLoad() {
   if (namespace === 'copyleaks-marketing') {
     setTimeout(() => {
       initCopyleaksMarketing();
+    }, 100);
+  }
+  if (namespace === 'ai-detector-extension') {
+    setTimeout(() => {
+      initAiDetectorExtension();
     }, 100);
   }
 
