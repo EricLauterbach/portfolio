@@ -23,6 +23,7 @@ const projectPages = [
   'copyleaks-animations',
   'copyleaks-website',
   'copyleaks-marketing',
+  'ai-detector-extension',
 ];
 
 let isFirstLoad = true;
