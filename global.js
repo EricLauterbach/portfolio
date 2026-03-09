@@ -565,11 +565,11 @@ function initHotspots() {
       {
         scale: 32 / 26,
         duration: 1.25,
-        delay: Math.random() * 1.5,
-        ease: 'power2.inOut',
+        delay: Math.random() * 3,
+        ease: 'sine.inOut',
         repeat: -1,
         yoyo: true,
-        yoyoEase: 'power2.inOut',
+        yoyoEase: 'sine.inOut',
       }
     );
   }
