@@ -1693,6 +1693,43 @@ function initCopyleaksAnimations() {
 // ============================================================
 
 function initAiDetectorExtension() {
+
+  // Extension page Sliders init
+  const css = (variable) => getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+
+  window.extensionSlider1 = new Splide('#extensionSlider1', {
+    type: 'slide',
+    drag: 'free',
+    perPage: 4,
+    perMove: 1,
+    focus: '1',
+    arrows: true,
+    pagination: false,
+    autoplay: false,
+    snap: true,
+    speed: 3000,
+    interval: 5000,
+    padding: { left: css('--_portfolio-spacing---spacing-large'), right: css('--_portfolio-spacing---spacing-large') },
+    easing: 'cubic-bezier(.09,1.88,.5,.92)',
+
+    breakpoints: {
+      992: {
+        padding: { left: css('--_portfolio-spacing---spacing-medium'), right: css('--_portfolio-spacing---spacing-medium') },
+        perPage: 3,
+      },
+      768: {
+        padding: { left: css('--_portfolio-spacing---spacing-small'), right: css('--_portfolio-spacing---spacing-small') },
+        perPage: 2,
+      },
+      480: {
+        padding: { left: css('--_portfolio-spacing---spacing-tiny'), right: css('--_portfolio-spacing---spacing-tiny') },
+        perPage: 1,
+      },
+    }
+  });
+
+  window.extensionSlider1.mount();
+  
 }
 
 
