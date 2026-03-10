@@ -270,6 +270,8 @@ barba.hooks.after((data) => {
   }
   if (namespace === 'ai-detector-extension') {
     setTimeout(() => {
+      ScrollTrigger.refresh();
+      initLottieElements();
       initAiDetectorExtension();
     }, 300);
   }
@@ -2394,6 +2396,7 @@ function onPageLoad() {
   }
   if (namespace === 'ai-detector-extension') {
     setTimeout(() => {
+      initLottieElements();
       initAiDetectorExtension();
     }, 100);
   }
