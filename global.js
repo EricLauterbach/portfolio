@@ -1933,11 +1933,73 @@ function initCopyleaksWebsite() {
     if (isOpen) openDropdown();
   });
 
-
-
-  // Demo page Sliders init
+  // JS variable for retrieving CSS variables
   const css = (variable) => getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
 
+  // Homepage Sliders init
+  window.websiteHomeSlider1 = new Splide('#websiteHomeSlider1', {
+    type: 'slide',
+    drag: 'free',
+    perPage: 2,
+    perMove: 1,
+    focus: '1',
+    arrows: true,
+    pagination: false,
+    autoplay: false,
+    snap: true,
+    speed: 3000,
+    interval: 5000,
+    padding: { left: css('--_portfolio-spacing---spacing-large'), right: css('--_portfolio-spacing---spacing-large') },
+    easing: 'cubic-bezier(.09,1.88,.5,.92)',
+
+    breakpoints: {
+      992: {
+        padding: { left: css('--_portfolio-spacing---spacing-medium'), right: css('--_portfolio-spacing---spacing-medium') },
+        perPage: 2,
+      },
+      768: {
+        padding: { left: css('--_portfolio-spacing---spacing-small'), right: css('--_portfolio-spacing---spacing-small') },
+        perPage: 1,
+      },
+      480: {
+        padding: { left: css('--_portfolio-spacing---spacing-tiny'), right: css('--_portfolio-spacing---spacing-tiny') },
+        perPage: 1,
+      },
+    }
+  });
+
+  window.websiteHomeSlider2 = new Splide('#websiteHomeSlider2', {
+    type: 'slide',
+    drag: 'free',
+    perPage: 2,
+    perMove: 1,
+    focus: '1',
+    arrows: true,
+    pagination: false,
+    autoplay: false,
+    snap: true,
+    speed: 3000,
+    interval: 5000,
+    padding: { left: css('--_portfolio-spacing---spacing-large'), right: css('--_portfolio-spacing---spacing-large') },
+    easing: 'cubic-bezier(.09,1.88,.5,.92)',
+
+    breakpoints: {
+      992: {
+        padding: { left: css('--_portfolio-spacing---spacing-medium'), right: css('--_portfolio-spacing---spacing-medium') },
+        perPage: 2,
+      },
+      768: {
+        padding: { left: css('--_portfolio-spacing---spacing-small'), right: css('--_portfolio-spacing---spacing-small') },
+        perPage: 1,
+      },
+      480: {
+        padding: { left: css('--_portfolio-spacing---spacing-tiny'), right: css('--_portfolio-spacing---spacing-tiny') },
+        perPage: 1,
+      },
+    }
+  });
+  
+  // Demo page Sliders init
   window.websiteDemoSlider1 = new Splide('#websiteDemoSlider1', {
     type: 'slide',
     drag: 'free',
@@ -2031,6 +2093,9 @@ function initCopyleaksWebsite() {
     }
   });
 
+  window.websiteHomeSlider1.mount();
+  window.websiteHomeSlider2.mount();
+  
   window.websiteDemoSlider1.mount();
   window.websiteDemoSlider2.mount();
   window.websiteDemoSlider3.mount();
