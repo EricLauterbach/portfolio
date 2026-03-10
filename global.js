@@ -1774,7 +1774,9 @@ function initCopyleaksWebsite() {
   document.querySelectorAll('[data-panel]').forEach(el => {
     gsap.set(el, {
       opacity: el.dataset.panel === 'homepage' ? 1 : 0,
-      display: el.dataset.panel === 'homepage' ? 'block' : 'none'
+      display: el.dataset.panel === 'homepage' ? 'flex' : 'none',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
     });
   });
   document.querySelectorAll('[data-image]').forEach(el => {
@@ -1878,9 +1880,10 @@ function initCopyleaksWebsite() {
         if (outImage) gsap.set(outImage, { display: 'none' });
         if (outVideo) gsap.set(outVideo, { display: 'none' });
 
-        if (inPanel) gsap.set(inPanel, { display: 'block', opacity: 0 });
+        if (inPanel) gsap.set(inPanel, { display: 'flex', flexDirection: 'column', justifyContent: 'space-between', opacity: 0 });
         if (inImage) gsap.set(inImage, { display: 'block', opacity: 0 });
         if (inVideo) gsap.set(inVideo, { display: 'block', opacity: 0 });
+
         gsap.to([inPanel, inImage, inVideo].filter(Boolean), {
           opacity: 1,
           duration: 0.3,
@@ -1932,6 +1935,7 @@ function initCopyleaksWebsite() {
     setParentHeight();
     if (isOpen) openDropdown();
   });
+  
 
   // JS variable for retrieving CSS variables
   const css = (variable) => getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
