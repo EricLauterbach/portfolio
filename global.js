@@ -1658,7 +1658,7 @@ function initHomePage() {
     let riveCanvasTimeline;
 
     riveCanvasTimeline = new rive.Rive({
-      src: "https://cdn.prod.website-files.com/689264804772f69d2a181b3d/69b0f21ef969ac9c3d32b94f_566a80414594d01ce336122b07c45466_portfolio_timeline.riv",
+      src: "https://cdn.prod.website-files.com/689264804772f69d2a181b3d/69b0f21ef969ac9c3d32b94f_cec1b2938ccd8f9ee027a91f3242c36b_portfolio_timeline.riv",
       canvas: canvasTimeline,
       autoplay: true,
       layout: riveLayoutTimeline,
@@ -1685,7 +1685,7 @@ function initHomePage() {
 
         ScrollTrigger.create({
           trigger: "#riveCanvasTimeline",
-          start: "bottom 100%",
+          start: "50% 100%",
           onEnter() { loadTimelineInput.value = true; }
         });
       }
