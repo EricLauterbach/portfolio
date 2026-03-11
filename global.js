@@ -1652,7 +1652,7 @@ function initHomePage() {
   }
 
   // ── Timeline Rive ────────────────────────────────────────
-  const canvasTimelinme = document.getElementById("riveCanvasTimeline");
+  const canvasTimeline = document.getElementById("riveCanvasTimeline");
   if (canvasTimeline) {
     const riveLayoutTimeline = new rive.Layout({ fit: rive.Fit.Layout, layoutScaleFactor: 1.0 });
     let riveCanvasTimeline;
