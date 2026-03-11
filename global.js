@@ -828,8 +828,13 @@ function initHotspotToggles() {
     const textOn  = toggle.querySelector('.tagportfolio.toggletext.on');
     const textOff = toggle.querySelector('.tagportfolio.toggletext.off');
 
-    const colorOn  = getComputedStyle(document.documentElement).getPropertyValue('--_portfolio-colors---black').trim();
-    const colorOff = getComputedStyle(document.documentElement).getPropertyValue('--_portfolio-colors---gray-background').trim();
+    const svg         = button.querySelector('svg');
+    const buttonPaths = svg ? Array.from(svg.querySelectorAll('path, circle, rect, polygon')) : [];
+
+    const style       = getComputedStyle(document.documentElement);
+    const colorOn     = style.getPropertyValue('--_portfolio-colors---black').trim();
+    const colorOff    = style.getPropertyValue('--_portfolio-colors---gray-background').trim();
+    const iconColorOff = style.getPropertyValue('--_portfolio-colors---gray-text').trim();
 
     toggle._hotspotVisible = true;
 
@@ -837,6 +842,7 @@ function initHotspotToggles() {
     gsap.set(textOn,  { opacity: 1 });
     gsap.set(button,  { x: 0 });
     gsap.set(toggle,  { backgroundColor: colorOn });
+    if (buttonPaths.length) gsap.set(buttonPaths, { fill: colorOn });
 
     function setToggleTooltip(text) {
       toggle.setAttribute('data-tooltip', text);
@@ -852,6 +858,7 @@ function initHotspotToggles() {
         gsap.to(textOff, { opacity: 1, duration: 0.3, ease: 'power2.out' });
         gsap.to(button,  { x: getToggleSlideX(toggle, button), duration: 0.6, ease: 'elastic.out(1, 1)' });
         gsap.to(toggle,  { backgroundColor: colorOff, duration: 0.4, ease: 'power2.out' });
+        if (buttonPaths.length) gsap.to(buttonPaths, { fill: iconColorOff, duration: 0.4, ease: 'power2.out' });
 
         hotspots.forEach(hotspot => {
           if (hotspot._isOpen) {
@@ -877,6 +884,7 @@ function initHotspotToggles() {
         gsap.to(textOff, { opacity: 0, duration: 0.3, ease: 'power2.out' });
         gsap.to(button,  { x: 0, duration: 0.6, ease: 'elastic.out(1, 1)' });
         gsap.to(toggle,  { backgroundColor: colorOn, duration: 0.4, ease: 'power2.out' });
+        if (buttonPaths.length) gsap.to(buttonPaths, { fill: colorOn, duration: 0.4, ease: 'power2.out' });
 
         hotspots.forEach(hotspot => {
           gsap.to(hotspot, {
