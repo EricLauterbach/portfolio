@@ -1658,7 +1658,7 @@ function initHomePage() {
     let riveCanvasTimeline;
 
     riveCanvasTimeline = new rive.Rive({
-      src: "https://cdn.prod.website-files.com/689264804772f69d2a181b3d/69b0f21ef969ac9c3d32b94f_fbb4b9919b87aaaa6980b6e06bb41503_portfolio_timeline.riv",
+      src: "https://cdn.prod.website-files.com/689264804772f69d2a181b3d/69b0f21ef969ac9c3d32b94f_566a80414594d01ce336122b07c45466_portfolio_timeline.riv",
       canvas: canvasTimeline,
       autoplay: true,
       layout: riveLayoutTimeline,
