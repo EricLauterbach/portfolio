@@ -566,7 +566,7 @@ function initHotspots() {
     gsap.fromTo(icon,
       { scale: 1 },
       {
-        scale: 32 / 26,
+        scale: 1.5,
         duration: 1.25,
         delay: Math.random() * 3,
         ease: 'sine.inOut',
