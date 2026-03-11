@@ -1657,7 +1657,7 @@ function initHomePage() {
 
         ScrollTrigger.create({
           trigger: "#riveCanvasLocation",
-          start: "bottom 100%",
+          start: "80% 100%",
           onEnter() { loadLocationInput.value = true; }
         });
       }
