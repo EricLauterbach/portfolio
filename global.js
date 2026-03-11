@@ -1651,6 +1651,47 @@ function initHomePage() {
     });
   }
 
+  // ── Timeline Rive ────────────────────────────────────────
+  const canvasTimelinme = document.getElementById("riveCanvasTimeline");
+  if (canvasTimeline) {
+    const riveLayoutTimeline = new rive.Layout({ fit: rive.Fit.Layout, layoutScaleFactor: 1.0 });
+    let riveCanvasTimeline;
+
+    riveCanvasTimeline = new rive.Rive({
+      src: "https://cdn.prod.website-files.com/689264804772f69d2a181b3d/69b0f21ef969ac9c3d32b94f_portfolio_timeline.riv",
+      canvas: canvasTimeline,
+      autoplay: true,
+      layout: riveLayoutTimeline,
+      artboard: "Artboard",
+      stateMachines: "State Machine 1",
+      isTouchScrollEnabled: true,
+      onLoad() {
+        riveCanvasTimeline.resizeDrawingSurfaceToCanvas();
+        const inputs = riveCanvasTimeline.stateMachineInputs("State Machine 1");
+        const loadTimelineInput = inputs.find(i => i.name === "loadTimeline");
+        requestAnimationFrame(() => {
+          gsap.to(canvasTimeline, { delay: 0.5, opacity: 1, duration: 0.5, ease: "power1.out" });
+        });
+
+        let lastWidth = canvasTimeline.clientWidth, lastHeight = canvasTimeline.clientHeight, resizing = false;
+        new ResizeObserver(entries => {
+          if (resizing) return;
+          const { width, height } = entries[0].contentRect;
+          if (Math.abs(width - lastWidth) > 1 || Math.abs(height - lastHeight) > 1) {
+            lastWidth = width; lastHeight = height; resizing = true;
+            requestAnimationFrame(() => { riveCanvasTimeline.resizeDrawingSurfaceToCanvas(); resizing = false; });
+          }
+        }).observe(canvasTimeline);
+
+        ScrollTrigger.create({
+          trigger: "#riveCanvasTimeline",
+          start: "bottom 100%",
+          onEnter() { loadTimelineInput.value = true; }
+        });
+      }
+    });
+  }
+
 
   // ── Personal Photos Slider ───────────────────────────────
   setTimeout(() => {
