@@ -808,10 +808,10 @@ function initHotspotToggles() {
   if (!toggles.length) return;
 
   function getToggleSlideX(toggle, button) {
-    const toggleRect   = toggle.getBoundingClientRect();
-    const buttonRect   = button.getBoundingClientRect();
-    const paddingRight = parseFloat(getComputedStyle(toggle).paddingRight) || 0;
-    return (toggleRect.width - paddingRight) - (buttonRect.left - toggleRect.left) - buttonRect.width;
+    const toggleRect  = toggle.getBoundingClientRect();
+    const buttonRect  = button.getBoundingClientRect();
+    const paddingLeft = parseFloat(getComputedStyle(toggle).paddingLeft) || 0;
+    return -((buttonRect.left - toggleRect.left) - paddingLeft);
   }
 
   toggles.forEach(toggle => {
