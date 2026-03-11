@@ -828,11 +828,15 @@ function initHotspotToggles() {
     const textOn  = toggle.querySelector('.tagportfolio.toggletext.on');
     const textOff = toggle.querySelector('.tagportfolio.toggletext.off');
 
+    const colorOn  = getComputedStyle(document.documentElement).getPropertyValue('--_portfolio-colors---black').trim();
+    const colorOff = getComputedStyle(document.documentElement).getPropertyValue('--_portfolio-colors---gray-background').trim();
+
     toggle._hotspotVisible = true;
 
     gsap.set(textOff, { opacity: 0 });
     gsap.set(textOn,  { opacity: 1 });
     gsap.set(button,  { x: 0 });
+    gsap.set(toggle,  { backgroundColor: colorOn });
 
     function setToggleTooltip(text) {
       toggle.setAttribute('data-tooltip', text);
@@ -847,6 +851,7 @@ function initHotspotToggles() {
         gsap.to(textOn,  { opacity: 0, duration: 0.3, ease: 'power2.out' });
         gsap.to(textOff, { opacity: 1, duration: 0.3, ease: 'power2.out' });
         gsap.to(button,  { x: getToggleSlideX(toggle, button), duration: 0.6, ease: 'elastic.out(1, 1)' });
+        gsap.to(toggle,  { backgroundColor: colorOff, duration: 0.4, ease: 'power2.out' });
 
         hotspots.forEach(hotspot => {
           if (hotspot._isOpen) {
@@ -871,6 +876,7 @@ function initHotspotToggles() {
         gsap.to(textOn,  { opacity: 1, duration: 0.3, ease: 'power2.out' });
         gsap.to(textOff, { opacity: 0, duration: 0.3, ease: 'power2.out' });
         gsap.to(button,  { x: 0, duration: 0.6, ease: 'elastic.out(1, 1)' });
+        gsap.to(toggle,  { backgroundColor: colorOn, duration: 0.4, ease: 'power2.out' });
 
         hotspots.forEach(hotspot => {
           gsap.to(hotspot, {
@@ -885,7 +891,6 @@ function initHotspotToggles() {
     });
   });
 }
-
 
 
 // ============================================================
