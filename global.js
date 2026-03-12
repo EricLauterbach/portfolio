@@ -1564,7 +1564,7 @@ function initHomePage() {
   const expWrapper      = document.querySelector('.experienceitemlistportfoliohome');
   const expItems        = Array.from(document.querySelectorAll('.experienceitemportfoliohome'));
   const expDescriptions = expItems.map(el => el.querySelector('.experienceitemdescriptionportfoliohome'));
-  const expParagraphs   = expItems.map(el => el.querySelector('.experienceitemdescriptionportfoliohome p'));
+  const expParagraphs   = expItems.map(el => el.querySelector('.experienceitemdescriptionportfoliohome ul'));
 
   if (expWrapper && expItems.length) {
     let naturalHeights = [], expandedHeights = [];
