@@ -194,25 +194,33 @@
       // ── H1 character animation ────────────────────────────────
       const h1 = document.querySelector('h1');
       if (h1) {
-        // Wrap h1 in a clip container
-        const wrapper = document.createElement('div');
-        wrapper.style.overflow = 'hidden';
-        wrapper.style.display = 'block';
-        h1.parentNode.insertBefore(wrapper, h1);
-        wrapper.appendChild(h1);
+        const split = new SplitText(h1, { type: 'lines', linesClass: 'split-line' });
       
-        tl.fromTo(h1,
-          { y: 40, opacity: 0 },
+        // Wrap each line in an overflow hidden container to clip the slide
+        split.lines.forEach(line => {
+          const wrapper = document.createElement('div');
+          wrapper.style.overflow = 'hidden';
+          wrapper.style.display = 'block';
+          line.parentNode.insertBefore(wrapper, line);
+          wrapper.appendChild(line);
+        });
+      
+        tl.fromTo(split.lines,
+          { y: '100%', opacity: 0 },
           {
-            y: 0,
+            y: '0%',
             opacity: 1,
             duration: 1.5,
             ease: 'power2.out',
+            stagger: 0.1,
             onComplete() {
-              // Unwrap cleanly after animation
-              wrapper.parentNode.insertBefore(h1, wrapper);
-              wrapper.parentNode.removeChild(wrapper);
-              gsap.set(h1, { clearProps: 'all' });
+              // Remove wrappers and revert cleanly
+              split.lines.forEach(line => {
+                const wrapper = line.parentNode;
+                wrapper.parentNode.insertBefore(line, wrapper);
+                wrapper.parentNode.removeChild(wrapper);
+              });
+              split.revert();
             }
           },
           `${totalPulse - EARLY_IN}`
