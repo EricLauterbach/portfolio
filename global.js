@@ -209,8 +209,8 @@
           {
             yPercent: 0,
             opacity: 1,
-            duration: 1,
-            ease: 'power1.inOut',
+            duration: 1.25,
+            ease: 'power3.inOut',
             stagger: 0.1,
             onComplete() {
               gsap.set(split.lines, { clearProps: 'all' });
