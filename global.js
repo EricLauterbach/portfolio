@@ -18,13 +18,21 @@
 
 (function () {
 
+  // ── Shared config ─────────────────────────────────────────
+  const RECT_BASE = 19;
+  const RECT_MIN  = 4;
+
+  // ── Page load config ──────────────────────────────────────
   const PULSE_UP    = 0.9;
   const PULSE_DOWN  = 1.2;
   const ROW_STAGGER = 0.05;
-  const RECT_BASE   = 19;
   const RECT_MAX    = 50;
-  const RECT_MIN    = 12;
   const EARLY_IN    = 1.0;
+
+  // ── Transition config ─────────────────────────────────────
+  const TRANSITION_SIZE = 20;
+  const TRANSITION_UP   = 0.5;
+  const TRANSITION_DOWN = 0.6;
 
   function getGridRects() {
     return Array.from(document.querySelectorAll('#backgroundGrid rect'));
@@ -61,7 +69,13 @@
     }));
   }
 
-  function buildLoadingTimeline(rects) {
+  // ── Page load animation ───────────────────────────────────
+  // Staggered row wave + reveals header and content
+
+  window.initGridLoadingAnimation = function () {
+    const rects = getGridRects();
+    if (!rects.length) return;
+
     primeRects(rects);
     const rows       = groupByRow(rects);
     const tl         = gsap.timeline();
@@ -108,14 +122,66 @@
       `pulseStart+=${totalPulse - EARLY_IN}`
     );
 
-    return tl;
-  }
-
-  window.initGridLoadingAnimation = function () {
-    const rects = getGridRects();
-    if (!rects.length) return;
-    const tl = buildLoadingTimeline(rects);
     console.log('timeline duration:', tl.duration());
+    return tl;
+  };
+
+  // ── Barba transition animation ────────────────────────────
+  // All rects pulse in sync — no content interference
+  // Returns a promise that resolves when the pulse-up completes
+  // so Barba can use it to time the container swap
+
+  window.initGridTransitionAnimation = function () {
+    return new Promise((resolve) => {
+      const rects = getGridRects();
+      if (!rects.length) { resolve(); return; }
+
+      // Reset all rects to min size silently
+      rects.forEach(rect => {
+        if (!rect._cx) {
+          rect._cx = parseFloat(rect.getAttribute('x')) + RECT_BASE / 2;
+          rect._cy = parseFloat(rect.getAttribute('y')) + RECT_BASE / 2;
+        }
+      });
+      gsap.set(rects, (i, rect) => ({
+        opacity: 0,
+        attr: {
+          width:  RECT_MIN,
+          height: RECT_MIN,
+          x:      rect._cx - RECT_MIN / 2,
+          y:      rect._cy - RECT_MIN / 2,
+        }
+      }));
+
+      const tl = gsap.timeline();
+
+      // All rects pulse up in sync
+      tl.to(rects, {
+        opacity: 1,
+        attr: (i, rect) => ({
+          width:  TRANSITION_SIZE,
+          height: TRANSITION_SIZE,
+          x:      rect._cx - TRANSITION_SIZE / 2,
+          y:      rect._cy - TRANSITION_SIZE / 2,
+        }),
+        duration: TRANSITION_UP,
+        ease:     'power2.inOut',
+        onComplete: resolve, // Barba can proceed once fully visible
+      });
+
+      // Then pulse back down
+      tl.to(rects, {
+        opacity: 0,
+        attr: (i, rect) => ({
+          width:  RECT_MIN,
+          height: RECT_MIN,
+          x:      rect._cx - RECT_MIN / 2,
+          y:      rect._cy - RECT_MIN / 2,
+        }),
+        duration: TRANSITION_DOWN,
+        ease:     'power3.out',
+      });
+    });
   };
 
   window.resetGridAnimation = function () {
@@ -127,7 +193,6 @@
   };
 
 })();
-
 
 
 // ==============================================================
@@ -333,13 +398,12 @@ barba.hooks.before(() => {
     el._initialTop   = null;
     el._initialLeft  = null;
   });
-  
+
   // Cleanup hotspots TOGGLE Barba transition
   document.querySelectorAll('.hotspottoggle').forEach(el => {
     el._toggleBound    = false;
     el._hotspotVisible = true;
   });
-  
 });
 
 barba.hooks.beforeEnter((data) => {
@@ -356,9 +420,6 @@ barba.hooks.beforeEnter((data) => {
 
   gsap.set(data.next.container, { opacity: 0 });
 
-  // Hide content immediately so grid animation reveals it
-  gsap.set('.headerportfolio, #smooth-content', { opacity: 0 });
-  
   // Prime entrance elements before container is visible — prevents flash of natural position
   ENTRANCE_SELECTORS.forEach(selector => {
     data.next.container.querySelectorAll(selector).forEach(el => {
@@ -404,7 +465,7 @@ barba.hooks.after((data) => {
   setTimeout(() => {
     ScrollTrigger.refresh();
     initEntranceAnimations();
-  }, 3000);
+  }, 500);
 
   if (pendingHash) {
     const hash = pendingHash;
@@ -438,8 +499,10 @@ barba.init({
       name: 'home-to-project',
       from: { namespace: ['home'] },
       to:   { namespace: projectPages },
-    
+
       async leave(data) {
+        window.initGridTransitionAnimation(); // fire and forget — runs over the top
+
         const scrollY = window.smoother ? window.smoother.scrollTop() : (window.scrollY || window.pageYOffset);
         killSmoother();
         gsap.set(data.current.container, {
@@ -449,7 +512,7 @@ barba.init({
           width: '100%',
           zIndex: 1
         });
-    
+
         gsap.to('.backbuttoncontainerportfolio', {
           y: 0, opacity: 1, duration: 0.6, ease: 'elastic.out(1,1)'
         });
@@ -460,11 +523,11 @@ barba.init({
           width: $('.backbuttoncontainerportfolio').outerWidth(),
           duration: 0.6, ease: 'elastic.out(1,1)'
         });
-    
+
         gsap.to('#navSecondaryUnderline', {
           opacity: 0, duration: 0.4
         });
-    
+
         await gsap.to(data.current.container, {
           opacity: 0,
           top: `-=${TRANSITION_Y}`,
@@ -472,26 +535,27 @@ barba.init({
           ease: "power2.out",
         });
       },
-    
+
       async enter(data) {
         gsap.set('#navSecondaryUnderline', { clipPath: 'inset(0 100% 0 0)' });
-        gsap.set(data.next.container, { opacity: 1, y: TRANSITION_Y, zIndex: 2 });
+        gsap.set(data.next.container, { opacity: 0, y: TRANSITION_Y, zIndex: 2 });
         await gsap.to(data.next.container, {
-          y: 0, duration: 0.9, ease: 'power4.out', clearProps: 'all'
+          opacity: 1, y: 0, duration: 0.9, ease: 'power4.out', clearProps: 'all'
         });
-        window.initGridLoadingAnimation();
       },
     },
-    
+
     // ─── Project Page → Home ───────────────────────────────
     {
       name: 'project-to-home',
       from: { namespace: projectPages },
       to:   { namespace: ['home'] },
-    
+
       async leave(data) {
+        window.initGridTransitionAnimation(); // fire and forget — runs over the top
+
         if (window.forceCloseMobileContactMenu) window.forceCloseMobileContactMenu();
-    
+
         const scrollY = window.smoother ? window.smoother.scrollTop() : (window.scrollY || window.pageYOffset);
         killSmoother();
         gsap.set(data.current.container, {
@@ -501,7 +565,7 @@ barba.init({
           width: '100%',
           zIndex: 1
         });
-    
+
         gsap.to('.backbuttoncontainerportfolio', {
           y: 60, opacity: 0, duration: 0.6, ease: 'elastic.out(1,1)'
         });
@@ -512,7 +576,7 @@ barba.init({
           width: $('#profileTextName').outerWidth(),
           duration: 0.6, ease: 'elastic.out(1,1)'
         });
-    
+
         await gsap.to(data.current.container, {
           opacity: 0,
           top: `-=${TRANSITION_Y}`,
@@ -520,19 +584,17 @@ barba.init({
           ease: "power2.out",
         });
       },
-    
+
       async enter(data) {
         gsap.set('#navSecondaryUnderline', { clipPath: 'inset(0 0% 0 0)' });
-        gsap.set(data.next.container, { opacity: 1, y: TRANSITION_Y, zIndex: 2 });
+        gsap.set(data.next.container, { opacity: 0, y: TRANSITION_Y, zIndex: 2 });
         await gsap.to(data.next.container, {
-          y: 0, duration: 0.9, ease: 'power4.out', clearProps: 'all'
+          opacity: 1, y: 0, duration: 0.9, ease: 'power4.out', clearProps: 'all'
         });
-        window.initGridLoadingAnimation();
       },
     }
   ]
 });
-
 
 
 
@@ -2626,7 +2688,6 @@ function onPageLoad() {
 
   const namespace = document.querySelector('[data-barba="container"]')?.dataset?.barbaNamespace;
 
-  // Always fire on any hard load — sessionStorage only blocks re-fires within same session
   window.initGridLoadingAnimation();
   sessionStorage.setItem('hasLoaded', '1');
 
@@ -2644,8 +2705,6 @@ function onPageLoad() {
     setTimeout(() => { initLottieElements(); initAiDetectorExtension(); }, 100);
   }
 
-  // Delay entrance animations until grid animation has revealed content
-  // totalPulse = (14-1)*0.05 + 0.9 + 1.2 = 2.75s, content visible at 2.75-1.0 = 1.75s
   setTimeout(() => {
     ScrollTrigger.refresh();
     initEntranceAnimations();
