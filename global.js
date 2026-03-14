@@ -22,8 +22,9 @@
   const PULSE_DOWN  = 0.75;
   const ROW_STAGGER = 0.15;
   const RECT_BASE   = 19;
-  const RECT_MAX    = 38;  // 2x
-  const RECT_MIN    = 4;   // resting size after pulse
+  const RECT_MAX    = 38;
+  const RECT_MIN    = 4;
+  const EARLY_IN    = 0.5; // how early the content fades in before pulse ends
 
   function getGridRects() {
     return Array.from(document.querySelectorAll('#backgroundGrid rect'));
@@ -69,7 +70,6 @@
     tl.addLabel('pulseStart');
 
     rows.forEach((rowRects, i) => {
-      // Grow to max, centered
       tl.to(rowRects, {
         attr: (j, rect) => ({
           width:  RECT_MAX,
@@ -78,10 +78,9 @@
           y:      rect._cy - RECT_MAX / 2,
         }),
         duration: PULSE_UP,
-        ease:     'sine.inOut',
+        ease:     'elastic.out(1,1)',
       }, `pulseStart+=${i * ROW_STAGGER}`);
 
-      // Shrink back to min, centered
       tl.to(rowRects, {
         attr: (j, rect) => ({
           width:  RECT_MIN,
@@ -90,20 +89,20 @@
           y:      rect._cy - RECT_MIN / 2,
         }),
         duration: PULSE_DOWN,
-        ease:     'sine.inOut',
+        ease:     'elastic.out(1,1)',
       }, `pulseStart+=${i * ROW_STAGGER + PULSE_UP}`);
     });
 
     tl.fromTo('.headerportfolio',
       { opacity: 0, y: -100 },
       { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-      `pulseStart+=${totalPulse}`
+      `pulseStart+=${totalPulse - EARLY_IN}`
     );
 
     tl.fromTo('#smooth-content',
       { opacity: 0, y: 100 },
       { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-      `pulseStart+=${totalPulse}`
+      `pulseStart+=${totalPulse - EARLY_IN}`
     );
 
     return tl;
