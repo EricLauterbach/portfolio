@@ -76,6 +76,9 @@
     const rects = getGridRects();
     if (!rects.length) return;
 
+    gsap.set('.headerportfolio', { opacity: 0, y: -100 });
+    gsap.set('#smooth-content',  { opacity: 0, y: 100  });
+
     primeRects(rects);
     const rows       = groupByRow(rects);
     const tl         = gsap.timeline();
@@ -440,11 +443,6 @@ barba.hooks.beforeEnter((data) => {
 
 barba.hooks.after((data) => {
   if (window.unlockTooltip) window.unlockTooltip();
-  
-  // Reveal first — before initAll or initSmoother can interfere
-  gsap.set('.headerportfolio', { opacity: 1, y: 0, clearProps: 'transform' });
-  gsap.set('#smooth-content',  { opacity: 1, y: 0, clearProps: 'transform' });
-
   initSmoother(true);
   reinitWebflow();
   initAll();
@@ -493,6 +491,10 @@ barba.hooks.after((data) => {
       }
     }, 200);
   }
+
+  setTimeout(() => {
+    isBarbaTransition = false;
+  }, 600);
 });
 
 // ── Transitions ─────────────────────────────────────────────
