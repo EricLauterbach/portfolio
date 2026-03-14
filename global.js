@@ -21,7 +21,9 @@
   const PULSE_UP    = 0.75;
   const PULSE_DOWN  = 0.75;
   const ROW_STAGGER = 0.15;
-  const RECT_SIZE   = 19;
+  const RECT_BASE   = 19;
+  const RECT_MAX    = 38;  // 2x
+  const RECT_MIN    = 4;   // resting size after pulse
 
   function getGridRects() {
     return Array.from(document.querySelectorAll('#backgroundGrid rect'));
@@ -41,7 +43,20 @@
   }
 
   function primeRects(rects) {
-    gsap.set(rects, { attr: { width: 0, height: 0 } });
+    rects.forEach(rect => {
+      const cx = parseFloat(rect.getAttribute('x')) + RECT_BASE / 2;
+      const cy = parseFloat(rect.getAttribute('y')) + RECT_BASE / 2;
+      rect._cx = cx;
+      rect._cy = cy;
+    });
+    gsap.set(rects, (i, rect) => ({
+      attr: {
+        width:  RECT_MIN,
+        height: RECT_MIN,
+        x:      rect._cx - RECT_MIN / 2,
+        y:      rect._cy - RECT_MIN / 2,
+      }
+    }));
   }
 
   function buildLoadingTimeline(rects) {
@@ -54,14 +69,26 @@
     tl.addLabel('pulseStart');
 
     rows.forEach((rowRects, i) => {
+      // Grow to max, centered
       tl.to(rowRects, {
-        attr:     { width: RECT_SIZE, height: RECT_SIZE },
+        attr: (j, rect) => ({
+          width:  RECT_MAX,
+          height: RECT_MAX,
+          x:      rect._cx - RECT_MAX / 2,
+          y:      rect._cy - RECT_MAX / 2,
+        }),
         duration: PULSE_UP,
         ease:     'sine.inOut',
       }, `pulseStart+=${i * ROW_STAGGER}`);
 
+      // Shrink back to min, centered
       tl.to(rowRects, {
-        attr:     { width: 0, height: 0 },
+        attr: (j, rect) => ({
+          width:  RECT_MIN,
+          height: RECT_MIN,
+          x:      rect._cx - RECT_MIN / 2,
+          y:      rect._cy - RECT_MIN / 2,
+        }),
         duration: PULSE_DOWN,
         ease:     'sine.inOut',
       }, `pulseStart+=${i * ROW_STAGGER + PULSE_UP}`);
