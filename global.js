@@ -22,9 +22,9 @@
   const PULSE_DOWN  = 1.2;
   const ROW_STAGGER = 0.05;
   const RECT_BASE   = 19;
-  const RECT_MAX    = 38;
+  const RECT_MAX    = 50;
   const RECT_MIN    = 4;
-  const EARLY_IN    = 0.5;
+  const EARLY_IN    = 1.0;
 
   function getGridRects() {
     return Array.from(document.querySelectorAll('#backgroundGrid rect'));
