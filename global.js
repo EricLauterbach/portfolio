@@ -969,7 +969,7 @@ function initLineRevealAnimations() {
       } else {
         const st = ScrollTrigger.create({
           trigger: el,
-          start: 'top 85%',
+          start: 'top 90%',
           invalidateOnRefresh: true,
           onEnter: () => { animateLineReveal(el); },
         });
