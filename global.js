@@ -71,58 +71,62 @@
   }
 
   function buildLoadingTimeline(rects) {
-    wrapRects(rects);
-    const rows       = groupByRow(rects);
-    const numRows    = rows.length;
-    const totalPulse = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
-    const tl         = gsap.timeline();
+  // Group by row BEFORE wrapping (while y attributes are still original)
+  const rows = groupByRow(rects);
+  
+  // NOW wrap
+  wrapRects(rects);
+  
+  const numRows    = rows.length;
+  const totalPulse = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
+  const tl         = gsap.timeline();
 
-    tl.set('.backgroundgridportfolio', { opacity: 0 });
-    tl.set('.headerportfolio',         { opacity: 0, y: -100 });
-    tl.set('#smooth-content',          { opacity: 0, y: 100  });
+  tl.set('.backgroundgridportfolio', { opacity: 0 });
+  tl.set('.headerportfolio',         { opacity: 0, y: -100 });
+  tl.set('#smooth-content',          { opacity: 0, y: 100  });
 
-    tl.to('.backgroundgridportfolio', {
+  tl.to('.backgroundgridportfolio', {
+    opacity:  1,
+    duration: 0.2,
+    ease:     'none',
+  });
+
+  tl.addLabel('pulseStart');
+
+  rows.forEach((rowRects, i) => {
+    const wrappers = rowRects.map(r => r._wrapper);
+
+    tl.to(wrappers, {
+      scale:    PULSE_SCALE,
       opacity:  1,
-      duration: 0.2,
-      ease:     'none',
-    });
+      duration: PULSE_UP,
+      ease:     'sine.inOut',
+      transformOrigin: '0px 0px',
+    }, `pulseStart+=${i * ROW_STAGGER}`);
 
-    tl.addLabel('pulseStart');
+    tl.to(wrappers, {
+      scale:    0,
+      opacity:  0,
+      duration: PULSE_DOWN,
+      ease:     'sine.inOut',
+      transformOrigin: '0px 0px',
+    }, `pulseStart+=${i * ROW_STAGGER + PULSE_UP}`);
+  });
 
-    rows.forEach((rowRects, i) => {
-      const wrappers = rowRects.map(r => r._wrapper);
+  tl.fromTo('.headerportfolio',
+    { opacity: 0, y: -100 },
+    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+    `pulseStart+=${totalPulse}`
+  );
 
-      tl.to(wrappers, {
-        scale:    PULSE_SCALE,
-        opacity:  1,
-        duration: PULSE_UP,
-        ease:     'sine.inOut',
-        transformOrigin: '0px 0px',
-      }, `pulseStart+=${i * ROW_STAGGER}`);
+  tl.fromTo('#smooth-content',
+    { opacity: 0, y: 100 },
+    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+    `pulseStart+=${totalPulse}`
+  );
 
-      tl.to(wrappers, {
-        scale:    0,
-        opacity:  0,
-        duration: PULSE_DOWN,
-        ease:     'sine.inOut',
-        transformOrigin: '0px 0px',
-      }, `pulseStart+=${i * ROW_STAGGER + PULSE_UP}`);
-    });
-
-    tl.fromTo('.headerportfolio',
-      { opacity: 0, y: -100 },
-      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-      `pulseStart+=${totalPulse}`
-    );
-
-    tl.fromTo('#smooth-content',
-      { opacity: 0, y: 100 },
-      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-      `pulseStart+=${totalPulse}`
-    );
-
-    return tl;
-  }
+  return tl;
+}
 
   window.initGridLoadingAnimation = function () {
     const rects = getGridRects();
