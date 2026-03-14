@@ -2606,14 +2606,13 @@ function onPageLoad() {
 
 
   
-  // Always run the loading animation on home; on other pages only on hard load
   const namespace = document.querySelector('[data-barba="container"]')?.dataset?.barbaNamespace;
-  const isHardLoad = document.referrer === '' || !sessionStorage.getItem('hasLoaded');
 
+  // Grid loading animation — always on home, only on hard load elsewhere
+  const isHardLoad = !sessionStorage.getItem('hasLoaded');
   if (namespace === 'home' || isHardLoad) {
     window.initGridLoadingAnimation();
   }
-
   sessionStorage.setItem('hasLoaded', '1');
 
 
