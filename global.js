@@ -191,6 +191,24 @@
         `${totalPulse - EARLY_IN}`
       );
 
+      // ── H1 character animation ────────────────────────────────
+      const h1 = document.querySelector('h1');
+      if (h1) {
+        const split = new SplitText(h1, { type: 'chars' });
+        tl.fromTo(split.chars,
+          { y: '50%', opacity: 0 },
+          {
+            y: '0%',
+            opacity: 1,
+            duration: 0.4,
+            ease: 'power3.out',
+            stagger: 0.02,
+            onComplete() { split.revert(); }
+          },
+          `${totalPulse - EARLY_IN}` // same time as header and content
+        );
+      }
+
       return tl;
     }
 
