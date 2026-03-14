@@ -76,61 +76,105 @@
   const rects = getGridRects();
   if (!rects.length) return;
 
-  primeRects(rects);
-  const rows       = groupByRow(rects);
-  const tl         = gsap.timeline();
-  const numRows    = rows.length;
-  const totalPulse = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
-
-  tl.addLabel('pulseStart');
-
-  rows.forEach((rowRects, i) => {
-    tl.to(rowRects, {
-      opacity: 1,
-      attr: (j, rect) => ({
-        width:  RECT_MAX,
-        height: RECT_MAX,
-        x:      rect._cx - RECT_MAX / 2,
-        y:      rect._cy - RECT_MAX / 2,
-      }),
-      duration: PULSE_UP,
-      ease:     'power2.inOut',
-    }, `pulseStart+=${i * ROW_STAGGER}`);
-
-    tl.to(rowRects, {
-      opacity: 1,
-      attr: (j, rect) => ({
-        width:  RECT_REST,
-        height: RECT_REST,
-        x:      rect._cx - RECT_REST / 2,
-        y:      rect._cy - RECT_REST / 2,
-      }),
-      duration: PULSE_DOWN,
-      ease:     'power3.out',
-    }, `pulseStart+=${i * ROW_STAGGER + PULSE_UP}`);
-  });
-
-  // Remove style tag just before content animates in — GSAP inline styles take over from here
-  tl.add(() => {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     if (window._pageLoadStyleTag) {
       window._pageLoadStyleTag.parentNode.removeChild(window._pageLoadStyleTag);
       window._pageLoadStyleTag = null;
     }
-  }, `pulseStart+=${totalPulse - EARLY_IN - 0.05}`);
+    gsap.set('.headerportfolio', { opacity: 1, y: 0, clearProps: 'transform' });
+    gsap.set('#smooth-content',  { opacity: 1, y: 0, clearProps: 'transform' });
+    return;
+  }
 
-  tl.fromTo('.headerportfolio',
-    { opacity: 0, y: -100 },
-    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-    `pulseStart+=${totalPulse - EARLY_IN}`
-  );
+  primeRects(rects);
+  const rows       = groupByRow(rects);
+  const numRows    = rows.length;
+  const totalPulse = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
 
-  tl.fromTo('#smooth-content',
-    { opacity: 0, y: 100 },
-    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-    `pulseStart+=${totalPulse - EARLY_IN}`
-  );
+  let pageLoaded = false;
+  let loopComplete = false;
 
-  return tl;
+  // ── Build one full wave pass ──────────────────────────────
+  function buildWave() {
+    const tl = gsap.timeline();
+    rows.forEach((rowRects, i) => {
+      tl.to(rowRects, {
+        opacity: 1,
+        attr: (j, rect) => ({
+          width:  RECT_MAX,
+          height: RECT_MAX,
+          x:      rect._cx - RECT_MAX / 2,
+          y:      rect._cy - RECT_MAX / 2,
+        }),
+        duration: PULSE_UP,
+        ease:     'power2.inOut',
+      }, `${i * ROW_STAGGER}`);
+
+      tl.to(rowRects, {
+        opacity: 1,
+        attr: (j, rect) => ({
+          width:  RECT_REST,
+          height: RECT_REST,
+          x:      rect._cx - RECT_REST / 2,
+          y:      rect._cy - RECT_REST / 2,
+        }),
+        duration: PULSE_DOWN,
+        ease:     'power3.out',
+      }, `${i * ROW_STAGGER + PULSE_UP}`);
+    });
+    return tl;
+  }
+
+  // ── Reveal content after loop stops ──────────────────────
+  function playReveal() {
+    const tl = gsap.timeline();
+
+    tl.add(() => {
+      if (window._pageLoadStyleTag) {
+        window._pageLoadStyleTag.parentNode.removeChild(window._pageLoadStyleTag);
+        window._pageLoadStyleTag = null;
+      }
+    }, EARLY_IN - 0.05);
+
+    tl.fromTo('.headerportfolio',
+      { opacity: 0, y: -100 },
+      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+      0
+    );
+
+    tl.fromTo('#smooth-content',
+      { opacity: 0, y: 100 },
+      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+      0
+    );
+  }
+
+  // ── Loop waves until page loaded + current wave done ─────
+  function runLoop() {
+    const wave = buildWave();
+    wave.then(() => {
+      if (pageLoaded) {
+        // Page is loaded and this wave just finished — play reveal
+        playReveal();
+      } else {
+        // Not loaded yet — run another wave
+        primeRects(rects); // reset rects to starting state
+        runLoop();
+      }
+    });
+  }
+
+  // ── Listen for page load ──────────────────────────────────
+  if (document.readyState === 'complete') {
+    pageLoaded = true;
+  } else {
+    window.addEventListener('load', () => {
+      pageLoaded = true;
+    }, { once: true });
+  }
+
+  // ── Start the loop ────────────────────────────────────────
+  runLoop();
 };
 
   // ── Barba transition animation ────────────────────────────
@@ -2719,12 +2763,15 @@ window.smoother = ScrollSmoother.create({
 // RUN ON FIRST PAGE LOAD
 // ============================================================
 
+// ============================================================
+// RUN ON FIRST PAGE LOAD
+// ============================================================
+
 function onPageLoad() {
   initAll();
 
   const namespace = document.querySelector('[data-barba="container"]')?.dataset?.barbaNamespace;
 
-  window.initGridLoadingAnimation();
   sessionStorage.setItem('hasLoaded', '1');
 
   if (namespace === 'home') initHomePage();
@@ -2741,15 +2788,24 @@ function onPageLoad() {
     setTimeout(() => { initLottieElements(); initAiDetectorExtension(); }, 100);
   }
 
-  setTimeout(() => {
-    ScrollTrigger.refresh();
-    initEntranceAnimations();
-  }, 3000);
+  // Entrance animations wait for full load
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+      initEntranceAnimations();
+    }, 300);
+  }, { once: true });
 }
 
-// Handle both cases — already loaded or not yet
-if (document.readyState === 'complete') {
-  onPageLoad();
+// Start grid animation as early as possible — loops until page is fully loaded
+// then plays the content reveal automatically
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    window.initGridLoadingAnimation();
+    onPageLoad();
+  });
 } else {
-  window.addEventListener('load', onPageLoad);
+  // DOM already ready (script is in footer)
+  window.initGridLoadingAnimation();
+  onPageLoad();
 }
