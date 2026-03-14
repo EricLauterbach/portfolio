@@ -2619,45 +2619,26 @@ window.smoother = ScrollSmoother.create({
 function onPageLoad() {
   initAll();
 
-
-  
   const namespace = document.querySelector('[data-barba="container"]')?.dataset?.barbaNamespace;
 
-  // Grid loading animation — always on home, only on hard load elsewhere
-  const isHardLoad = !sessionStorage.getItem('hasLoaded');
-  if (namespace === 'home' || isHardLoad) {
-    window.initGridLoadingAnimation();
-  }
+  window.initGridLoadingAnimation();
+
   sessionStorage.setItem('hasLoaded', '1');
-
-
-  
 
   if (namespace === 'home') initHomePage();
   if (namespace === 'copyleaks-animations') {
-    setTimeout(() => {
-      initLottieElements();
-      initCopyleaksAnimations();
-    }, 100);
+    setTimeout(() => { initLottieElements(); initCopyleaksAnimations(); }, 100);
   }
   if (namespace === 'copyleaks-website') {
-     setTimeout(() => {
-      initCopyleaksWebsite();
-    }, 100);
+    setTimeout(() => { initCopyleaksWebsite(); }, 100);
   }
   if (namespace === 'copyleaks-marketing') {
-    setTimeout(() => {
-      initCopyleaksMarketing();
-    }, 100);
+    setTimeout(() => { initCopyleaksMarketing(); }, 100);
   }
   if (namespace === 'ai-detector-extension') {
-    setTimeout(() => {
-      initLottieElements();
-      initAiDetectorExtension();
-    }, 100);
+    setTimeout(() => { initLottieElements(); initAiDetectorExtension(); }, 100);
   }
 
-  // Entrance animations — every page, after fonts and layout are ready
   setTimeout(() => {
     ScrollTrigger.refresh();
     initEntranceAnimations();
