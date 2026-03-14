@@ -191,54 +191,10 @@
         `${totalPulse - EARLY_IN}`
       );
 
-      // ── H1 character animation ────────────────────────────────
+      // ── H1 line reveal — timed with content reveal ────────────
       const h1 = document.querySelector('h1');
       if (h1) {
-        const split = new SplitText(h1, { type: 'lines', linesClass: 'split-line' });
-      
-        split.lines.forEach(line => {
-          const wrapper = document.createElement('div');
-          wrapper.style.overflow = 'hidden';
-          wrapper.style.display = 'block';
-          line.parentNode.insertBefore(wrapper, line);
-          wrapper.appendChild(line);
-        });
-      
-        let splitDone = false;
-      
-        function cleanupSplit() {
-          if (splitDone) return;
-          splitDone = true;
-          gsap.set(split.lines, { clearProps: 'all' });
-          split.lines.forEach(line => {
-            const wrapper = line.parentNode;
-            if (wrapper && wrapper !== h1) {
-              wrapper.parentNode.insertBefore(line, wrapper);
-              wrapper.parentNode.removeChild(wrapper);
-            }
-          });
-          split.revert();
-        }
-      
-        // Clean up immediately on resize so text can reflow naturally
-        const onResize = () => { cleanupSplit(); };
-        window.addEventListener('resize', onResize, { once: true });
-      
-        tl.fromTo(split.lines,
-          { yPercent: 100, opacity: 0 },
-          {
-            yPercent: 0,
-            opacity: 1,
-            duration: 1.25,
-            ease: 'power3.inOut',
-            stagger: 0.1,
-            onComplete() {
-              cleanupSplit();
-              window.removeEventListener('resize', onResize);
-            }
-          },
-          `${totalPulse - EARLY_IN}`
-        );
+        tl.add(() => { animateLineReveal(h1); }, `${totalPulse - EARLY_IN}`);
       }
       
       return tl;
@@ -602,6 +558,13 @@ barba.hooks.after((data) => {
   reinitWebflow();
   initAll();
 
+  // H1 line reveal on new page — fires at same time as content is already visible
+  const newH1 = document.querySelector('h1');
+  if (newH1) animateLineReveal(newH1);
+  
+  // Line reveal for other elements
+  initLineRevealAnimations();
+
   const namespace = data.next.namespace;
   if (namespace === 'home') initHomePage();
   if (namespace === 'copyleaks-animations') {
@@ -889,7 +852,126 @@ function initEntranceAnimations() {
       ScrollTrigger.refresh();
     }, 250);
   });
+
+  // at the very end of initEntranceAnimations(), before the closing brace
+  initLineRevealAnimations();
 }
+
+// ================================
+// LINE REVEAL ANIMATIONS
+// Add selectors here to apply line reveal animation to any element
+// ================================
+
+const LINE_REVEAL_SELECTORS = [
+  '.h1portfolio',
+  // Add selectors here e.g. '.my-heading'
+];
+
+function animateLineReveal(el) {
+  if (el._lineRevealComplete) return;
+  el._lineRevealComplete = true;
+
+  const split = new SplitText(el, { type: 'lines', linesClass: 'split-line' });
+
+  split.lines.forEach(line => {
+    const wrapper = document.createElement('div');
+    wrapper.style.overflow = 'hidden';
+    wrapper.style.display = 'block';
+    line.parentNode.insertBefore(wrapper, line);
+    wrapper.appendChild(line);
+  });
+
+  let splitDone = false;
+
+  function cleanupSplit() {
+    if (splitDone) return;
+    splitDone = true;
+    gsap.set(split.lines, { clearProps: 'all' });
+    split.lines.forEach(line => {
+      const wrapper = line.parentNode;
+      if (wrapper && wrapper !== el) {
+        wrapper.parentNode.insertBefore(line, wrapper);
+        wrapper.parentNode.removeChild(wrapper);
+      }
+    });
+  }
+
+  const onResize = () => { cleanupSplit(); };
+  window.addEventListener('resize', onResize, { once: true });
+
+  gsap.fromTo(split.lines,
+    { yPercent: 100, opacity: 0 },
+    {
+      yPercent: 0,
+      opacity: 1,
+      duration: 1.25,
+      ease: 'power3.inOut',
+      stagger: 0.1,
+      onComplete() {
+        cleanupSplit();
+        window.removeEventListener('resize', onResize);
+      }
+    }
+  );
+}
+
+function initLineRevealAnimations() {
+  if (!LINE_REVEAL_SELECTORS.length) return;
+
+  const elements = [];
+  LINE_REVEAL_SELECTORS.forEach(selector => {
+    document.querySelectorAll(selector).forEach(el => {
+      if (!elements.includes(el)) elements.push(el);
+    });
+  });
+
+  if (!elements.length) return;
+
+  let lineRevealTriggers = [];
+
+  function buildTriggers() {
+    lineRevealTriggers.forEach(st => st.kill());
+    lineRevealTriggers = [];
+
+    const scrollY = window.smoother ? window.smoother.scrollTop() : window.scrollY;
+    const viewportBottom = scrollY + window.innerHeight;
+
+    elements.forEach(el => {
+      if (el._lineRevealComplete) return;
+
+      const elTop = window.smoother
+        ? window.smoother.offset(el, 'top')
+        : el.getBoundingClientRect().top + scrollY;
+
+      if (elTop <= viewportBottom) {
+        // Already in view — animate immediately with a small delay
+        gsap.delayedCall(0.3, () => animateLineReveal(el));
+      } else {
+        // Below fold — use ScrollTrigger
+        const st = ScrollTrigger.create({
+          trigger: el,
+          start: 'top bottom',
+          invalidateOnRefresh: true,
+          onEnter: () => { animateLineReveal(el); },
+        });
+        lineRevealTriggers.push(st);
+      }
+    });
+  }
+
+  buildTriggers();
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      buildTriggers();
+      ScrollTrigger.refresh();
+    }, 250);
+  });
+}
+
+
 
 
 // ============================================================
