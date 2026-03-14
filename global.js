@@ -428,9 +428,9 @@ barba.hooks.beforeEnter((data) => {
     injectPageStyles(nextDoc);
   }
 
+  // Only hide the next container — never touch current page content
   gsap.set(data.next.container, { opacity: 0 });
 
-  // Prime entrance elements before container is visible — prevents flash of natural position
   ENTRANCE_SELECTORS.forEach(selector => {
     data.next.container.querySelectorAll(selector).forEach(el => {
       gsap.set(el, { y: 100 });
@@ -440,14 +440,14 @@ barba.hooks.beforeEnter((data) => {
 
 barba.hooks.after((data) => {
   if (window.unlockTooltip) window.unlockTooltip();
+  
+  // Reveal first — before initAll or initSmoother can interfere
+  gsap.set('.headerportfolio', { opacity: 1, y: 0, clearProps: 'transform' });
+  gsap.set('#smooth-content',  { opacity: 1, y: 0, clearProps: 'transform' });
+
   initSmoother(true);
   reinitWebflow();
   initAll();
-
-  // Reveal content that CSS hides by default — grid animation handles this on page load
-  // but on Barba transitions we need to do it manually
-  gsap.set('.headerportfolio', { opacity: 1, y: 0 });
-  gsap.set('#smooth-content',  { opacity: 1, y: 0 });
 
   const namespace = data.next.namespace;
   if (namespace === 'home') initHomePage();
@@ -476,7 +476,6 @@ barba.hooks.after((data) => {
     }, 300);
   }
 
-  // Entrance animations — every page, always last
   setTimeout(() => {
     ScrollTrigger.refresh();
     initEntranceAnimations();
