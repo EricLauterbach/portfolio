@@ -194,15 +194,28 @@
       // ── H1 character animation ────────────────────────────────
       const h1 = document.querySelector('h1');
       if (h1) {
+        const computedLetterSpacing = getComputedStyle(h1).letterSpacing;
         const split = new SplitText(h1, { type: 'words,chars' });
       
         gsap.set(split.words, { display: 'inline-block', whiteSpace: 'nowrap' });
-        gsap.set(split.chars, { display: 'inline-block', lineHeight: 'inherit' });
+        gsap.set(split.chars, { display: 'inline-block', lineHeight: 'inherit', letterSpacing: computedLetterSpacing });
       
+        // y — 0.5s
         tl.fromTo(split.chars,
-          { y: 20, opacity: 0 },
+          { y: 20 },
           {
             y: 0,
+            duration: 0.5,
+            ease: 'power2.out',
+            stagger: 0.01,
+          },
+          `${totalPulse - EARLY_IN}`
+        );
+      
+        // opacity — 1.5s, onComplete handles revert after longest tween finishes
+        tl.fromTo(split.chars,
+          { opacity: 0 },
+          {
             opacity: 1,
             duration: 1.5,
             ease: 'power2.out',
@@ -212,6 +225,7 @@
           `${totalPulse - EARLY_IN}`
         );
       }
+      
       return tl;
     }
 
