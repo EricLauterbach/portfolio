@@ -196,7 +196,6 @@
       if (h1) {
         const split = new SplitText(h1, { type: 'lines', linesClass: 'split-line' });
       
-        // Wrap each line in an overflow hidden container to clip the slide
         split.lines.forEach(line => {
           const wrapper = document.createElement('div');
           wrapper.style.overflow = 'hidden';
@@ -214,13 +213,14 @@
             ease: 'power2.out',
             stagger: 0.1,
             onComplete() {
-              // Remove wrappers and revert cleanly
+              // Clear GSAP props but don't revert — avoids reflow jump
+              gsap.set(split.lines, { clearProps: 'all' });
+              // Remove overflow wrappers only
               split.lines.forEach(line => {
                 const wrapper = line.parentNode;
                 wrapper.parentNode.insertBefore(line, wrapper);
                 wrapper.parentNode.removeChild(wrapper);
               });
-              split.revert();
             }
           },
           `${totalPulse - EARLY_IN}`
