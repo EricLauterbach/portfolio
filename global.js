@@ -434,6 +434,11 @@ barba.hooks.after((data) => {
   reinitWebflow();
   initAll();
 
+  // Reveal content that CSS hides by default — grid animation handles this on page load
+  // but on Barba transitions we need to do it manually
+  gsap.set('.headerportfolio', { opacity: 1, y: 0 });
+  gsap.set('#smooth-content',  { opacity: 1, y: 0 });
+
   const namespace = data.next.namespace;
   if (namespace === 'home') initHomePage();
   if (namespace === 'copyleaks-animations') {
