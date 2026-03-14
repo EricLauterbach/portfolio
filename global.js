@@ -18,9 +18,9 @@
 
 (function () {
 
-  const PULSE_UP    = 0.6;
-  const PULSE_DOWN  = 0.8;
-  const ROW_STAGGER = 0.12;
+  const PULSE_UP    = 0.9;
+  const PULSE_DOWN  = 1.2;
+  const ROW_STAGGER = 0.05;
   const RECT_BASE   = 19;
   const RECT_MAX    = 38;
   const RECT_MIN    = 4;
