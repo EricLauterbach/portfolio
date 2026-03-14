@@ -204,6 +204,26 @@
           wrapper.appendChild(line);
         });
       
+        let splitDone = false;
+      
+        function cleanupSplit() {
+          if (splitDone) return;
+          splitDone = true;
+          gsap.set(split.lines, { clearProps: 'all' });
+          split.lines.forEach(line => {
+            const wrapper = line.parentNode;
+            if (wrapper && wrapper !== h1) {
+              wrapper.parentNode.insertBefore(line, wrapper);
+              wrapper.parentNode.removeChild(wrapper);
+            }
+          });
+          split.revert();
+        }
+      
+        // Clean up immediately on resize so text can reflow naturally
+        const onResize = () => { cleanupSplit(); };
+        window.addEventListener('resize', onResize, { once: true });
+      
         tl.fromTo(split.lines,
           { yPercent: 100, opacity: 0 },
           {
@@ -213,12 +233,8 @@
             ease: 'power3.inOut',
             stagger: 0.1,
             onComplete() {
-              gsap.set(split.lines, { clearProps: 'all' });
-              split.lines.forEach(line => {
-                const wrapper = line.parentNode;
-                wrapper.parentNode.insertBefore(line, wrapper);
-                wrapper.parentNode.removeChild(wrapper);
-              });
+              cleanupSplit();
+              window.removeEventListener('resize', onResize);
             }
           },
           `${totalPulse - EARLY_IN}`
