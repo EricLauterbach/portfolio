@@ -45,9 +45,9 @@
 
   function primeRects(rects) {
     rects.forEach(rect => {
-      const cx = parseFloat(rect.getAttribute('x')) + parseFloat(rect.getAttribute('width')) / 2;
-      const cy = parseFloat(rect.getAttribute('y')) + parseFloat(rect.getAttribute('height')) / 2;
-      gsap.set(rect, { svgOrigin: `${cx} ${cy}`, scale: 0, opacity: 0 });
+      rect.setAttribute('data-ox', parseFloat(rect.getAttribute('x')) + parseFloat(rect.getAttribute('width')) / 2);
+      rect.setAttribute('data-oy', parseFloat(rect.getAttribute('y')) + parseFloat(rect.getAttribute('height')) / 2);
+      gsap.set(rect, { transformOrigin: '50% 50%', transformBox: 'fill-box', scale: 0, opacity: 0 });
     });
   }
 
@@ -60,12 +60,10 @@
   const numRows    = rows.length;
   const totalPulse = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
 
-  // Instant-set everything hidden as first step in the timeline
   tl.set('.backgroundgridportfolio', { opacity: 0 });
   tl.set('.headerportfolio',         { opacity: 0, y: -100 });
   tl.set('#smooth-content',          { opacity: 0, y: 100  });
 
-  // Fade in the background container
   tl.to('.backgroundgridportfolio', {
     opacity:  1,
     duration: 0.2,
@@ -80,6 +78,8 @@
       opacity:  1,
       duration: PULSE_UP,
       ease:     'sine.inOut',
+      transformOrigin: '50% 50%',
+      transformBox: 'fill-box',
     }, `pulseStart+=${i * ROW_STAGGER}`);
 
     tl.to(rowRects, {
