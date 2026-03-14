@@ -73,58 +73,66 @@
   // ── Page load animation ───────────────────────────────────
 
   window.initGridLoadingAnimation = function () {
-    const rects = getGridRects();
-    if (!rects.length) return;
+  const rects = getGridRects();
+  if (!rects.length) return;
 
-    primeRects(rects);
-    const rows       = groupByRow(rects);
-    const tl         = gsap.timeline();
-    const numRows    = rows.length;
-    const totalPulse = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
+  primeRects(rects);
+  const rows       = groupByRow(rects);
+  const tl         = gsap.timeline({
+    onComplete: () => {
+      // Remove the head style tag once animation is done so it never interferes again
+      if (window._pageLoadStyleTag) {
+        window._pageLoadStyleTag.parentNode.removeChild(window._pageLoadStyleTag);
+        window._pageLoadStyleTag = null;
+      }
+    }
+  });
+  const numRows    = rows.length;
+  const totalPulse = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
 
-    tl.addLabel('pulseStart');
+  tl.addLabel('pulseStart');
 
-    rows.forEach((rowRects, i) => {
-      tl.to(rowRects, {
-        opacity: 1,
-        attr: (j, rect) => ({
-          width:  RECT_MAX,
-          height: RECT_MAX,
-          x:      rect._cx - RECT_MAX / 2,
-          y:      rect._cy - RECT_MAX / 2,
-        }),
-        duration: PULSE_UP,
-        ease:     'power2.inOut',
-      }, `pulseStart+=${i * ROW_STAGGER}`);
+  rows.forEach((rowRects, i) => {
+    tl.to(rowRects, {
+      opacity: 1,
+      attr: (j, rect) => ({
+        width:  RECT_MAX,
+        height: RECT_MAX,
+        x:      rect._cx - RECT_MAX / 2,
+        y:      rect._cy - RECT_MAX / 2,
+      }),
+      duration: PULSE_UP,
+      ease:     'power2.inOut',
+    }, `pulseStart+=${i * ROW_STAGGER}`);
 
-      tl.to(rowRects, {
-        opacity: 1,
-        attr: (j, rect) => ({
-          width:  RECT_REST,
-          height: RECT_REST,
-          x:      rect._cx - RECT_REST / 2,
-          y:      rect._cy - RECT_REST / 2,
-        }),
-        duration: PULSE_DOWN,
-        ease:     'power3.out',
-      }, `pulseStart+=${i * ROW_STAGGER + PULSE_UP}`);
-    });
+    tl.to(rowRects, {
+      opacity: 1,
+      attr: (j, rect) => ({
+        width:  RECT_REST,
+        height: RECT_REST,
+        x:      rect._cx - RECT_REST / 2,
+        y:      rect._cy - RECT_REST / 2,
+      }),
+      duration: PULSE_DOWN,
+      ease:     'power3.out',
+    }, `pulseStart+=${i * ROW_STAGGER + PULSE_UP}`);
+  });
 
-    tl.fromTo('.headerportfolio',
-      { opacity: 0, y: -100 },
-      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-      `pulseStart+=${totalPulse - EARLY_IN}`
-    );
+  tl.fromTo('.headerportfolio',
+    { opacity: 0, y: -100 },
+    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+    `pulseStart+=${totalPulse - EARLY_IN}`
+  );
 
-    tl.fromTo('#smooth-content',
-      { opacity: 0, y: 100 },
-      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-      `pulseStart+=${totalPulse - EARLY_IN}`
-    );
+  tl.fromTo('#smooth-content',
+    { opacity: 0, y: 100 },
+    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+    `pulseStart+=${totalPulse - EARLY_IN}`
+  );
 
-    console.log('timeline duration:', tl.duration());
-    return tl;
-  };
+  console.log('timeline duration:', tl.duration());
+  return tl;
+};
 
   // ── Barba transition animation ────────────────────────────
 
