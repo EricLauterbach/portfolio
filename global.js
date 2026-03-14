@@ -21,8 +21,8 @@
   // ── Config ───────────────────────────────────────────────
   const PHASE1_DURATION = 0.35;
   const PULSE_SCALE     = 1.75;
-  const PULSE_UP        = 1;
-  const PULSE_DOWN      = 1;
+  const PULSE_UP        = 0.75;
+  const PULSE_DOWN      = 0.75;
   const ROW_STAGGER     = 0.15;
 
   // ── Helpers ──────────────────────────────────────────────
@@ -59,6 +59,10 @@
     const rows = groupByRow(rects);
     const tl   = gsap.timeline();
 
+    // Prime nav + content to opacity 0
+    gsap.set('.headerportfolio', { opacity: 0 });
+    gsap.set('#smooth-content',  { opacity: 0 });
+
     // Phase 1 — snap all rects in together
     tl.to(rects, {
       opacity:  1,
@@ -70,19 +74,35 @@
     tl.addLabel('pulseStart');
 
     // Phase 2 — row-by-row pulse wave, all anchored from pulseStart label
+    const numRows     = rows.length;
+    const totalPulse  = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
+
     rows.forEach((rowRects, i) => {
       tl.to(rowRects, {
         scale:    PULSE_SCALE,
         duration: PULSE_UP,
-        ease:     'power2.out',
+        ease:     'sine.inOut',
       }, `pulseStart+=${i * ROW_STAGGER}`);
 
       tl.to(rowRects, {
         scale:    1,
         duration: PULSE_DOWN,
-        ease:     'power2.inOut',
+        ease:     'sine.inOut',
       }, `pulseStart+=${i * ROW_STAGGER + PULSE_UP}`);
     });
+
+    // Phase 3 — fade in nav + content after pulse wave completes
+    tl.to('.headerportfolio', {
+      opacity:  1,
+      duration: 0.5,
+      ease:     'power2.out',
+    }, `pulseStart+=${totalPulse}`);
+
+    tl.to('#smooth-content', {
+      opacity:  1,
+      duration: 0.5,
+      ease:     'power2.out',
+    }, `pulseStart+=${totalPulse}`);
 
     return tl;
   }
@@ -99,6 +119,8 @@
     const rects = getGridRects();
     if (!rects.length) return;
     primeRects(rects);
+    gsap.set('.headerportfolio', { opacity: 1 });
+    gsap.set('#smooth-content',  { opacity: 1 });
   };
 
 })();
