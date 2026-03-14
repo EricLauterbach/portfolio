@@ -197,12 +197,10 @@
         const computedLetterSpacing = getComputedStyle(h1).letterSpacing;
         const split = new SplitText(h1, { type: 'words,chars' });
       
-        // Neutralise letter spacing on parent during animation
-        // and compensate by applying it to each char instead
         h1.style.letterSpacing = '0px';
         gsap.set(split.words, { display: 'inline-block', whiteSpace: 'nowrap' });
-        gsap.set(split.chars, { 
-          display: 'inline-block', 
+        gsap.set(split.chars, {
+          display: 'inline-block',
           lineHeight: 'inherit',
           letterSpacing: computedLetterSpacing,
         });
@@ -226,9 +224,13 @@
             ease: 'power2.out',
             stagger: 0.01,
             onComplete() {
-              // Restore letter spacing on parent before reverting
-              h1.style.letterSpacing = '';
-              split.revert();
+              // Clear all GSAP inline styles from chars first
+              gsap.set(split.chars, { clearProps: 'all' });
+              // Then restore letter spacing and revert in next frame
+              requestAnimationFrame(() => {
+                h1.style.letterSpacing = '';
+                split.revert();
+              });
             }
           },
           `${totalPulse - EARLY_IN}`
