@@ -2618,8 +2618,6 @@ function onPageLoad() {
 
   
 
-  const namespace = document.querySelector('[data-barba="container"]')?.dataset?.barbaNamespace;
-
   if (namespace === 'home') initHomePage();
   if (namespace === 'copyleaks-animations') {
     setTimeout(() => {
