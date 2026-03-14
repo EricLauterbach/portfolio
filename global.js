@@ -175,7 +175,9 @@
   }
 
   // ── Start the loop ────────────────────────────────────────
-  runLoop();
+  setTimeout(() => {
+    runLoop();
+  }, 100);
 };
 
   // ── Barba transition animation ────────────────────────────
