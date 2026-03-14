@@ -19,11 +19,11 @@
 (function () {
 
   // ── Config ───────────────────────────────────────────────
-  const PHASE1_DURATION  = 0.35;   // snap-in all rects
-  const PULSE_SCALE      = 1.75;   // how big each row pulses
-  const PULSE_UP         = 0.28;   // time to scale up
-  const PULSE_DOWN       = 0.28;   // time to scale back down
-  const ROW_STAGGER      = 0.15;   // gap between each row pulse
+  const PHASE1_DURATION = 0.35;
+  const PULSE_SCALE     = 1.75;
+  const PULSE_UP        = 1;
+  const PULSE_DOWN      = 1;
+  const ROW_STAGGER     = 0.15;
 
   // ── Helpers ──────────────────────────────────────────────
 
@@ -44,22 +44,22 @@
       .map(y => rows[y]);
   }
 
-  function setTransformOrigins(rects) {
+  function primeRects(rects) {
     rects.forEach(rect => {
-      rect.style.transformBox    = 'fill-box';
-      rect.style.transformOrigin = 'center center';
+      const cx = parseFloat(rect.getAttribute('x')) + parseFloat(rect.getAttribute('width')) / 2;
+      const cy = parseFloat(rect.getAttribute('y')) + parseFloat(rect.getAttribute('height')) / 2;
+      gsap.set(rect, { svgOrigin: `${cx} ${cy}`, scale: 0, opacity: 0 });
     });
   }
 
   // ── Core animation ────────────────────────────────────────
 
   function buildLoadingTimeline(rects) {
-    setTransformOrigins(rects);
+    primeRects(rects);
     const rows = groupByRow(rects);
     const tl   = gsap.timeline();
 
-    // Phase 1 — set to invisible/scaled down, then snap all in together
-    tl.set(rects, { opacity: 0, scale: 0 });
+    // Phase 1 — snap all rects in together
     tl.to(rects, {
       opacity:  1,
       scale:    1,
@@ -67,25 +67,21 @@
       ease:     'back.out(1.4)',
     });
 
-    // Phase 2 — row-by-row pulse wave
-    // We want rows to overlap: start next row before previous row finishes
-    const FULL_ROW_CYCLE = PULSE_UP + PULSE_DOWN;
+    tl.addLabel('pulseStart');
 
+    // Phase 2 — row-by-row pulse wave, all anchored from pulseStart label
     rows.forEach((rowRects, i) => {
-      const rowStart = `>-${(rows.length - 1 - i) * ROW_STAGGER}`;
-
       tl.to(rowRects, {
         scale:    PULSE_SCALE,
         duration: PULSE_UP,
         ease:     'power2.out',
-      }, i === 0 ? '>' : `>-${(rows.length - 1) * ROW_STAGGER}`);
+      }, `pulseStart+=${i * ROW_STAGGER}`);
 
-      // Each row's scale-down follows its own scale-up
       tl.to(rowRects, {
         scale:    1,
         duration: PULSE_DOWN,
         ease:     'power2.inOut',
-      }, '>');
+      }, `pulseStart+=${i * ROW_STAGGER + PULSE_UP}`);
     });
 
     return tl;
@@ -102,13 +98,10 @@
   window.resetGridAnimation = function () {
     const rects = getGridRects();
     if (!rects.length) return;
-    setTransformOrigins(rects);
-    gsap.killTweensOf(rects);
-    gsap.set(rects, { opacity: 0, scale: 0 });
+    primeRects(rects);
   };
 
 })();
-
 
 
 
