@@ -194,16 +194,10 @@
       // ── H1 character animation ────────────────────────────────
       const h1 = document.querySelector('h1');
       if (h1) {
-        const computedLetterSpacing = getComputedStyle(h1).letterSpacing;
         const split = new SplitText(h1, { type: 'words,chars' });
       
-        h1.style.letterSpacing = '0px';
         gsap.set(split.words, { display: 'inline-block', whiteSpace: 'nowrap' });
-        gsap.set(split.chars, {
-          display: 'inline-block',
-          lineHeight: 'inherit',
-          letterSpacing: computedLetterSpacing,
-        });
+        gsap.set(split.chars, { display: 'inline-block', lineHeight: 'inherit' });
       
         tl.fromTo(split.chars,
           { y: 20 },
@@ -223,15 +217,7 @@
             duration: 1.5,
             ease: 'power2.out',
             stagger: 0.01,
-            onComplete() {
-              // Clear all GSAP inline styles from chars first
-              gsap.set(split.chars, { clearProps: 'all' });
-              // Then restore letter spacing and revert in next frame
-              requestAnimationFrame(() => {
-                h1.style.letterSpacing = '';
-                split.revert();
-              });
-            }
+            onComplete() { split.revert(); }
           },
           `${totalPulse - EARLY_IN}`
         );
