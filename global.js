@@ -940,6 +940,14 @@ function initLineRevealAnimations() {
 
   if (!elements.length) return;
 
+  // Hide all line reveal elements immediately so there's no flash
+  // when ScrollTrigger fires later — the animation will reveal them
+  elements.forEach(el => {
+    if (!el._lineRevealComplete) {
+      gsap.set(el, { opacity: 0 });
+    }
+  });
+
   let lineRevealTriggers = [];
 
   function buildTriggers() {
@@ -957,10 +965,8 @@ function initLineRevealAnimations() {
         : el.getBoundingClientRect().top + scrollY;
 
       if (elTop <= viewportBottom) {
-        // Already in view — animate immediately with a small delay
         gsap.delayedCall(0.3, () => animateLineReveal(el));
       } else {
-        // Below fold — use ScrollTrigger
         const st = ScrollTrigger.create({
           trigger: el,
           start: 'top 75%',
