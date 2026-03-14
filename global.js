@@ -78,15 +78,7 @@
 
   primeRects(rects);
   const rows       = groupByRow(rects);
-  const tl         = gsap.timeline({
-    onComplete: () => {
-      // Remove the head style tag once animation is done so it never interferes again
-      if (window._pageLoadStyleTag) {
-        window._pageLoadStyleTag.parentNode.removeChild(window._pageLoadStyleTag);
-        window._pageLoadStyleTag = null;
-      }
-    }
-  });
+  const tl         = gsap.timeline();
   const numRows    = rows.length;
   const totalPulse = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
 
@@ -117,6 +109,14 @@
       ease:     'power3.out',
     }, `pulseStart+=${i * ROW_STAGGER + PULSE_UP}`);
   });
+
+  // Remove style tag just before content animates in — GSAP inline styles take over from here
+  tl.add(() => {
+    if (window._pageLoadStyleTag) {
+      window._pageLoadStyleTag.parentNode.removeChild(window._pageLoadStyleTag);
+      window._pageLoadStyleTag = null;
+    }
+  }, `pulseStart+=${totalPulse - EARLY_IN - 0.05}`);
 
   tl.fromTo('.headerportfolio',
     { opacity: 0, y: -100 },
