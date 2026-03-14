@@ -194,33 +194,17 @@
       // ── H1 character animation ────────────────────────────────
       const h1 = document.querySelector('h1');
       if (h1) {
-        const split = new SplitText(h1, { type: 'words,chars', wordsClass: 'split-word' });
+        const split = new SplitText(h1, { type: 'chars' });
       
-        // Set words to inline-block to prevent mid-word wrapping during animation
-        split.words.forEach(word => {
-          word.style.display = 'inline-block';
-          word.style.overflow = 'hidden';
-        });
+        gsap.set(split.chars, { display: 'inline-block', lineHeight: 'inherit' });
       
-        // y position — 1s duration
         tl.fromTo(split.chars,
-          { y: 10 },
+          { y: 10, opacity: 0 },
           {
             y: 0,
-            duration: 1,
-            ease: 'power3.out',
-            stagger: 0.02,
-          },
-          `${totalPulse - EARLY_IN}`
-        );
-      
-        // opacity — 0.5s duration, same start time
-        tl.fromTo(split.chars,
-          { opacity: 0 },
-          {
             opacity: 1,
-            duration: 0.5,
-            ease: 'power3.out',
+            duration: 1,
+            ease: 'power2.out',
             stagger: 0.02,
             onComplete() { split.revert(); }
           },
