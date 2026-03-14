@@ -18,13 +18,10 @@
 
 (function () {
 
-  // ── Config ───────────────────────────────────────────────
-  const PULSE_SCALE = 3;
   const PULSE_UP    = 0.75;
   const PULSE_DOWN  = 0.75;
   const ROW_STAGGER = 0.15;
-
-  // ── Helpers ──────────────────────────────────────────────
+  const RECT_SIZE   = 19; // matches your SVG rect width/height
 
   function getGridRects() {
     return Array.from(document.querySelectorAll('#backgroundGrid rect'));
@@ -44,14 +41,8 @@
   }
 
   function primeRects(rects) {
-    rects.forEach(rect => {
-      const cx = parseFloat(rect.getAttribute('x')) + parseFloat(rect.getAttribute('width')) / 2;
-      const cy = parseFloat(rect.getAttribute('y')) + parseFloat(rect.getAttribute('height')) / 2;
-      gsap.set(rect, { svgOrigin: `${cx} ${cy}`, scale: 0, opacity: 0 });
-    });
+    gsap.set(rects, { attr: { width: 0, height: 0 } });
   }
-
-  // ── Core animation ────────────────────────────────────────
 
   function buildLoadingTimeline(rects) {
     primeRects(rects);
@@ -62,24 +53,20 @@
 
     tl.addLabel('pulseStart');
 
-    // Single wave: scale 0 → PULSE_SCALE → 0, staggered by row
     rows.forEach((rowRects, i) => {
       tl.to(rowRects, {
-        scale:    PULSE_SCALE,
-        opacity:  1,
+        attr:     { width: RECT_SIZE, height: RECT_SIZE },
         duration: PULSE_UP,
         ease:     'sine.inOut',
       }, `pulseStart+=${i * ROW_STAGGER}`);
 
       tl.to(rowRects, {
-        scale:    0,
-        opacity:  0,
+        attr:     { width: 0, height: 0 },
         duration: PULSE_DOWN,
         ease:     'sine.inOut',
       }, `pulseStart+=${i * ROW_STAGGER + PULSE_UP}`);
     });
 
-    // Fade + slide in nav and content after pulse wave completes
     tl.fromTo('.headerportfolio',
       { opacity: 0, y: -100 },
       { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
@@ -94,8 +81,6 @@
 
     return tl;
   }
-
-  // ── Public API ────────────────────────────────────────────
 
   window.initGridLoadingAnimation = function () {
     const rects = getGridRects();
@@ -113,7 +98,6 @@
   };
 
 })();
-
 
 
 
