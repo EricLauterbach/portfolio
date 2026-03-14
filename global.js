@@ -18,13 +18,13 @@
 
 (function () {
 
-  const PULSE_UP    = 0.75;
-  const PULSE_DOWN  = 0.75;
-  const ROW_STAGGER = 0.15;
+  const PULSE_UP    = 0.6;
+  const PULSE_DOWN  = 0.8;
+  const ROW_STAGGER = 0.12;
   const RECT_BASE   = 19;
   const RECT_MAX    = 38;
   const RECT_MIN    = 4;
-  const EARLY_IN    = 0.5; // how early the content fades in before pulse ends
+  const EARLY_IN    = 0.5;
 
   function getGridRects() {
     return Array.from(document.querySelectorAll('#backgroundGrid rect'));
@@ -78,7 +78,7 @@
           y:      rect._cy - RECT_MAX / 2,
         }),
         duration: PULSE_UP,
-        ease:     'elastic.out(1,1)',
+        ease:     'power2.inOut',
       }, `pulseStart+=${i * ROW_STAGGER}`);
 
       tl.to(rowRects, {
@@ -89,7 +89,7 @@
           y:      rect._cy - RECT_MIN / 2,
         }),
         duration: PULSE_DOWN,
-        ease:     'elastic.out(1,1)',
+        ease:     'power3.out',
       }, `pulseStart+=${i * ROW_STAGGER + PULSE_UP}`);
     });
 
