@@ -194,39 +194,26 @@
       // ── H1 character animation ────────────────────────────────
       const h1 = document.querySelector('h1');
       if (h1) {
-        const computedFontSize = getComputedStyle(h1).fontSize;
-        const split = new SplitText(h1, { type: 'words,chars' });
+        // Wrap h1 in a clip container
+        const wrapper = document.createElement('div');
+        wrapper.style.overflow = 'hidden';
+        wrapper.style.display = 'block';
+        h1.parentNode.insertBefore(wrapper, h1);
+        wrapper.appendChild(h1);
       
-        gsap.set(split.words, { 
-          display: 'inline-block', 
-          whiteSpace: 'nowrap',
-          fontSize: 0,        // kills whitespace gaps between inline-block spans
-        });
-        gsap.set(split.chars, { 
-          display: 'inline-block', 
-          lineHeight: 'inherit',
-          fontSize: computedFontSize,  // restore font size on the chars
-        });
-      
-        tl.fromTo(split.chars,
-          { y: 20 },
+        tl.fromTo(h1,
+          { y: 40, opacity: 0 },
           {
             y: 0,
-            duration: 0.5,
-            ease: 'power2.out',
-            stagger: 0.01,
-          },
-          `${totalPulse - EARLY_IN}`
-        );
-      
-        tl.fromTo(split.chars,
-          { opacity: 0 },
-          {
             opacity: 1,
             duration: 1.5,
             ease: 'power2.out',
-            stagger: 0.01,
-            onComplete() { split.revert(); }
+            onComplete() {
+              // Unwrap cleanly after animation
+              wrapper.parentNode.insertBefore(h1, wrapper);
+              wrapper.parentNode.removeChild(wrapper);
+              gsap.set(h1, { clearProps: 'all' });
+            }
           },
           `${totalPulse - EARLY_IN}`
         );
