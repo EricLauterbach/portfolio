@@ -21,7 +21,7 @@
   // ── Shared config ─────────────────────────────────────────
   const RECT_BASE   = 19;
   const RECT_MIN    = 4;   // starting size before animation
-  const RECT_REST   = 8;   // resting size after animation completes
+  const RECT_REST   = 4;   // resting size after animation completes
 
   // ── Page load config ──────────────────────────────────────
   const PULSE_UP    = 0.9;
