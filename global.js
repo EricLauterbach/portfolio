@@ -2623,7 +2623,6 @@ function onPageLoad() {
 
   const namespace = document.querySelector('[data-barba="container"]')?.dataset?.barbaNamespace;
 
-  // Hard load only — Barba transitions fire it in the enter hook
   if (!sessionStorage.getItem('hasLoaded')) {
     window.initGridLoadingAnimation();
   }
@@ -2644,10 +2643,13 @@ function onPageLoad() {
     setTimeout(() => { initLottieElements(); initAiDetectorExtension(); }, 100);
   }
 
+  // Wait for grid animation to finish before initialising entrance animations
+  // totalPulse ≈ 2.75s, content visible at ~1.75s, add buffer for safety
+  const gridDuration = (13 * 0.05 + 0.9 + 1.2) * 1000; // ms
   setTimeout(() => {
     ScrollTrigger.refresh();
     initEntranceAnimations();
-  }, 300);
+  }, gridDuration + 200);
 }
 
 // Handle both cases — already loaded or not yet
