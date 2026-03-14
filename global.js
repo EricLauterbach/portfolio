@@ -19,11 +19,10 @@
 (function () {
 
   // ── Config ───────────────────────────────────────────────
-  const PHASE1_DURATION = 0.35;
-  const PULSE_SCALE     = 3;
-  const PULSE_UP        = 0.75;
-  const PULSE_DOWN      = 0.75;
-  const ROW_STAGGER     = 0.15;
+  const PULSE_SCALE  = 3;
+  const PULSE_UP     = 0.75;
+  const PULSE_DOWN   = 0.75;
+  const ROW_STAGGER  = 0.15;
 
   // ── Helpers ──────────────────────────────────────────────
 
@@ -56,13 +55,19 @@
 
   function buildLoadingTimeline(rects) {
     primeRects(rects);
-    const rows = groupByRow(rects);
-    const tl   = gsap.timeline();
+    const rows    = groupByRow(rects);
+    const tl      = gsap.timeline();
+    const numRows = rows.length;
+    const totalPulse = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
+
+    // Fade in the SVG background container first
+    tl.to('.backgroundgridportfolio', {
+      opacity:  1,
+      duration: 0.2,
+      ease:     'none',
+    });
 
     tl.addLabel('pulseStart');
-
-    const numRows    = rows.length;
-    const totalPulse = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
 
     // Single wave: scale 0 → PULSE_SCALE → 0, staggered by row
     rows.forEach((rowRects, i) => {
@@ -81,11 +86,19 @@
       }, `pulseStart+=${i * ROW_STAGGER + PULSE_UP}`);
     });
 
-    // Fade in nav + content after pulse wave completes
-    tl.to('.headerportfolio, #smooth-content', {
+    // Fade + slide in nav and content after pulse completes
+    tl.to('.headerportfolio', {
       opacity:  1,
-      duration: 0.5,
-      ease:     'power2.out',
+      y:        0,
+      duration: 0.6,
+      ease:     'power3.out',
+    }, `pulseStart+=${totalPulse}`);
+
+    tl.to('#smooth-content', {
+      opacity:  1,
+      y:        0,
+      duration: 0.6,
+      ease:     'power3.out',
     }, `pulseStart+=${totalPulse}`);
 
     return tl;
@@ -103,7 +116,9 @@
     const rects = getGridRects();
     if (!rects.length) return;
     primeRects(rects);
-    gsap.set('.headerportfolio, #smooth-content', { opacity: 1 });
+    gsap.set('.backgroundgridportfolio', { opacity: 1 });
+    gsap.set('.headerportfolio', { opacity: 1, y: 0 });
+    gsap.set('#smooth-content',  { opacity: 1, y: 0 });
   };
 
 })();
