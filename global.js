@@ -51,6 +51,7 @@
       rect._cy = cy;
     });
     gsap.set(rects, (i, rect) => ({
+      opacity: 0,
       attr: {
         width:  RECT_MIN,
         height: RECT_MIN,
@@ -71,6 +72,7 @@
 
     rows.forEach((rowRects, i) => {
       tl.to(rowRects, {
+        opacity: 1,
         attr: (j, rect) => ({
           width:  RECT_MAX,
           height: RECT_MAX,
@@ -82,6 +84,7 @@
       }, `pulseStart+=${i * ROW_STAGGER}`);
 
       tl.to(rowRects, {
+        opacity: 0,
         attr: (j, rect) => ({
           width:  RECT_MIN,
           height: RECT_MIN,
@@ -124,7 +127,6 @@
   };
 
 })();
-
 
 
 
