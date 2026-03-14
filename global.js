@@ -130,7 +130,6 @@
     `pulseStart+=${totalPulse - EARLY_IN}`
   );
 
-  console.log('timeline duration:', tl.duration());
   return tl;
 };
 
@@ -379,6 +378,13 @@ window.addEventListener('popstate', () => {
 // ── Global Barba hooks ──────────────────────────────────────
 
 barba.hooks.before(() => {
+
+  // Safety net — remove style tag if page was navigated away from mid-animation
+  if (window._pageLoadStyleTag) {
+    window._pageLoadStyleTag.parentNode.removeChild(window._pageLoadStyleTag);
+    window._pageLoadStyleTag = null;
+  }
+  
   if (window.lockTooltip) window.lockTooltip();
   document.body.classList.add('is-transitioning');
 
