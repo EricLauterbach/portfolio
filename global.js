@@ -12,16 +12,16 @@
 
 
 
-// =============================================================
+// ============================================================
 // GRID BACKGROUND ANIMATION
-// =============================================================
+// ============================================================
 
 (function () {
 
   // ── Shared config ─────────────────────────────────────────
-  const RECT_BASE   = 19;
-  const RECT_MIN    = 4;   // starting size before animation
-  const RECT_REST   = 4;   // resting size after animation completes
+  const RECT_BASE = 19;
+  const RECT_MIN  = 4;
+  const RECT_REST = 4;
 
   // ── Page load config ──────────────────────────────────────
   const PULSE_UP    = 0.9;
@@ -73,117 +73,156 @@
   // ── Page load animation ───────────────────────────────────
 
   window.initGridLoadingAnimation = function () {
-  const rects = getGridRects();
-  if (!rects.length) return;
+    const rects = getGridRects();
+    if (!rects.length) return;
 
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    if (window._pageLoadStyleTag) {
-      window._pageLoadStyleTag.parentNode.removeChild(window._pageLoadStyleTag);
-      window._pageLoadStyleTag = null;
-    }
-    gsap.set('.headerportfolio', { opacity: 1, y: 0, clearProps: 'transform' });
-    gsap.set('#smooth-content',  { opacity: 1, y: 0, clearProps: 'transform' });
-    return;
-  }
-
-  primeRects(rects);
-  const rows       = groupByRow(rects);
-  const numRows    = rows.length;
-  const totalPulse = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
-
-  let pageLoaded = false;
-  let loopComplete = false;
-
-  // ── Build one full wave pass ──────────────────────────────
-  function buildWave() {
-    const tl = gsap.timeline();
-    rows.forEach((rowRects, i) => {
-      tl.to(rowRects, {
-        opacity: 1,
-        attr: (j, rect) => ({
-          width:  RECT_MAX,
-          height: RECT_MAX,
-          x:      rect._cx - RECT_MAX / 2,
-          y:      rect._cy - RECT_MAX / 2,
-        }),
-        duration: PULSE_UP,
-        ease:     'power2.inOut',
-      }, `${i * ROW_STAGGER}`);
-
-      tl.to(rowRects, {
-        opacity: 1,
-        attr: (j, rect) => ({
-          width:  RECT_REST,
-          height: RECT_REST,
-          x:      rect._cx - RECT_REST / 2,
-          y:      rect._cy - RECT_REST / 2,
-        }),
-        duration: PULSE_DOWN,
-        ease:     'power3.out',
-      }, `${i * ROW_STAGGER + PULSE_UP}`);
-    });
-    return tl;
-  }
-
-  // ── Reveal content after loop stops ──────────────────────
-  function playReveal() {
-    if (window._pageLoadStyleTag) {
-      window._pageLoadStyleTag.parentNode.removeChild(window._pageLoadStyleTag);
-      window._pageLoadStyleTag = null;
-    }
-  
-    const tl = gsap.timeline({
-      onComplete: () => {
-        ScrollTrigger.refresh();
-        initEntranceAnimations();
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (window._pageLoadStyleTag) {
+        window._pageLoadStyleTag.parentNode.removeChild(window._pageLoadStyleTag);
+        window._pageLoadStyleTag = null;
       }
-    });
-  
-    tl.fromTo('.headerportfolio',
-      { opacity: 0, y: -100 },
-      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }
-    );
-  
-    tl.fromTo('#smooth-content',
-      { opacity: 0, y: 100 },
-      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-      '<'
-    );
-  }
-  // ── Loop waves until page loaded + current wave done ─────
-  function runLoop() {
-    const wave = buildWave();
-    wave.then(() => {
-      if (pageLoaded) {
-        // Page is loaded and this wave just finished — play reveal
-        playReveal();
-      } else {
-        // Not loaded yet — run another wave
-        primeRects(rects); // reset rects to starting state
-        runLoop();
-      }
-    });
-  }
+      gsap.set('.headerportfolio', { opacity: 1, y: 0, clearProps: 'transform' });
+      gsap.set('#smooth-content',  { opacity: 1, y: 0, clearProps: 'transform' });
+      return;
+    }
 
-  // ── Listen for page load ──────────────────────────────────
-  if (document.readyState === 'complete') {
-    pageLoaded = true;
-  } else {
-    window.addEventListener('load', () => {
+    primeRects(rects);
+    const rows       = groupByRow(rects);
+    const numRows    = rows.length;
+    const totalPulse = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
+
+    let pageLoaded = false;
+
+    // ── Listen for page load ────────────────────────────────
+    if (document.readyState === 'complete') {
       pageLoaded = true;
-    }, { once: true });
-  }
+    } else {
+      window.addEventListener('load', () => {
+        pageLoaded = true;
+      }, { once: true });
+    }
 
-  // ── Start the loop ────────────────────────────────────────
-  setTimeout(() => {
-    runLoop();
-  }, 100);
-};
+    // ── Build one looping wave ──────────────────────────────
+    function buildWave() {
+      const tl = gsap.timeline();
+
+      rows.forEach((rowRects, i) => {
+        tl.to(rowRects, {
+          opacity: 1,
+          attr: (j, rect) => ({
+            width:  RECT_MAX,
+            height: RECT_MAX,
+            x:      rect._cx - RECT_MAX / 2,
+            y:      rect._cy - RECT_MAX / 2,
+          }),
+          duration: PULSE_UP,
+          ease:     'power2.inOut',
+        }, `${i * ROW_STAGGER}`);
+
+        tl.to(rowRects, {
+          opacity: 1,
+          attr: (j, rect) => ({
+            width:  RECT_REST,
+            height: RECT_REST,
+            x:      rect._cx - RECT_REST / 2,
+            y:      rect._cy - RECT_REST / 2,
+          }),
+          duration: PULSE_DOWN,
+          ease:     'power3.out',
+        }, `${i * ROW_STAGGER + PULSE_UP}`);
+      });
+
+      return tl;
+    }
+
+    // ── Build final wave with content reveal baked in ───────
+    function buildFinalWave() {
+      const tl = gsap.timeline({
+        onComplete: () => {
+          ScrollTrigger.refresh();
+          initEntranceAnimations();
+        }
+      });
+
+      rows.forEach((rowRects, i) => {
+        tl.to(rowRects, {
+          opacity: 1,
+          attr: (j, rect) => ({
+            width:  RECT_MAX,
+            height: RECT_MAX,
+            x:      rect._cx - RECT_MAX / 2,
+            y:      rect._cy - RECT_MAX / 2,
+          }),
+          duration: PULSE_UP,
+          ease:     'power2.inOut',
+        }, `${i * ROW_STAGGER}`);
+
+        tl.to(rowRects, {
+          opacity: 1,
+          attr: (j, rect) => ({
+            width:  RECT_REST,
+            height: RECT_REST,
+            x:      rect._cx - RECT_REST / 2,
+            y:      rect._cy - RECT_REST / 2,
+          }),
+          duration: PULSE_DOWN,
+          ease:     'power3.out',
+        }, `${i * ROW_STAGGER + PULSE_UP}`);
+      });
+
+      // Remove style tag just before content animates in
+      tl.add(() => {
+        if (window._pageLoadStyleTag) {
+          window._pageLoadStyleTag.parentNode.removeChild(window._pageLoadStyleTag);
+          window._pageLoadStyleTag = null;
+        }
+      }, `${totalPulse - EARLY_IN - 0.05}`);
+
+      // Content reveal overlaps with end of final wave
+      tl.fromTo('.headerportfolio',
+        { opacity: 0, y: -100 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+        `${totalPulse - EARLY_IN}`
+      );
+
+      tl.fromTo('#smooth-content',
+        { opacity: 0, y: 100 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+        `${totalPulse - EARLY_IN}`
+      );
+
+      return tl;
+    }
+
+    // ── Loop waves until page loaded ────────────────────────
+    function runLoop() {
+      const wave = buildWave();
+      wave.then(() => {
+        if (pageLoaded) {
+          primeRects(rects);
+          buildFinalWave();
+        } else {
+          primeRects(rects);
+          runLoop();
+        }
+      });
+    }
+
+    // Short delay before first wave — lets SVG and GSAP settle
+    setTimeout(() => {
+      runLoop();
+    }, 100);
+  };
 
   // ── Barba transition animation ────────────────────────────
 
   window.initGridTransitionAnimation = function () {
     return new Promise((resolve) => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        resolve();
+        return;
+      }
+
       const rects = getGridRects();
       if (!rects.length) { resolve(); return; }
 
@@ -194,7 +233,6 @@
         }
       });
 
-      // Start from current resting state
       gsap.set(rects, (i, rect) => ({
         opacity: 1,
         attr: {
@@ -252,8 +290,8 @@
         y:      rect._cy - RECT_REST / 2,
       }
     }));
-    gsap.set('.headerportfolio', { opacity: 1, y: 0 });
-    gsap.set('#smooth-content',  { opacity: 1, y: 0 });
+    gsap.set('.headerportfolio', { opacity: 1, y: 0, clearProps: 'transform' });
+    gsap.set('#smooth-content',  { opacity: 1, y: 0, clearProps: 'transform' });
   };
 
 })();
