@@ -87,19 +87,18 @@
     });
 
     // Fade + slide in nav and content after pulse completes
-    tl.to('.headerportfolio', {
-      opacity:  1,
-      y:        0,
-      duration: 0.6,
-      ease:     'power3.out',
-    }, `pulseStart+=${totalPulse}`);
-
-    tl.to('#smooth-content', {
-      opacity:  1,
-      y:        0,
-      duration: 0.6,
-      ease:     'power3.out',
-    }, `pulseStart+=${totalPulse}`);
+   // Fade + slide in nav and content after pulse completes
+  tl.fromTo('.headerportfolio',
+    { opacity: 0, y: -100 },
+    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+    `pulseStart+=${totalPulse}`
+  );
+  
+  tl.fromTo('#smooth-content',
+    { opacity: 0, y: 100 },
+    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+    `pulseStart+=${totalPulse}`
+  );
 
     return tl;
   }
