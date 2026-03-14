@@ -127,25 +127,29 @@
 
   // ── Reveal content after loop stops ──────────────────────
   function playReveal() {
-  // Remove style tag first so GSAP can fully control opacity/transform
-  if (window._pageLoadStyleTag) {
-    window._pageLoadStyleTag.parentNode.removeChild(window._pageLoadStyleTag);
-    window._pageLoadStyleTag = null;
+    if (window._pageLoadStyleTag) {
+      window._pageLoadStyleTag.parentNode.removeChild(window._pageLoadStyleTag);
+      window._pageLoadStyleTag = null;
+    }
+  
+    const tl = gsap.timeline({
+      onComplete: () => {
+        ScrollTrigger.refresh();
+        initEntranceAnimations();
+      }
+    });
+  
+    tl.fromTo('.headerportfolio',
+      { opacity: 0, y: -100 },
+      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }
+    );
+  
+    tl.fromTo('#smooth-content',
+      { opacity: 0, y: 100 },
+      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+      '<'
+    );
   }
-
-  const tl = gsap.timeline();
-
-  tl.fromTo('.headerportfolio',
-    { opacity: 0, y: -100 },
-    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }
-  );
-
-  tl.fromTo('#smooth-content',
-    { opacity: 0, y: 100 },
-    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-    '<' // same time as header
-  );
-}
   // ── Loop waves until page loaded + current wave done ─────
   function runLoop() {
     const wave = buildWave();
@@ -2785,13 +2789,7 @@ function onPageLoad() {
     setTimeout(() => { initLottieElements(); initAiDetectorExtension(); }, 100);
   }
 
-  // Entrance animations wait for full load
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      ScrollTrigger.refresh();
-      initEntranceAnimations();
-    }, 300);
-  }, { once: true });
+  // Entrance animations are now handled by playReveal's onComplete — do not call here
 }
 
 // Start grid animation as early as possible — loops until page is fully loaded
