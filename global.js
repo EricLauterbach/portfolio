@@ -535,6 +535,16 @@ barba.hooks.beforeEnter((data) => {
 
   gsap.set(data.next.container, { opacity: 0 });
 
+  // Hide h1 and line reveal elements before container is visible
+  const nextH1 = data.next.container.querySelector('h1');
+  if (nextH1) gsap.set(nextH1, { opacity: 0 });
+
+  LINE_REVEAL_SELECTORS.forEach(selector => {
+    data.next.container.querySelectorAll(selector).forEach(el => {
+      gsap.set(el, { opacity: 0 });
+    });
+  });
+
   ENTRANCE_SELECTORS.forEach(selector => {
     data.next.container.querySelectorAll(selector).forEach(el => {
       gsap.set(el, { y: 100 });
@@ -871,6 +881,9 @@ function animateLineReveal(el) {
   if (el._lineRevealComplete) return;
   el._lineRevealComplete = true;
 
+  // Ensure element is visible before splitting — overrides any opacity: 0 set by beforeEnter
+  gsap.set(el, { opacity: 1 });
+
   const split = new SplitText(el, { type: 'lines', linesClass: 'split-line' });
 
   split.lines.forEach(line => {
@@ -950,7 +963,7 @@ function initLineRevealAnimations() {
         // Below fold — use ScrollTrigger
         const st = ScrollTrigger.create({
           trigger: el,
-          start: 'top bottom',
+          start: 'top 75%',
           invalidateOnRefresh: true,
           onEnter: () => { animateLineReveal(el); },
         });
