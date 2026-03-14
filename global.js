@@ -205,13 +205,13 @@
         });
       
         tl.fromTo(split.lines,
-          { yPercent: 30, opacity: 0 },
+          { yPercent: 50, opacity: 0 },
           {
             yPercent: 0,
             opacity: 1,
-            duration: 1.2,
+            duration: .75,
             ease: 'none',
-            stagger: 0.15,
+            stagger: 0.25,
             onComplete() {
               gsap.set(split.lines, { clearProps: 'all' });
               split.lines.forEach(line => {
