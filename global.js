@@ -127,28 +127,25 @@
 
   // ── Reveal content after loop stops ──────────────────────
   function playReveal() {
-    const tl = gsap.timeline();
-
-    tl.add(() => {
-      if (window._pageLoadStyleTag) {
-        window._pageLoadStyleTag.parentNode.removeChild(window._pageLoadStyleTag);
-        window._pageLoadStyleTag = null;
-      }
-    }, EARLY_IN - 0.05);
-
-    tl.fromTo('.headerportfolio',
-      { opacity: 0, y: -100 },
-      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-      0
-    );
-
-    tl.fromTo('#smooth-content',
-      { opacity: 0, y: 100 },
-      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-      0
-    );
+  // Remove style tag first so GSAP can fully control opacity/transform
+  if (window._pageLoadStyleTag) {
+    window._pageLoadStyleTag.parentNode.removeChild(window._pageLoadStyleTag);
+    window._pageLoadStyleTag = null;
   }
 
+  const tl = gsap.timeline();
+
+  tl.fromTo('.headerportfolio',
+    { opacity: 0, y: -100 },
+    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }
+  );
+
+  tl.fromTo('#smooth-content',
+    { opacity: 0, y: 100 },
+    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+    '<' // same time as header
+  );
+}
   // ── Loop waves until page loaded + current wave done ─────
   function runLoop() {
     const wave = buildWave();
