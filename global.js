@@ -194,6 +194,11 @@
       // ── H1 character animation ────────────────────────────────
       const h1 = document.querySelector('h1');
       if (h1) {
+        // Force zero letter spacing during animation to prevent inheritance issues
+        const originalLetterSpacing = h1.style.letterSpacing;
+        h1.style.letterSpacing = '0px';
+        h1.style.wordSpacing = '0px';
+      
         const split = new SplitText(h1, { type: 'words,chars' });
       
         gsap.set(split.words, { display: 'inline-block', whiteSpace: 'nowrap' });
@@ -217,7 +222,11 @@
             duration: 1.5,
             ease: 'power2.out',
             stagger: 0.01,
-            onComplete() { split.revert(); }
+            onComplete() {
+              split.revert();
+              h1.style.letterSpacing = originalLetterSpacing;
+              h1.style.wordSpacing = '';
+            }
           },
           `${totalPulse - EARLY_IN}`
         );
