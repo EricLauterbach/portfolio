@@ -205,17 +205,15 @@
         });
       
         tl.fromTo(split.lines,
-          { y: '100%', opacity: 0 },
+          { y: 20, opacity: 0 },
           {
-            y: '0%',
+            y: 0,
             opacity: 1,
             duration: 1.5,
-            ease: 'power2.out',
+            ease: 'power1.out',
             stagger: 0.1,
             onComplete() {
-              // Clear GSAP props but don't revert — avoids reflow jump
               gsap.set(split.lines, { clearProps: 'all' });
-              // Remove overflow wrappers only
               split.lines.forEach(line => {
                 const wrapper = line.parentNode;
                 wrapper.parentNode.insertBefore(line, wrapper);
