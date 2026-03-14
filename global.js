@@ -440,6 +440,12 @@ barba.hooks.beforeEnter((data) => {
 barba.hooks.after((data) => {
   if (window.unlockTooltip) window.unlockTooltip();
 
+  // Remove the head style tag that hid elements for page load
+  if (window._pageLoadStyleTag) {
+    window._pageLoadStyleTag.parentNode.removeChild(window._pageLoadStyleTag);
+    window._pageLoadStyleTag = null;
+  }
+
   gsap.set('.headerportfolio', { opacity: 1, y: 0, clearProps: 'transform' });
   gsap.set('#smooth-content',  { opacity: 1, y: 0, clearProps: 'transform' });
   
