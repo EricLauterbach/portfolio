@@ -54,59 +54,65 @@
   // ── Core animation ────────────────────────────────────────
 
   function buildLoadingTimeline(rects) {
-    primeRects(rects);
-    const rows       = groupByRow(rects);
-    const numRows    = rows.length;
-    const totalPulse = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
+  primeRects(rects);
+  const rows       = groupByRow(rects);
+  const tl         = gsap.timeline();
+  const numRows    = rows.length;
+  const totalPulse = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
 
-    // Force the background container visible immediately via element style
-    // so no CSS specificity issue can block it
-    const bgEl = document.querySelector('.backgroundgridportfolio');
-    if (bgEl) bgEl.style.opacity = '1';
+  // Instant-set everything hidden as first step in the timeline
+  tl.set('.backgroundgridportfolio', { opacity: 0 });
+  tl.set('.headerportfolio',         { opacity: 0, y: -100 });
+  tl.set('#smooth-content',          { opacity: 0, y: 100  });
 
-    const tl = gsap.timeline();
+  // Fade in the background container
+  tl.to('.backgroundgridportfolio', {
+    opacity:  1,
+    duration: 0.2,
+    ease:     'none',
+  });
 
-    tl.addLabel('pulseStart');
+  tl.addLabel('pulseStart');
 
-    // Single wave: scale 0 → PULSE_SCALE → 0.5, staggered by row
-    rows.forEach((rowRects, i) => {
-      tl.to(rowRects, {
-        scale:    PULSE_SCALE,
-        opacity:  1,
-        duration: PULSE_UP,
-        ease:     'sine.inOut',
-      }, `pulseStart+=${i * ROW_STAGGER}`);
+  rows.forEach((rowRects, i) => {
+    tl.to(rowRects, {
+      scale:    PULSE_SCALE,
+      opacity:  1,
+      duration: PULSE_UP,
+      ease:     'sine.inOut',
+    }, `pulseStart+=${i * ROW_STAGGER}`);
 
-      tl.to(rowRects, {
-        scale:    0.5,
-        opacity:  1,
-        duration: PULSE_DOWN,
-        ease:     'sine.inOut',
-      }, `pulseStart+=${i * ROW_STAGGER + PULSE_UP}`);
-    });
+    tl.to(rowRects, {
+      scale:    0,
+      opacity:  0,
+      duration: PULSE_DOWN,
+      ease:     'sine.inOut',
+    }, `pulseStart+=${i * ROW_STAGGER + PULSE_UP}`);
+  });
 
-    // Fade + slide in nav and content after pulse completes
-    tl.fromTo('.headerportfolio',
-      { opacity: 0, y: -100 },
-      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-      `pulseStart+=${totalPulse}`
-    );
+  tl.fromTo('.headerportfolio',
+    { opacity: 0, y: -100 },
+    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+    `pulseStart+=${totalPulse}`
+  );
 
-    tl.fromTo('#smooth-content',
-      { opacity: 0, y: 100 },
-      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-      `pulseStart+=${totalPulse}`
-    );
+  tl.fromTo('#smooth-content',
+    { opacity: 0, y: 100 },
+    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+    `pulseStart+=${totalPulse}`
+  );
 
-    return tl;
-  }
+  return tl;
+}
 
   // ── Public API ────────────────────────────────────────────
 
   window.initGridLoadingAnimation = function () {
+    
     const rects = getGridRects();
     if (!rects.length) return;
     buildLoadingTimeline(rects);
+    console.log('timeline duration:', tl.duration());
   };
 
   window.resetGridAnimation = function () {
@@ -2622,9 +2628,6 @@ function onPageLoad() {
   const isHardLoad = !sessionStorage.getItem('hasLoaded');
   if (namespace === 'home' || isHardLoad) {
     window.initGridLoadingAnimation();
-
-    console.log('grid rects found:', document.querySelectorAll('#backgroundGrid rect').length);
-    console.log('bg element found:', document.querySelector('.backgroundgridportfolio'));
   }
   sessionStorage.setItem('hasLoaded', '1');
 
