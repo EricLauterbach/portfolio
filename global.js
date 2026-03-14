@@ -19,8 +19,9 @@
 (function () {
 
   // ── Shared config ─────────────────────────────────────────
-  const RECT_BASE = 19;
-  const RECT_MIN  = 4;
+  const RECT_BASE   = 19;
+  const RECT_MIN    = 4;   // starting size before animation
+  const RECT_REST   = 8;   // resting size after animation completes
 
   // ── Page load config ──────────────────────────────────────
   const PULSE_UP    = 0.9;
@@ -70,7 +71,6 @@
   }
 
   // ── Page load animation ───────────────────────────────────
-  // Staggered row wave + reveals header and content
 
   window.initGridLoadingAnimation = function () {
     const rects = getGridRects();
@@ -98,12 +98,12 @@
       }, `pulseStart+=${i * ROW_STAGGER}`);
 
       tl.to(rowRects, {
-        opacity: 0,
+        opacity: 1,
         attr: (j, rect) => ({
-          width:  RECT_MIN,
-          height: RECT_MIN,
-          x:      rect._cx - RECT_MIN / 2,
-          y:      rect._cy - RECT_MIN / 2,
+          width:  RECT_REST,
+          height: RECT_REST,
+          x:      rect._cx - RECT_REST / 2,
+          y:      rect._cy - RECT_REST / 2,
         }),
         duration: PULSE_DOWN,
         ease:     'power3.out',
@@ -127,35 +127,32 @@
   };
 
   // ── Barba transition animation ────────────────────────────
-  // All rects pulse in sync — no content interference
-  // Returns a promise that resolves when the pulse-up completes
-  // so Barba can use it to time the container swap
 
   window.initGridTransitionAnimation = function () {
     return new Promise((resolve) => {
       const rects = getGridRects();
       if (!rects.length) { resolve(); return; }
 
-      // Reset all rects to min size silently
       rects.forEach(rect => {
         if (!rect._cx) {
           rect._cx = parseFloat(rect.getAttribute('x')) + RECT_BASE / 2;
           rect._cy = parseFloat(rect.getAttribute('y')) + RECT_BASE / 2;
         }
       });
+
+      // Start from current resting state
       gsap.set(rects, (i, rect) => ({
-        opacity: 0,
+        opacity: 1,
         attr: {
-          width:  RECT_MIN,
-          height: RECT_MIN,
-          x:      rect._cx - RECT_MIN / 2,
-          y:      rect._cy - RECT_MIN / 2,
+          width:  RECT_REST,
+          height: RECT_REST,
+          x:      rect._cx - RECT_REST / 2,
+          y:      rect._cy - RECT_REST / 2,
         }
       }));
 
       const tl = gsap.timeline();
 
-      // All rects pulse up in sync
       tl.to(rects, {
         opacity: 1,
         attr: (i, rect) => ({
@@ -166,17 +163,16 @@
         }),
         duration: TRANSITION_UP,
         ease:     'power2.inOut',
-        onComplete: resolve, // Barba can proceed once fully visible
+        onComplete: resolve,
       });
 
-      // Then pulse back down
       tl.to(rects, {
-        opacity: 0,
+        opacity: 1,
         attr: (i, rect) => ({
-          width:  RECT_MIN,
-          height: RECT_MIN,
-          x:      rect._cx - RECT_MIN / 2,
-          y:      rect._cy - RECT_MIN / 2,
+          width:  RECT_REST,
+          height: RECT_REST,
+          x:      rect._cx - RECT_REST / 2,
+          y:      rect._cy - RECT_REST / 2,
         }),
         duration: TRANSITION_DOWN,
         ease:     'power3.out',
@@ -187,7 +183,21 @@
   window.resetGridAnimation = function () {
     const rects = getGridRects();
     if (!rects.length) return;
-    primeRects(rects);
+    rects.forEach(rect => {
+      if (!rect._cx) {
+        rect._cx = parseFloat(rect.getAttribute('x')) + RECT_BASE / 2;
+        rect._cy = parseFloat(rect.getAttribute('y')) + RECT_BASE / 2;
+      }
+    });
+    gsap.set(rects, (i, rect) => ({
+      opacity: 1,
+      attr: {
+        width:  RECT_REST,
+        height: RECT_REST,
+        x:      rect._cx - RECT_REST / 2,
+        y:      rect._cy - RECT_REST / 2,
+      }
+    }));
     gsap.set('.headerportfolio', { opacity: 1, y: 0 });
     gsap.set('#smooth-content',  { opacity: 1, y: 0 });
   };
