@@ -18,10 +18,13 @@
 
 (function () {
 
+  // ── Config ───────────────────────────────────────────────
   const PULSE_SCALE = 3;
   const PULSE_UP    = 0.75;
   const PULSE_DOWN  = 0.75;
   const ROW_STAGGER = 0.15;
+
+  // ── Helpers ──────────────────────────────────────────────
 
   function getGridRects() {
     return Array.from(document.querySelectorAll('#backgroundGrid rect'));
@@ -40,93 +43,59 @@
       .map(y => rows[y]);
   }
 
-  // Wrap each rect in a <g> centered on the rect, animate the <g>
-  function wrapRects(rects) {
+  function primeRects(rects) {
     rects.forEach(rect => {
-      if (rect._gsapWrapped) return;
-      rect._gsapWrapped = true;
-
-      const x  = parseFloat(rect.getAttribute('x'));
-      const y  = parseFloat(rect.getAttribute('y'));
-      const w  = parseFloat(rect.getAttribute('width'));
-      const h  = parseFloat(rect.getAttribute('height'));
-      const cx = x + w / 2;
-      const cy = y + h / 2;
-
-      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      g.setAttribute('transform', `translate(${cx},${cy})`);
-
-      rect.parentNode.insertBefore(g, rect);
-      g.appendChild(rect);
-
-      // Reposition rect relative to its new <g> origin
-      rect.setAttribute('x', -w / 2);
-      rect.setAttribute('y', -h / 2);
-
-      // Store reference so we can animate the <g>
-      rect._wrapper = g;
-
-      gsap.set(g, { scale: 0, opacity: 0, transformOrigin: '0px 0px' });
+      const cx = parseFloat(rect.getAttribute('x')) + parseFloat(rect.getAttribute('width')) / 2;
+      const cy = parseFloat(rect.getAttribute('y')) + parseFloat(rect.getAttribute('height')) / 2;
+      gsap.set(rect, { svgOrigin: `${cx} ${cy}`, scale: 0, opacity: 0 });
     });
   }
 
+  // ── Core animation ────────────────────────────────────────
+
   function buildLoadingTimeline(rects) {
-  // Group by row BEFORE wrapping (while y attributes are still original)
-  const rows = groupByRow(rects);
-  
-  // NOW wrap
-  wrapRects(rects);
-  
-  const numRows    = rows.length;
-  const totalPulse = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
-  const tl         = gsap.timeline();
+    primeRects(rects);
+    const rows       = groupByRow(rects);
+    const tl         = gsap.timeline();
+    const numRows    = rows.length;
+    const totalPulse = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
 
-  tl.set('.backgroundgridportfolio', { opacity: 0 });
-  tl.set('.headerportfolio',         { opacity: 0, y: -100 });
-  tl.set('#smooth-content',          { opacity: 0, y: 100  });
+    tl.addLabel('pulseStart');
 
-  tl.to('.backgroundgridportfolio', {
-    opacity:  1,
-    duration: 0.2,
-    ease:     'none',
-  });
+    // Single wave: scale 0 → PULSE_SCALE → 0, staggered by row
+    rows.forEach((rowRects, i) => {
+      tl.to(rowRects, {
+        scale:    PULSE_SCALE,
+        opacity:  1,
+        duration: PULSE_UP,
+        ease:     'sine.inOut',
+      }, `pulseStart+=${i * ROW_STAGGER}`);
 
-  tl.addLabel('pulseStart');
+      tl.to(rowRects, {
+        scale:    0,
+        opacity:  0,
+        duration: PULSE_DOWN,
+        ease:     'sine.inOut',
+      }, `pulseStart+=${i * ROW_STAGGER + PULSE_UP}`);
+    });
 
-  rows.forEach((rowRects, i) => {
-    const wrappers = rowRects.map(r => r._wrapper);
+    // Fade + slide in nav and content after pulse wave completes
+    tl.fromTo('.headerportfolio',
+      { opacity: 0, y: -100 },
+      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+      `pulseStart+=${totalPulse}`
+    );
 
-    tl.to(wrappers, {
-      scale:    PULSE_SCALE,
-      opacity:  1,
-      duration: PULSE_UP,
-      ease:     'sine.inOut',
-      transformOrigin: '0px 0px',
-    }, `pulseStart+=${i * ROW_STAGGER}`);
+    tl.fromTo('#smooth-content',
+      { opacity: 0, y: 100 },
+      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+      `pulseStart+=${totalPulse}`
+    );
 
-    tl.to(wrappers, {
-      scale:    0,
-      opacity:  0,
-      duration: PULSE_DOWN,
-      ease:     'sine.inOut',
-      transformOrigin: '0px 0px',
-    }, `pulseStart+=${i * ROW_STAGGER + PULSE_UP}`);
-  });
+    return tl;
+  }
 
-  tl.fromTo('.headerportfolio',
-    { opacity: 0, y: -100 },
-    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-    `pulseStart+=${totalPulse}`
-  );
-
-  tl.fromTo('#smooth-content',
-    { opacity: 0, y: 100 },
-    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-    `pulseStart+=${totalPulse}`
-  );
-
-  return tl;
-}
+  // ── Public API ────────────────────────────────────────────
 
   window.initGridLoadingAnimation = function () {
     const rects = getGridRects();
@@ -137,10 +106,8 @@
 
   window.resetGridAnimation = function () {
     const rects = getGridRects();
-    rects.forEach(r => {
-      if (r._wrapper) gsap.set(r._wrapper, { scale: 0, opacity: 0 });
-    });
-    gsap.set('.backgroundgridportfolio', { opacity: 1 });
+    if (!rects.length) return;
+    primeRects(rects);
     gsap.set('.headerportfolio', { opacity: 1, y: 0 });
     gsap.set('#smooth-content',  { opacity: 1, y: 0 });
   };
