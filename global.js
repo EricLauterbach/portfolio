@@ -20,7 +20,7 @@
 
   // ── Config ───────────────────────────────────────────────
   const PHASE1_DURATION = 0.35;
-  const PULSE_SCALE     = 1.75;
+  const PULSE_SCALE     = 3;
   const PULSE_UP        = 0.75;
   const PULSE_DOWN      = 0.75;
   const ROW_STAGGER     = 0.15;
@@ -59,46 +59,30 @@
     const rows = groupByRow(rects);
     const tl   = gsap.timeline();
 
-    // Prime nav + content to opacity 0
-    gsap.set('.headerportfolio', { opacity: 0 });
-    gsap.set('#smooth-content',  { opacity: 0 });
-
-    // Phase 1 — snap all rects in together
-    tl.to(rects, {
-      opacity:  1,
-      scale:    1,
-      duration: PHASE1_DURATION,
-      ease:     'back.out(1.4)',
-    });
-
     tl.addLabel('pulseStart');
 
-    // Phase 2 — row-by-row pulse wave, all anchored from pulseStart label
-    const numRows     = rows.length;
-    const totalPulse  = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
+    const numRows    = rows.length;
+    const totalPulse = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
 
+    // Single wave: scale 0 → PULSE_SCALE → 0, staggered by row
     rows.forEach((rowRects, i) => {
       tl.to(rowRects, {
         scale:    PULSE_SCALE,
+        opacity:  1,
         duration: PULSE_UP,
         ease:     'sine.inOut',
       }, `pulseStart+=${i * ROW_STAGGER}`);
 
       tl.to(rowRects, {
-        scale:    1,
+        scale:    0,
+        opacity:  0,
         duration: PULSE_DOWN,
         ease:     'sine.inOut',
       }, `pulseStart+=${i * ROW_STAGGER + PULSE_UP}`);
     });
 
-    // Phase 3 — fade in nav + content after pulse wave completes
-    tl.to('.headerportfolio', {
-      opacity:  1,
-      duration: 0.5,
-      ease:     'power2.out',
-    }, `pulseStart+=${totalPulse}`);
-
-    tl.to('#smooth-content', {
+    // Fade in nav + content after pulse wave completes
+    tl.to('.headerportfolio, #smooth-content', {
       opacity:  1,
       duration: 0.5,
       ease:     'power2.out',
@@ -119,12 +103,10 @@
     const rects = getGridRects();
     if (!rects.length) return;
     primeRects(rects);
-    gsap.set('.headerportfolio', { opacity: 1 });
-    gsap.set('#smooth-content',  { opacity: 1 });
+    gsap.set('.headerportfolio, #smooth-content', { opacity: 1 });
   };
 
 })();
-
 
 
 
