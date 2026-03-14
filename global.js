@@ -2622,6 +2622,9 @@ function onPageLoad() {
   const isHardLoad = !sessionStorage.getItem('hasLoaded');
   if (namespace === 'home' || isHardLoad) {
     window.initGridLoadingAnimation();
+
+    console.log('grid rects found:', document.querySelectorAll('#backgroundGrid rect').length);
+    console.log('bg element found:', document.querySelector('.backgroundgridportfolio'));
   }
   sessionStorage.setItem('hasLoaded', '1');
 
