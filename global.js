@@ -23,7 +23,7 @@
   const ROW_STAGGER = 0.05;
   const RECT_BASE   = 19;
   const RECT_MAX    = 50;
-  const RECT_MIN    = 4;
+  const RECT_MIN    = 12;
   const EARLY_IN    = 1.0;
 
   function getGridRects() {
@@ -471,6 +471,7 @@ barba.init({
       },
     
       async enter(data) {
+        window.initGridLoadingAnimation();
         gsap.set('#navSecondaryUnderline', { clipPath: 'inset(0 100% 0 0)' });
         gsap.set(data.next.container, { opacity: 0, y: TRANSITION_Y, zIndex: 2 });
         await gsap.to(data.next.container, {
@@ -518,6 +519,7 @@ barba.init({
       },
     
       async enter(data) {
+        window.initGridLoadingAnimation();
         gsap.set('#navSecondaryUnderline', { clipPath: 'inset(0 0% 0 0)' });
         gsap.set(data.next.container, { opacity: 0, y: TRANSITION_Y, zIndex: 2 });
         await gsap.to(data.next.container, {
@@ -2621,7 +2623,10 @@ function onPageLoad() {
 
   const namespace = document.querySelector('[data-barba="container"]')?.dataset?.barbaNamespace;
 
-  window.initGridLoadingAnimation();
+  // Hard load only — Barba transitions fire it in the enter hook
+  if (!sessionStorage.getItem('hasLoaded')) {
+    window.initGridLoadingAnimation();
+  }
 
   sessionStorage.setItem('hasLoaded', '1');
 
