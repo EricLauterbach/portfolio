@@ -108,10 +108,9 @@
   // ── Public API ────────────────────────────────────────────
 
   window.initGridLoadingAnimation = function () {
-    
     const rects = getGridRects();
     if (!rects.length) return;
-    buildLoadingTimeline(rects);
+    const tl = buildLoadingTimeline(rects);
     console.log('timeline duration:', tl.duration());
   };
 
