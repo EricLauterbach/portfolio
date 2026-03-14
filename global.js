@@ -21,7 +21,7 @@
   const PULSE_UP    = 0.75;
   const PULSE_DOWN  = 0.75;
   const ROW_STAGGER = 0.15;
-  const RECT_SIZE   = 19; // matches your SVG rect width/height
+  const RECT_SIZE   = 19;
 
   function getGridRects() {
     return Array.from(document.querySelectorAll('#backgroundGrid rect'));
