@@ -428,11 +428,6 @@ barba.hooks.beforeEnter((data) => {
     injectPageStyles(nextDoc);
   }
 
-  // Reveal content hidden by CSS in <head> — grid animation handles this on page load
-  gsap.set('.headerportfolio', { opacity: 1, y: 0, clearProps: 'transform' });
-  gsap.set('#smooth-content',  { opacity: 1, y: 0, clearProps: 'transform' });
-
-  // Only hide the next container — never touch current page content
   gsap.set(data.next.container, { opacity: 0 });
 
   ENTRANCE_SELECTORS.forEach(selector => {
@@ -444,6 +439,10 @@ barba.hooks.beforeEnter((data) => {
 
 barba.hooks.after((data) => {
   if (window.unlockTooltip) window.unlockTooltip();
+
+  gsap.set('.headerportfolio', { opacity: 1, y: 0, clearProps: 'transform' });
+  gsap.set('#smooth-content',  { opacity: 1, y: 0, clearProps: 'transform' });
+  
   initSmoother(true);
   reinitWebflow();
   initAll();
