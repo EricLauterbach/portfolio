@@ -27,11 +27,11 @@
   const PULSE_UP    = 0.9;
   const PULSE_DOWN  = 1.2;
   const ROW_STAGGER = 0.05;
-  const RECT_MAX    = 66;
+  const RECT_MAX    = 60;
   const EARLY_IN    = 1.0;
 
   // ── Transition config ─────────────────────────────────────
-  const TRANSITION_SIZE = 20;
+  const TRANSITION_SIZE = 30;
   const TRANSITION_UP   = 0.5;
   const TRANSITION_DOWN = 0.6;
 
