@@ -356,6 +356,9 @@ barba.hooks.beforeEnter((data) => {
 
   gsap.set(data.next.container, { opacity: 0 });
 
+  // Hide content immediately so grid animation reveals it
+  gsap.set('.headerportfolio, #smooth-content', { opacity: 0 });
+  
   // Prime entrance elements before container is visible — prevents flash of natural position
   ENTRANCE_SELECTORS.forEach(selector => {
     data.next.container.querySelectorAll(selector).forEach(el => {
@@ -401,7 +404,7 @@ barba.hooks.after((data) => {
   setTimeout(() => {
     ScrollTrigger.refresh();
     initEntranceAnimations();
-  }, 500);
+  }, 3000);
 
   if (pendingHash) {
     const hash = pendingHash;
@@ -471,13 +474,13 @@ barba.init({
       },
     
       async enter(data) {
-        window.initGridLoadingAnimation();
         gsap.set('#navSecondaryUnderline', { clipPath: 'inset(0 100% 0 0)' });
-        gsap.set(data.next.container, { opacity: 0, y: TRANSITION_Y, zIndex: 2 });
+        gsap.set(data.next.container, { opacity: 1, y: TRANSITION_Y, zIndex: 2 });
         await gsap.to(data.next.container, {
-          opacity: 1, y: 0, duration: 0.9, ease: 'power4.out', clearProps: 'all'
+          y: 0, duration: 0.9, ease: 'power4.out', clearProps: 'all'
         });
-      }
+        window.initGridLoadingAnimation();
+      },
     },
     
     // ─── Project Page → Home ───────────────────────────────
@@ -519,13 +522,13 @@ barba.init({
       },
     
       async enter(data) {
-        window.initGridLoadingAnimation();
         gsap.set('#navSecondaryUnderline', { clipPath: 'inset(0 0% 0 0)' });
-        gsap.set(data.next.container, { opacity: 0, y: TRANSITION_Y, zIndex: 2 });
+        gsap.set(data.next.container, { opacity: 1, y: TRANSITION_Y, zIndex: 2 });
         await gsap.to(data.next.container, {
-          opacity: 1, y: 0, duration: 0.9, ease: 'power4.out', clearProps: 'all'
+          y: 0, duration: 0.9, ease: 'power4.out', clearProps: 'all'
         });
-      }
+        window.initGridLoadingAnimation();
+      },
     }
   ]
 });
@@ -2623,10 +2626,8 @@ function onPageLoad() {
 
   const namespace = document.querySelector('[data-barba="container"]')?.dataset?.barbaNamespace;
 
-  if (!sessionStorage.getItem('hasLoaded')) {
-    window.initGridLoadingAnimation();
-  }
-
+  // Always fire on any hard load — sessionStorage only blocks re-fires within same session
+  window.initGridLoadingAnimation();
   sessionStorage.setItem('hasLoaded', '1');
 
   if (namespace === 'home') initHomePage();
@@ -2643,13 +2644,12 @@ function onPageLoad() {
     setTimeout(() => { initLottieElements(); initAiDetectorExtension(); }, 100);
   }
 
-  // Wait for grid animation to finish before initialising entrance animations
-  // totalPulse ≈ 2.75s, content visible at ~1.75s, add buffer for safety
-  const gridDuration = (13 * 0.05 + 0.9 + 1.2) * 1000; // ms
+  // Delay entrance animations until grid animation has revealed content
+  // totalPulse = (14-1)*0.05 + 0.9 + 1.2 = 2.75s, content visible at 2.75-1.0 = 1.75s
   setTimeout(() => {
     ScrollTrigger.refresh();
     initEntranceAnimations();
-  }, gridDuration + 200);
+  }, 3000);
 }
 
 // Handle both cases — already loaded or not yet
