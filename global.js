@@ -18,13 +18,10 @@
 
 (function () {
 
-  // ── Config ───────────────────────────────────────────────
-  const PULSE_SCALE  = 3;
-  const PULSE_UP     = 0.75;
-  const PULSE_DOWN   = 0.75;
-  const ROW_STAGGER  = 0.15;
-
-  // ── Helpers ──────────────────────────────────────────────
+  const PULSE_SCALE = 3;
+  const PULSE_UP    = 0.75;
+  const PULSE_DOWN  = 0.75;
+  const ROW_STAGGER = 0.15;
 
   function getGridRects() {
     return Array.from(document.querySelectorAll('#backgroundGrid rect'));
@@ -43,69 +40,89 @@
       .map(y => rows[y]);
   }
 
-  function primeRects(rects) {
+  // Wrap each rect in a <g> centered on the rect, animate the <g>
+  function wrapRects(rects) {
     rects.forEach(rect => {
-      rect.setAttribute('data-ox', parseFloat(rect.getAttribute('x')) + parseFloat(rect.getAttribute('width')) / 2);
-      rect.setAttribute('data-oy', parseFloat(rect.getAttribute('y')) + parseFloat(rect.getAttribute('height')) / 2);
-      gsap.set(rect, { transformOrigin: '50% 50%', transformBox: 'fill-box', scale: 0, opacity: 0 });
+      if (rect._gsapWrapped) return;
+      rect._gsapWrapped = true;
+
+      const x  = parseFloat(rect.getAttribute('x'));
+      const y  = parseFloat(rect.getAttribute('y'));
+      const w  = parseFloat(rect.getAttribute('width'));
+      const h  = parseFloat(rect.getAttribute('height'));
+      const cx = x + w / 2;
+      const cy = y + h / 2;
+
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('transform', `translate(${cx},${cy})`);
+
+      rect.parentNode.insertBefore(g, rect);
+      g.appendChild(rect);
+
+      // Reposition rect relative to its new <g> origin
+      rect.setAttribute('x', -w / 2);
+      rect.setAttribute('y', -h / 2);
+
+      // Store reference so we can animate the <g>
+      rect._wrapper = g;
+
+      gsap.set(g, { scale: 0, opacity: 0, transformOrigin: '0px 0px' });
     });
   }
 
-  // ── Core animation ────────────────────────────────────────
-
   function buildLoadingTimeline(rects) {
-  primeRects(rects);
-  const rows       = groupByRow(rects);
-  const tl         = gsap.timeline();
-  const numRows    = rows.length;
-  const totalPulse = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
+    wrapRects(rects);
+    const rows       = groupByRow(rects);
+    const numRows    = rows.length;
+    const totalPulse = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
+    const tl         = gsap.timeline();
 
-  tl.set('.backgroundgridportfolio', { opacity: 0 });
-  tl.set('.headerportfolio',         { opacity: 0, y: -100 });
-  tl.set('#smooth-content',          { opacity: 0, y: 100  });
+    tl.set('.backgroundgridportfolio', { opacity: 0 });
+    tl.set('.headerportfolio',         { opacity: 0, y: -100 });
+    tl.set('#smooth-content',          { opacity: 0, y: 100  });
 
-  tl.to('.backgroundgridportfolio', {
-    opacity:  1,
-    duration: 0.2,
-    ease:     'none',
-  });
-
-  tl.addLabel('pulseStart');
-
-  rows.forEach((rowRects, i) => {
-    tl.to(rowRects, {
-      scale:    PULSE_SCALE,
+    tl.to('.backgroundgridportfolio', {
       opacity:  1,
-      duration: PULSE_UP,
-      ease:     'sine.inOut',
-      transformOrigin: '50% 50%',
-      transformBox: 'fill-box',
-    }, `pulseStart+=${i * ROW_STAGGER}`);
+      duration: 0.2,
+      ease:     'none',
+    });
 
-    tl.to(rowRects, {
-      scale:    0,
-      opacity:  0,
-      duration: PULSE_DOWN,
-      ease:     'sine.inOut',
-    }, `pulseStart+=${i * ROW_STAGGER + PULSE_UP}`);
-  });
+    tl.addLabel('pulseStart');
 
-  tl.fromTo('.headerportfolio',
-    { opacity: 0, y: -100 },
-    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-    `pulseStart+=${totalPulse}`
-  );
+    rows.forEach((rowRects, i) => {
+      const wrappers = rowRects.map(r => r._wrapper);
 
-  tl.fromTo('#smooth-content',
-    { opacity: 0, y: 100 },
-    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-    `pulseStart+=${totalPulse}`
-  );
+      tl.to(wrappers, {
+        scale:    PULSE_SCALE,
+        opacity:  1,
+        duration: PULSE_UP,
+        ease:     'sine.inOut',
+        transformOrigin: '0px 0px',
+      }, `pulseStart+=${i * ROW_STAGGER}`);
 
-  return tl;
-}
+      tl.to(wrappers, {
+        scale:    0,
+        opacity:  0,
+        duration: PULSE_DOWN,
+        ease:     'sine.inOut',
+        transformOrigin: '0px 0px',
+      }, `pulseStart+=${i * ROW_STAGGER + PULSE_UP}`);
+    });
 
-  // ── Public API ────────────────────────────────────────────
+    tl.fromTo('.headerportfolio',
+      { opacity: 0, y: -100 },
+      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+      `pulseStart+=${totalPulse}`
+    );
+
+    tl.fromTo('#smooth-content',
+      { opacity: 0, y: 100 },
+      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+      `pulseStart+=${totalPulse}`
+    );
+
+    return tl;
+  }
 
   window.initGridLoadingAnimation = function () {
     const rects = getGridRects();
@@ -116,10 +133,10 @@
 
   window.resetGridAnimation = function () {
     const rects = getGridRects();
-    if (!rects.length) return;
-    primeRects(rects);
-    const bgEl = document.querySelector('.backgroundgridportfolio');
-    if (bgEl) bgEl.style.opacity = '1';
+    rects.forEach(r => {
+      if (r._wrapper) gsap.set(r._wrapper, { scale: 0, opacity: 0 });
+    });
+    gsap.set('.backgroundgridportfolio', { opacity: 1 });
     gsap.set('.headerportfolio', { opacity: 1, y: 0 });
     gsap.set('#smooth-content',  { opacity: 1, y: 0 });
   };
