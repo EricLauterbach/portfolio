@@ -118,12 +118,11 @@ let textCycleTl    = null;
 
 if (loadingContainer && loadingCircleCont && loadingCircle && loadingTextCont && loadingTexts.length) {
 
-  gsap.set(loadingContainer,  { opacity: 1 });
-  gsap.set(loadingTextCont,   { width: 0, overflow: 'hidden', position: 'relative' });
-  gsap.set(loadingTexts,      { y: 24, opacity: 0, position: 'absolute' });
+  gsap.set(loadingContainer, { opacity: 1 });
+  gsap.set(loadingTextCont,  { overflow: 'hidden', width: 0 });
+  gsap.set(loadingTexts,     { opacity: 0, y: 24 });
 
-  // ── Measure text widths before hiding ──────────────────
-  // Temporarily make visible to measure, then reset
+  // ── Measure text widths — works with relative positioned elements ──
   const textWidths = loadingTexts.map(el => {
     gsap.set(el, { opacity: 1, y: 0 });
     const w = el.offsetWidth;
@@ -131,32 +130,36 @@ if (loadingContainer && loadingCircleCont && loadingCircle && loadingTextCont &&
     return w;
   });
 
-  // ── Circle orbit via trig ───────────────────────────────
+  // ── Circle orbit via trig — positioned relative to its own container ──
   function startCircleOrbit() {
-    let angle = 0;
+    // Make sure the container is position: relative so we can offset within it
+    gsap.set(loadingCircle, { position: 'absolute', xPercent: -50, yPercent: -50 });
+
+    let angle   = 0;
+    let eased   = 0;
+    const SPEED = 0.08; // base speed — increase for faster
 
     circleTickerFn = () => {
-      const contW  = loadingCircleCont.offsetWidth;
-      const contH  = loadingCircleCont.offsetHeight;
-      const circW  = loadingCircle.offsetWidth;
-      const circH  = loadingCircle.offsetHeight;
+      const contW   = loadingCircleCont.offsetWidth;
+      const contH   = loadingCircleCont.offsetHeight;
+      const circW   = loadingCircle.offsetWidth;
+      const circH   = loadingCircle.offsetHeight;
       const radiusX = (contW - circW) / 2;
       const radiusY = (contH - circH) / 2;
+      const centerX = contW / 2;
+      const centerY = contH / 2;
 
-      const x = Math.cos(angle) * radiusX;
-      const y = Math.sin(angle) * radiusY;
+      // power2.inOut easing on the angle increment
+      eased += (SPEED - eased) * 0.15;
+      angle += eased;
+
+      const x = centerX + Math.cos(angle) * radiusX;
+      const y = centerY + Math.sin(angle) * radiusY;
 
       gsap.set(loadingCircle, {
-        x: x,
-        y: y,
-        xPercent: -50,
-        yPercent: -50,
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
+        left: x,
+        top:  y,
       });
-
-      angle += 0.03; // speed — increase for faster orbit
     };
 
     gsap.ticker.add(circleTickerFn);
@@ -166,33 +169,31 @@ if (loadingContainer && loadingCircleCont && loadingCircle && loadingTextCont &&
   function startTextCycle() {
     let current = 0;
 
-    // Animate first text in
-    gsap.to(loadingTextCont, { width: textWidths[0], duration: 0.4, ease: 'power2.out' });
-    gsap.to(loadingTexts[0], { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' });
+    gsap.to(loadingTextCont,   { width: textWidths[0], duration: 0.4, ease: 'power2.out' });
+    gsap.to(loadingTexts[0],   { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' });
 
     textCycleTl = gsap.timeline({ repeat: -1 });
 
-    loadingTexts.forEach((_, i) => {
-      const next = (i + 1) % loadingTexts.length;
+    loadingTexts.forEach(() => {
+      const next = (current + 1) % loadingTexts.length;
 
       textCycleTl.add(() => {
-        // Animate out current
+        const nextIndex = (current + 1) % loadingTexts.length;
+
         gsap.to(loadingTexts[current], {
           y: -24, opacity: 0, duration: 0.4, ease: 'power2.inOut'
         });
 
-        // Reset next to below, then animate in
-        gsap.set(loadingTexts[next], { y: 24, opacity: 0 });
-        gsap.to(loadingTexts[next], {
+        gsap.set(loadingTexts[nextIndex], { y: 24, opacity: 0 });
+        gsap.to(loadingTexts[nextIndex], {
           y: 0, opacity: 1, duration: 0.4, ease: 'power2.out'
         });
 
-        // Resize container to next text width
         gsap.to(loadingTextCont, {
-          width: textWidths[next], duration: 0.4, ease: 'power2.out'
+          width: textWidths[nextIndex], duration: 0.4, ease: 'power2.out'
         });
 
-        current = next;
+        current = nextIndex;
       }, `+=${1}`);
     });
   }
