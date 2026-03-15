@@ -142,23 +142,30 @@
     
       let current          = 0;
       let textCycleTimeout = null;
+      let hasShownContainer = false;
     
       function showCurrent() {
-        // Fade in the container on first show only
-        if (current === 0 && loadingContainer.style.opacity === '0') {
+        // Fade in container on first show only
+        if (!hasShownContainer) {
+          hasShownContainer = true;
+          // Remove just the loading container rule from the style tag
+          if (window._pageLoadStyleTag) {
+            window._pageLoadStyleTag.textContent = window._pageLoadStyleTag.textContent
+              .replace('.loadingcontainerportfolio { opacity: 0 !important; }', '');
+          }
           gsap.to(loadingContainer, {
             opacity: 1,
             duration: 0.35,
             ease: 'power2.out',
           });
         }
-    
+      
         gsap.to(loadingTextCont, {
           width: textWidths[current],
           duration: 0.35,
           ease: 'power2.out',
         });
-    
+      
         gsap.fromTo(loadingTexts[current],
           { y: 40, opacity: 0 },
           {
