@@ -103,136 +103,127 @@
     }
 
 
+    
+
     // ── Loading indicator animation ───────────────────────────
-    const loadingContainer = document.querySelector('.loadingcontainerportfolio');
-    const loadingCircleContainer = document.querySelector('.loadingcirclecontainer');
-    const loadingCircle = document.querySelector('.loadingcircle');
-    const loadingTextContainer = document.querySelector('.loadingtextcontainer');
-    const loadingTexts = Array.from(document.querySelectorAll('.tagportfolio.centered.loading'));
-    
-    let loadingTl = null;
-    let circleLoopTl = null;
-    
-    if (loadingContainer && loadingCircle && loadingTextContainer && loadingTexts.length) {
-    
-      // Set initial states
-      gsap.set(loadingContainer, { opacity: 1 });
-      gsap.set(loadingTextContainer, { width: 0, overflow: 'hidden' });
-      gsap.set(loadingTexts, { y: 24, opacity: 0 });
-    
-      // ── Circle orbit animation ──────────────────────────────
-      // Orbits .loadingcircle around the center of .loadingcirclecontainer
-      function startCircleOrbit() {
-        const containerW = loadingCircleContainer.offsetWidth;
-        const containerH = loadingCircleContainer.offsetHeight;
-        const circleW    = loadingCircle.offsetWidth;
-        const circleH    = loadingCircle.offsetHeight;
-        const radiusX    = (containerW - circleW) / 2;
-        const radiusY    = (containerH - circleH) / 2;
-    
-        gsap.set(loadingCircle, {
-          x: radiusX,
-          y: 0,
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          xPercent: -50,
-          yPercent: -50,
+
+const loadingContainer  = document.querySelector('.loadingcontainerportfolio');
+const loadingCircleCont = document.querySelector('.loadingcirclecontainer');
+const loadingCircle     = document.querySelector('.loadingcircle');
+const loadingTextCont   = document.querySelector('.loadingtextcontainer');
+const loadingTexts      = Array.from(document.querySelectorAll('.tagportfolio.centered.loading'));
+
+let circleTickerFn = null;
+let textCycleTl    = null;
+
+if (loadingContainer && loadingCircleCont && loadingCircle && loadingTextCont && loadingTexts.length) {
+
+  gsap.set(loadingContainer,  { opacity: 1 });
+  gsap.set(loadingTextCont,   { width: 0, overflow: 'hidden', position: 'relative' });
+  gsap.set(loadingTexts,      { y: 24, opacity: 0, position: 'absolute' });
+
+  // ── Measure text widths before hiding ──────────────────
+  // Temporarily make visible to measure, then reset
+  const textWidths = loadingTexts.map(el => {
+    gsap.set(el, { opacity: 1, y: 0 });
+    const w = el.offsetWidth;
+    gsap.set(el, { opacity: 0, y: 24 });
+    return w;
+  });
+
+  // ── Circle orbit via trig ───────────────────────────────
+  function startCircleOrbit() {
+    let angle = 0;
+
+    circleTickerFn = () => {
+      const contW  = loadingCircleCont.offsetWidth;
+      const contH  = loadingCircleCont.offsetHeight;
+      const circW  = loadingCircle.offsetWidth;
+      const circH  = loadingCircle.offsetHeight;
+      const radiusX = (contW - circW) / 2;
+      const radiusY = (contH - circH) / 2;
+
+      const x = Math.cos(angle) * radiusX;
+      const y = Math.sin(angle) * radiusY;
+
+      gsap.set(loadingCircle, {
+        x: x,
+        y: y,
+        xPercent: -50,
+        yPercent: -50,
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+      });
+
+      angle += 0.03; // speed — increase for faster orbit
+    };
+
+    gsap.ticker.add(circleTickerFn);
+  }
+
+  // ── Text cycling ────────────────────────────────────────
+  function startTextCycle() {
+    let current = 0;
+
+    // Animate first text in
+    gsap.to(loadingTextCont, { width: textWidths[0], duration: 0.4, ease: 'power2.out' });
+    gsap.to(loadingTexts[0], { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' });
+
+    textCycleTl = gsap.timeline({ repeat: -1 });
+
+    loadingTexts.forEach((_, i) => {
+      const next = (i + 1) % loadingTexts.length;
+
+      textCycleTl.add(() => {
+        // Animate out current
+        gsap.to(loadingTexts[current], {
+          y: -24, opacity: 0, duration: 0.4, ease: 'power2.inOut'
         });
-    
-        circleLoopTl = gsap.timeline({ repeat: -1 });
-        circleLoopTl.to(loadingCircle, {
-          duration: 2,
-          ease: 'none',
-          motionPath: {
-            path: [
-              { x:  radiusX, y:  0        },
-              { x:  0,        y:  radiusY  },
-              { x: -radiusX,  y:  0        },
-              { x:  0,        y: -radiusY  },
-              { x:  radiusX,  y:  0        },
-            ],
-            type: 'cubic',
-            autoRotate: false,
-          }
+
+        // Reset next to below, then animate in
+        gsap.set(loadingTexts[next], { y: 24, opacity: 0 });
+        gsap.to(loadingTexts[next], {
+          y: 0, opacity: 1, duration: 0.4, ease: 'power2.out'
         });
-      }
-    
-      // ── Text cycling animation ──────────────────────────────
-      function startTextCycle() {
-        let currentIndex = 0;
-    
-        // Expand to first text width and animate first text in
-        const firstTextWidth = loadingTexts[0].offsetWidth;
-        gsap.to(loadingTextContainer, {
-          width: firstTextWidth,
-          duration: 0.4,
-          ease: 'power2.out',
+
+        // Resize container to next text width
+        gsap.to(loadingTextCont, {
+          width: textWidths[next], duration: 0.4, ease: 'power2.out'
         });
-        gsap.to(loadingTexts[0], {
-          y: 0,
-          opacity: 1,
-          duration: 0.4,
-          ease: 'power2.out',
-        });
-    
-        function cycleNext() {
-          const prevIndex = currentIndex;
-          currentIndex = (currentIndex + 1) % loadingTexts.length;
-          const nextTextWidth = loadingTexts[currentIndex].offsetWidth;
-    
-          // Animate out current
-          gsap.to(loadingTexts[prevIndex], {
-            y: -24,
-            opacity: 0,
-            duration: 0.4,
-            ease: 'power2.inOut',
-          });
-    
-          // Resize container and animate in next
-          gsap.to(loadingTextContainer, {
-            width: nextTextWidth,
-            duration: 0.4,
-            ease: 'power2.out',
-          });
-    
-          // Reset next text to below before animating in
-          gsap.set(loadingTexts[currentIndex], { y: 24, opacity: 0 });
-          gsap.to(loadingTexts[currentIndex], {
-            y: 0,
-            opacity: 1,
-            duration: 0.4,
-            ease: 'power2.out',
-          });
-        }
-    
-        loadingTl = gsap.timeline({ repeat: -1, repeatDelay: 0 });
-        loadingTexts.forEach((_, i) => {
-          loadingTl.add(cycleNext, `+=${1}`);
-        });
-      }
-    
-      startCircleOrbit();
-      startTextCycle();
-    
-      // Expose kill function so buildFinalWave can stop and hide it
-      window._killLoadingAnimation = function(onComplete) {
-        if (circleLoopTl) circleLoopTl.kill();
-        if (loadingTl) loadingTl.kill();
-    
-        gsap.to(loadingContainer, {
-          width: 0,
-          height: 0,
-          opacity: 0,
-          duration: 0.4,
-          ease: 'power2.inOut',
-          onComplete: () => {
-            gsap.set(loadingContainer, { display: 'none' });
-            if (onComplete) onComplete();
-          }
-        });
-      };
+
+        current = next;
+      }, `+=${1}`);
+    });
+  }
+
+  startCircleOrbit();
+  startTextCycle();
+
+  // ── Kill and hide on final wave ─────────────────────────
+  window._killLoadingAnimation = function () {
+    if (circleTickerFn) {
+      gsap.ticker.remove(circleTickerFn);
+      circleTickerFn = null;
     }
+    if (textCycleTl) {
+      textCycleTl.kill();
+      textCycleTl = null;
+    }
+
+    gsap.to(loadingContainer, {
+      width: 0,
+      height: 0,
+      opacity: 0,
+      duration: 0.4,
+      ease: 'power2.inOut',
+      onComplete: () => {
+        gsap.set(loadingContainer, { display: 'none' });
+      }
+    });
+  };
+}
+
     
 
     // ── Build one looping wave ──────────────────────────────
