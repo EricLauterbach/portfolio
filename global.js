@@ -117,18 +117,51 @@
     }
 
     // ── Loading indicator animation ───────────────────────────
-    
     const loadingContainer = document.querySelector('.loadingcontainerportfolio');
     const loadingTextCont  = document.querySelector('.loadingtextcontainer');
-    const loadingTexts     = Array.from(document.querySelectorAll('.tagportfolio.centered.loading'));
-
-    if (loadingContainer && loadingTextCont && loadingTexts.length) {
-
-      const TEXT_CYCLE_INTERVAL = 1500; // ms — time each text is held before switching
+    const loadingTextTemplate = document.querySelector('.tagportfolio.centered.loading');
+    
+    const TEXT_CYCLE_INTERVAL = 1500;
+    
+    // ── Text options list — edit here ──────────────────────────
+    const LOADING_TEXTS = [
+      'Sketching Brand Concepts',
+      'Obsessing Over Pixels',
+      'Optimizing Signup Flows',
+      'Brewing Another Coffee',
+      'Refining Microinteractions',
+      'Defining Visual Language',
+      'Building Component States',
+    ];
+    
+    if (loadingContainer && loadingTextCont && loadingTextTemplate) {
     
       gsap.set(loadingContainer, { clearProps: 'all' });
       gsap.set(loadingTextCont,  { clearProps: 'all' });
     
+      // ── Shuffle array ───────────────────────────────────────
+      function shuffleArray(arr) {
+        const shuffled = [...arr];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+      }
+    
+      // ── Build text elements from template ──────────────────
+      const shuffledTexts = shuffleArray(LOADING_TEXTS);
+    
+      // Clear any existing text elements and build fresh from JS
+      loadingTextCont.innerHTML = '';
+      const loadingTexts = shuffledTexts.map(text => {
+        const el = loadingTextTemplate.cloneNode(true);
+        el.textContent = text;
+        loadingTextCont.appendChild(el);
+        return el;
+      });
+    
+      // Measure widths after elements are in DOM
       const textWidths = loadingTexts.map(el => el.offsetWidth);
       const maxHeight  = Math.max(...loadingTexts.map(el => el.offsetHeight));
     
@@ -163,14 +196,14 @@
           gsap.to(loadingContainer, {
             opacity: 1,
             duration: 0.35,
-            ease: 'power2.inOut',
+            ease: 'power2.out',
           });
         }
     
         gsap.to(loadingTextCont, {
           width: textWidths[current],
           duration: 0.35,
-          ease: 'power2.inOut',
+          ease: 'power2.out',
         });
     
         gsap.fromTo(loadingTexts[current],
@@ -179,7 +212,7 @@
             y: 0,
             opacity: 1,
             duration: 0.35,
-            ease: 'power2.inOut',
+            ease: 'power2.out',
             onComplete: () => {
               textCycleTimeout = setTimeout(cycleNext, TEXT_CYCLE_INTERVAL);
             }
@@ -195,7 +228,7 @@
           y: -40,
           opacity: 0,
           duration: 0.35,
-          ease: 'power2.inOut',
+          ease: 'power2.in',
         });
     
         textCycleTimeout = setTimeout(() => {
