@@ -111,64 +111,43 @@ const loadingContainer = document.querySelector('.loadingcontainerportfolio');
 const loadingTextCont  = document.querySelector('.loadingtextcontainer');
 const loadingTexts     = Array.from(document.querySelectorAll('.tagportfolio.centered.loading'));
 
-let textCycleTimeout = null;
-
 if (loadingContainer && loadingTextCont && loadingTexts.length) {
 
+  // Clear any stale state
+  gsap.set(loadingContainer, { clearProps: 'all' });
   gsap.set(loadingContainer, { opacity: 1 });
+  gsap.set(loadingTextCont,  { clearProps: 'all', overflow: 'hidden' });
 
-  // ── Measure widths ──────────────────────────────────────
-  // Elements are relative positioned so offsetWidth is reliable
-  const textWidths = loadingTexts.map(el => el.offsetWidth);
+  // Measure widths and heights while elements are still in natural flow
+  const textWidths  = loadingTexts.map(el => el.offsetWidth);
+  const maxHeight   = Math.max(...loadingTexts.map(el => el.offsetHeight));
 
-// Diagnostic logs
-console.log('loadingContainer:', loadingContainer);
-console.log('loadingTextCont:', loadingTextCont);
-console.log('loadingTexts count:', loadingTexts.length);
-console.log('textWidths:', textWidths);
-loadingTexts.forEach((el, i) => {
-  const styles = window.getComputedStyle(el);
-  console.log(`text[${i}]:`, {
-    text: el.textContent.trim(),
-    offsetWidth: el.offsetWidth,
-    offsetHeight: el.offsetHeight,
-    display: styles.display,
-    position: styles.position,
-    visibility: styles.visibility,
-    opacity: styles.opacity,
-    transform: styles.transform,
-    overflow: styles.overflow,
-    width: styles.width,
-    height: styles.height,
+  // Diagnostic
+  console.log('textWidths:', textWidths);
+  console.log('maxHeight:', maxHeight);
+
+  // Stack elements on top of each other via absolute, all starting below
+  gsap.set(loadingTexts, { position: 'absolute', yPercent: 100, opacity: 0 });
+
+  // Lock container height, start width at 0
+  gsap.set(loadingTextCont, {
+    position: 'relative',
+    height: maxHeight,
+    width: 0,
+    overflow: 'hidden',
   });
-});
-console.log('textCont styles:', {
-  display: window.getComputedStyle(loadingTextCont).display,
-  position: window.getComputedStyle(loadingTextCont).position,
-  overflow: window.getComputedStyle(loadingTextCont).overflow,
-  width: window.getComputedStyle(loadingTextCont).width,
-  height: window.getComputedStyle(loadingTextCont).height,
-});
 
-  // Hide all to start
-  gsap.set(loadingTexts, { yPercent: 100, opacity: 0 });
-  gsap.set(loadingTextCont, { width: textWidths[0] });
-
-  // ── Text cycling ────────────────────────────────────────
-  let current = 0;
+  let current          = 0;
+  let textCycleTimeout = null;
 
   function showCurrent() {
-    const el = loadingTexts[current];
-
-    // Resize container to current text width
     gsap.to(loadingTextCont, {
       width: textWidths[current],
       duration: 0.35,
-      ease: 'power2.out'
+      ease: 'power2.out',
     });
 
-    // Animate in from bottom
-    gsap.fromTo(el,
+    gsap.fromTo(loadingTexts[current],
       { yPercent: 100, opacity: 0 },
       {
         yPercent: 0,
@@ -176,10 +155,7 @@ console.log('textCont styles:', {
         duration: 0.35,
         ease: 'power2.out',
         onComplete: () => {
-          // Pause then cycle to next
-          textCycleTimeout = setTimeout(() => {
-            cycleNext();
-          }, 800);
+          textCycleTimeout = setTimeout(cycleNext, 800);
         }
       }
     );
@@ -197,16 +173,16 @@ console.log('textCont styles:', {
       ease: 'power2.in',
     });
 
-    // Slight delay then bring next one in from bottom
+    // Short overlap then bring next in from bottom
     textCycleTimeout = setTimeout(() => {
       showCurrent();
     }, 150);
   }
 
-  // Start
+  // Kick off
   showCurrent();
 
-  // ── Kill and hide on final wave ─────────────────────────
+  // ── Kill and hide when final wave starts ────────────────
   window._killLoadingAnimation = function () {
     if (textCycleTimeout) {
       clearTimeout(textCycleTimeout);
@@ -226,6 +202,7 @@ console.log('textCont styles:', {
       }
     });
   };
+
 }
 
     
