@@ -68,10 +68,11 @@
 
   function primeRects(rects) {
     rects.forEach(rect => {
-      const cx = parseFloat(rect.getAttribute('x')) + RECT_BASE / 2;
-      const cy = parseFloat(rect.getAttribute('y')) + RECT_BASE / 2;
-      rect._cx = cx;
-      rect._cy = cy;
+      // Only calculate center once — getAttribute returns modified values after GSAP runs
+      if (!rect._cx) {
+        rect._cx = parseFloat(rect.getAttribute('x')) + RECT_BASE / 2;
+        rect._cy = parseFloat(rect.getAttribute('y')) + RECT_BASE / 2;
+      }
     });
     gsap.set(rects, (i, rect) => ({
       opacity: 0,
