@@ -138,7 +138,7 @@
         xPercent: -50,
         yPercent: -50,
         opacity: 0,
-        y: 60,
+        y: 40,
       });
     
       gsap.set(loadingTextCont, {
@@ -177,7 +177,7 @@
           {
             y: 0,
             opacity: 1,
-            duration: 0.5,
+            duration: 0.6,
             ease: 'elastic.out(1,1)',
             onComplete: () => {
               textCycleTimeout = setTimeout(cycleNext, TEXT_CYCLE_INTERVAL);
@@ -193,8 +193,8 @@
         gsap.to(loadingTexts[prev], {
           y: -40,
           opacity: 0,
-          duration: 0.5,
-          ease: 'elastic.out(1,1)',
+          duration: 0.35,
+          ease: 'power2.out',
         });
     
         textCycleTimeout = setTimeout(() => {
