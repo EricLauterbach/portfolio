@@ -150,8 +150,6 @@
     
       // ── Build text elements from template ──────────────────
       const shuffledTexts = shuffleArray(LOADING_TEXTS);
-    
-      // Clear any existing text elements and build fresh from JS
       loadingTextCont.innerHTML = '';
       const loadingTexts = shuffledTexts.map(text => {
         const el = loadingTextTemplate.cloneNode(true);
@@ -160,9 +158,16 @@
         return el;
       });
     
-      // Measure widths after elements are in DOM
+      // Measure sizes before any GSAP manipulation
       const textWidths = loadingTexts.map(el => el.offsetWidth);
       const maxHeight  = Math.max(...loadingTexts.map(el => el.offsetHeight));
+      const containerPadX = parseFloat(getComputedStyle(loadingContainer).paddingLeft)
+                          + parseFloat(getComputedStyle(loadingContainer).paddingRight);
+      const containerPadY = parseFloat(getComputedStyle(loadingContainer).paddingTop)
+                          + parseFloat(getComputedStyle(loadingContainer).paddingBottom);
+    
+      // Set initial collapsed state
+      gsap.set(loadingContainer, { width: 0, height: 0, opacity: 0 });
     
       gsap.set(loadingTexts, {
         position: 'absolute',
@@ -192,19 +197,22 @@
             window._pageLoadStyleTag.textContent = window._pageLoadStyleTag.textContent
               .replace('.loadingcontainerportfolio { opacity: 0 !important; }', '');
           }
-          // Scale up from nothing to first text size
-          gsap.fromTo(loadingContainer,
-            { opacity: 0, width: 0, height: 0 },
-            { opacity: 1, width: 'auto', height: 'auto', duration: 0.4, ease: 'power2.out' }
-          );
+          // Scale up container from zero to first text size
+          gsap.to(loadingContainer, {
+            width: textWidths[current] + containerPadX,
+            height: maxHeight + containerPadY,
+            opacity: 1,
+            duration: 0.35,
+            ease: 'power2.out',
+          });
         }
-      
+    
         gsap.to(loadingTextCont, {
           width: textWidths[current],
           duration: 0.35,
           ease: 'power2.out',
         });
-      
+    
         gsap.fromTo(loadingTexts[current],
           { y: 40, opacity: 0 },
           {
@@ -230,6 +238,13 @@
           ease: 'power2.in',
         });
     
+        // Also animate container width to next text size
+        gsap.to(loadingContainer, {
+          width: textWidths[current] + containerPadX,
+          duration: 0.35,
+          ease: 'power2.out',
+        });
+    
         textCycleTimeout = setTimeout(() => {
           showCurrent();
         }, 150);
@@ -237,8 +252,9 @@
     
       setTimeout(() => {
         showCurrent();
-      }, 100);
+      }, 300);
     
+      // ── Kill and hide when final wave starts ────────────────
       window._killLoadingAnimation = function () {
         gsap.to(loadingContainer, {
           width: 0,
