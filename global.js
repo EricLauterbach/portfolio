@@ -268,7 +268,7 @@
           window._killLoadingAnimation();
           window._killLoadingAnimation = null;
         }
-      }, totalPulse - 0.4);
+      }, `${totalPulse - EARLY_IN - 0.4}`);
 
       rows.forEach((rowRects, i) => {
         tl.to(rowRects, {
