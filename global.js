@@ -238,7 +238,7 @@
     
       setTimeout(() => {
         showCurrent();
-      }, 100);
+      }, 200);
     
       window._killLoadingAnimation = function () {
         gsap.to(loadingContainer, {
