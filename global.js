@@ -116,14 +116,22 @@ if (loadingContainer && loadingTextCont && loadingTexts.length) {
   // Clear any stale state
   gsap.set(loadingContainer, { clearProps: 'all' });
   gsap.set(loadingContainer, { opacity: 1 });
-  gsap.set(loadingTextCont,  { clearProps: 'all', overflow: 'hidden' });
+  gsap.set(loadingTextCont,  { clearProps: 'all' });
 
-  // Measure widths and heights while elements are still in natural flow
+  // Measure widths and heights while elements are in natural flow
   const textWidths = loadingTexts.map(el => el.offsetWidth);
   const maxHeight  = Math.max(...loadingTexts.map(el => el.offsetHeight));
 
-  // Set initial state — use y px so CSS translate(-50%, -50%) is preserved
-  gsap.set(loadingTexts, { opacity: 0, y: 40 });
+  // GSAP owns all positioning — no CSS transform conflict
+  gsap.set(loadingTexts, {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    xPercent: -50,
+    yPercent: -50,
+    opacity: 0,
+    y: 40,
+  });
 
   // Lock container height, start width at 0
   gsap.set(loadingTextCont, {
