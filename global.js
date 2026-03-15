@@ -127,9 +127,10 @@
     const LOADING_TEXTS = [
       'Making It Pop',
       'Negotiating With Whitespace',
-      'One Last Tweak',
+      'Pushing to Production',
+      'Adding Final Touches',
       'Taming Unruly Layouts',
-      'Definitely the Final Version',
+      'Brewing More Coffee',
       'Naming File Layers',
     ];
     
