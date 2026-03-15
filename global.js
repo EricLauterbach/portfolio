@@ -19,14 +19,14 @@
 (function () {
 
   // ── Shared config ─────────────────────────────────────────
-  const RECT_BASE = 19;
+  const RECT_BASE = 4;
   const RECT_MIN  = 4;
   const RECT_REST = 4;
 
   // ── Page load config ──────────────────────────────────────
-  const PULSE_UP    = 0.7;
-  const PULSE_DOWN  = 1.0;
-  const ROW_STAGGER = 0.08;
+  const PULSE_UP    = 0.75;
+  const PULSE_DOWN  = 1.5;
+  const ROW_STAGGER = 0.05;
   const RECT_MAX    = 60;
   const EARLY_IN    = 1.0;
 
