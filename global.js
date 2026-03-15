@@ -127,11 +127,10 @@
     const LOADING_TEXTS = [
       'Making It Pop',
       'Negotiating With Whitespace',
-      'Pushing to Production',
-      'Adding Final Touches',
+      'Applying Final Touches',
       'Taming Unruly Layouts',
       'Brewing More Coffee',
-      'Naming File Layers',
+      'Naming Layers',
     ];
     
     if (loadingContainer && loadingTextCont && loadingTextTemplate) {
@@ -193,19 +192,19 @@
             window._pageLoadStyleTag.textContent = window._pageLoadStyleTag.textContent
               .replace('.loadingcontainerportfolio { opacity: 0 !important; }', '');
           }
-          gsap.to(loadingContainer, {
-            opacity: 1,
-            duration: 0.35,
-            ease: 'power2.out',
-          });
+          // Scale up from nothing to first text size
+          gsap.fromTo(loadingContainer,
+            { opacity: 0, width: 0, height: 0 },
+            { opacity: 1, width: 'auto', height: 'auto', duration: 0.4, ease: 'power2.out' }
+          );
         }
-    
+      
         gsap.to(loadingTextCont, {
           width: textWidths[current],
           duration: 0.35,
           ease: 'power2.out',
         });
-    
+      
         gsap.fromTo(loadingTexts[current],
           { y: 40, opacity: 0 },
           {
@@ -238,7 +237,7 @@
     
       setTimeout(() => {
         showCurrent();
-      }, 200);
+      }, 100);
     
       window._killLoadingAnimation = function () {
         gsap.to(loadingContainer, {
