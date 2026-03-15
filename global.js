@@ -119,15 +119,11 @@ if (loadingContainer && loadingTextCont && loadingTexts.length) {
   gsap.set(loadingTextCont,  { clearProps: 'all', overflow: 'hidden' });
 
   // Measure widths and heights while elements are still in natural flow
-  const textWidths  = loadingTexts.map(el => el.offsetWidth);
-  const maxHeight   = Math.max(...loadingTexts.map(el => el.offsetHeight));
+  const textWidths = loadingTexts.map(el => el.offsetWidth);
+  const maxHeight  = Math.max(...loadingTexts.map(el => el.offsetHeight));
 
-  // Diagnostic
-  console.log('textWidths:', textWidths);
-  console.log('maxHeight:', maxHeight);
-
-  // Stack elements on top of each other via absolute, all starting below
-  gsap.set(loadingTexts, { position: 'absolute', yPercent: 100, opacity: 0 });
+  // Set initial state — use y px so CSS translate(-50%, -50%) is preserved
+  gsap.set(loadingTexts, { opacity: 0, y: 40 });
 
   // Lock container height, start width at 0
   gsap.set(loadingTextCont, {
@@ -148,9 +144,9 @@ if (loadingContainer && loadingTextCont && loadingTexts.length) {
     });
 
     gsap.fromTo(loadingTexts[current],
-      { yPercent: 100, opacity: 0 },
+      { y: 40, opacity: 0 },
       {
-        yPercent: 0,
+        y: 0,
         opacity: 1,
         duration: 0.35,
         ease: 'power2.out',
@@ -167,7 +163,7 @@ if (loadingContainer && loadingTextCont && loadingTexts.length) {
 
     // Animate current out through top
     gsap.to(loadingTexts[prev], {
-      yPercent: -100,
+      y: -40,
       opacity: 0,
       duration: 0.35,
       ease: 'power2.in',
