@@ -145,12 +145,21 @@ if (loadingContainer && loadingTextCont && loadingTexts.length) {
   let textCycleTimeout = null;
 
   function showCurrent() {
+    // Fade in the container on first show only
+    if (current === 0 && loadingContainer.style.opacity === '0') {
+      gsap.to(loadingContainer, {
+        opacity: 1,
+        duration: 0.35,
+        ease: 'power2.out',
+      });
+    }
+  
     gsap.to(loadingTextCont, {
       width: textWidths[current],
       duration: 0.35,
       ease: 'power2.out',
     });
-
+  
     gsap.fromTo(loadingTexts[current],
       { y: 40, opacity: 0 },
       {
@@ -189,21 +198,24 @@ if (loadingContainer && loadingTextCont && loadingTexts.length) {
   }, 100);
 
   // ── Kill and hide when final wave starts ────────────────
-  window._killLoadingAnimation = function () {
-    if (textCycleTimeout) {
-      clearTimeout(textCycleTimeout);
-      textCycleTimeout = null;
-    }
-    gsap.killTweensOf(loadingTexts);
-    gsap.killTweensOf(loadingTextCont);
-
+  window._killLoadingAnimation = function (duration) {
+    // Don't kill the text cycle — let it keep running while shrinking
+    // so text is still animating as the container closes
+  
     gsap.to(loadingContainer, {
       width: 0,
       height: 0,
       opacity: 0,
-      duration: 0.4,
+      duration: duration || 0.4,
       ease: 'power2.inOut',
       onComplete: () => {
+        // NOW kill the text cycle after container is fully gone
+        if (textCycleTimeout) {
+          clearTimeout(textCycleTimeout);
+          textCycleTimeout = null;
+        }
+        gsap.killTweensOf(loadingTexts);
+        gsap.killTweensOf(loadingTextCont);
         gsap.set(loadingContainer, { display: 'none' });
       }
     });
@@ -255,10 +267,10 @@ if (loadingContainer && loadingTextCont && loadingTexts.length) {
         }
       });
     
-      // ── Kill loading indicator at start of final wave ────────
+      // ── Kill loading indicator at end of final wave ────────
       tl.add(() => {
         if (window._killLoadingAnimation) {
-          window._killLoadingAnimation();
+          window._killLoadingAnimation(totalPulse);
           window._killLoadingAnimation = null;
         }
       }, 0);
