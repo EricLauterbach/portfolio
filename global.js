@@ -125,13 +125,12 @@
     
     // ── Text options list — edit here ──────────────────────────
     const LOADING_TEXTS = [
-      'Sketching Brand Concepts',
-      'Obsessing Over Pixels',
-      'Optimizing Signup Flows',
-      'Brewing Another Coffee',
-      'Refining Microinteractions',
-      'Defining Visual Language',
-      'Building Component States',
+      'Making It Pop',
+      'Negotiating With Whitespace',
+      'One Last Tweak',
+      'Taming Unruly Layouts',
+      'Definitely the Final Version',
+      'Naming File Layers',
     ];
     
     if (loadingContainer && loadingTextCont && loadingTextTemplate) {
