@@ -111,62 +111,81 @@ const loadingContainer = document.querySelector('.loadingcontainerportfolio');
 const loadingTextCont  = document.querySelector('.loadingtextcontainer');
 const loadingTexts     = Array.from(document.querySelectorAll('.tagportfolio.centered.loading'));
 
-let textCycleTl = null;
+let textCycleTimeout = null;
 
 if (loadingContainer && loadingTextCont && loadingTexts.length) {
 
   gsap.set(loadingContainer, { opacity: 1 });
-  gsap.set(loadingTextCont,  { overflow: 'hidden', width: 0 });
-  gsap.set(loadingTexts,     { opacity: 0, y: 24 });
 
-  // ── Measure widths with elements temporarily visible ───
-  const textWidths = loadingTexts.map(el => {
-    gsap.set(el, { opacity: 1, y: 0, position: 'relative' });
-    const w = el.offsetWidth;
-    gsap.set(el, { opacity: 0, y: 24 });
-    return w;
-  });
+  // ── Measure widths ──────────────────────────────────────
+  // Elements are relative positioned so offsetWidth is reliable
+  const textWidths = loadingTexts.map(el => el.offsetWidth);
+  console.log('textWidths:', textWidths);
 
-  console.log('textWidths:', textWidths); // debug — check these are non-zero
+  // Hide all to start
+  gsap.set(loadingTexts, { yPercent: 100, opacity: 0 });
+  gsap.set(loadingTextCont, { width: textWidths[0] });
 
   // ── Text cycling ────────────────────────────────────────
-  function startTextCycle() {
-    let current = 0;
+  let current = 0;
 
-    // Animate first one in
-    gsap.to(loadingTextCont, { width: textWidths[0], duration: 0.4, ease: 'power2.out' });
-    gsap.to(loadingTexts[0], { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' });
+  function showCurrent() {
+    const el = loadingTexts[current];
 
-    function cycleToNext() {
-      const prev = current;
-      current = (current + 1) % loadingTexts.length;
+    // Resize container to current text width
+    gsap.to(loadingTextCont, {
+      width: textWidths[current],
+      duration: 0.35,
+      ease: 'power2.out'
+    });
 
-      gsap.to(loadingTexts[prev], {
-        y: -24, opacity: 0, duration: 0.4, ease: 'power2.inOut'
-      });
-
-      gsap.set(loadingTexts[current], { y: 24, opacity: 0 });
-      gsap.to(loadingTexts[current], {
-        y: 0, opacity: 1, duration: 0.4, ease: 'power2.out'
-      });
-
-      gsap.to(loadingTextCont, {
-        width: textWidths[current], duration: 0.4, ease: 'power2.out'
-      });
-    }
-
-    // Use setInterval for reliable repeating cycle
-    textCycleTl = setInterval(cycleToNext, 1000);
+    // Animate in from bottom
+    gsap.fromTo(el,
+      { yPercent: 100, opacity: 0 },
+      {
+        yPercent: 0,
+        opacity: 1,
+        duration: 0.35,
+        ease: 'power2.out',
+        onComplete: () => {
+          // Pause then cycle to next
+          textCycleTimeout = setTimeout(() => {
+            cycleNext();
+          }, 800);
+        }
+      }
+    );
   }
 
-  startTextCycle();
+  function cycleNext() {
+    const prev = current;
+    current = (current + 1) % loadingTexts.length;
+
+    // Animate current out through top
+    gsap.to(loadingTexts[prev], {
+      yPercent: -100,
+      opacity: 0,
+      duration: 0.35,
+      ease: 'power2.in',
+    });
+
+    // Slight delay then bring next one in from bottom
+    textCycleTimeout = setTimeout(() => {
+      showCurrent();
+    }, 150);
+  }
+
+  // Start
+  showCurrent();
 
   // ── Kill and hide on final wave ─────────────────────────
   window._killLoadingAnimation = function () {
-    if (textCycleTl) {
-      clearInterval(textCycleTl);
-      textCycleTl = null;
+    if (textCycleTimeout) {
+      clearTimeout(textCycleTimeout);
+      textCycleTimeout = null;
     }
+    gsap.killTweensOf(loadingTexts);
+    gsap.killTweensOf(loadingTextCont);
 
     gsap.to(loadingContainer, {
       width: 0,
