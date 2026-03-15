@@ -120,7 +120,35 @@ if (loadingContainer && loadingTextCont && loadingTexts.length) {
   // ── Measure widths ──────────────────────────────────────
   // Elements are relative positioned so offsetWidth is reliable
   const textWidths = loadingTexts.map(el => el.offsetWidth);
-  console.log('textWidths:', textWidths);
+
+// Diagnostic logs
+console.log('loadingContainer:', loadingContainer);
+console.log('loadingTextCont:', loadingTextCont);
+console.log('loadingTexts count:', loadingTexts.length);
+console.log('textWidths:', textWidths);
+loadingTexts.forEach((el, i) => {
+  const styles = window.getComputedStyle(el);
+  console.log(`text[${i}]:`, {
+    text: el.textContent.trim(),
+    offsetWidth: el.offsetWidth,
+    offsetHeight: el.offsetHeight,
+    display: styles.display,
+    position: styles.position,
+    visibility: styles.visibility,
+    opacity: styles.opacity,
+    transform: styles.transform,
+    overflow: styles.overflow,
+    width: styles.width,
+    height: styles.height,
+  });
+});
+console.log('textCont styles:', {
+  display: window.getComputedStyle(loadingTextCont).display,
+  position: window.getComputedStyle(loadingTextCont).position,
+  overflow: window.getComputedStyle(loadingTextCont).overflow,
+  width: window.getComputedStyle(loadingTextCont).width,
+  height: window.getComputedStyle(loadingTextCont).height,
+});
 
   // Hide all to start
   gsap.set(loadingTexts, { yPercent: 100, opacity: 0 });
