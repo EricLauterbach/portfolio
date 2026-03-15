@@ -190,6 +190,23 @@
       let textCycleTimeout  = null;
       let hasShownContainer = false;
     
+      function cycleNext() {
+        const prev = current;
+        current = (current + 1) % loadingTexts.length;
+      
+        gsap.to(loadingTexts[prev], {
+          y: -40,
+          opacity: 0,
+          duration: 0.35,
+          ease: 'power2.in',
+        });
+      
+        // Remove container width animation from here — moved to showCurrent
+        textCycleTimeout = setTimeout(() => {
+          showCurrent();
+        }, 150);
+      }
+      
       function showCurrent() {
         if (!hasShownContainer) {
           hasShownContainer = true;
@@ -197,7 +214,6 @@
             window._pageLoadStyleTag.textContent = window._pageLoadStyleTag.textContent
               .replace('.loadingcontainerportfolio { opacity: 0 !important; }', '');
           }
-          // Scale up container from zero to first text size
           gsap.to(loadingContainer, {
             width: textWidths[current] + containerPadX,
             height: maxHeight + containerPadY,
@@ -205,14 +221,21 @@
             duration: 0.35,
             ease: 'power2.out',
           });
+        } else {
+          // Animate container width to match current text — fires with text animation
+          gsap.to(loadingContainer, {
+            width: textWidths[current] + containerPadX,
+            duration: 0.35,
+            ease: 'power2.out',
+          });
         }
-    
+      
         gsap.to(loadingTextCont, {
           width: textWidths[current],
           duration: 0.35,
           ease: 'power2.out',
         });
-    
+      
         gsap.fromTo(loadingTexts[current],
           { y: 40, opacity: 0 },
           {
@@ -225,29 +248,6 @@
             }
           }
         );
-      }
-    
-      function cycleNext() {
-        const prev = current;
-        current = (current + 1) % loadingTexts.length;
-    
-        gsap.to(loadingTexts[prev], {
-          y: -40,
-          opacity: 0,
-          duration: 0.35,
-          ease: 'power2.in',
-        });
-    
-        // Also animate container width to next text size
-        gsap.to(loadingContainer, {
-          width: textWidths[current] + containerPadX,
-          duration: 0.35,
-          ease: 'power2.out',
-        });
-    
-        textCycleTimeout = setTimeout(() => {
-          showCurrent();
-        }, 150);
       }
     
       setTimeout(() => {
