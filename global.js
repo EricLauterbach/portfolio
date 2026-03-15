@@ -183,8 +183,10 @@ if (loadingContainer && loadingTextCont && loadingTexts.length) {
     }, 150);
   }
 
-  // Kick off
-  showCurrent();
+  // Kick off — same delay as grid animation
+  setTimeout(() => {
+    showCurrent();
+  }, 100);
 
   // ── Kill and hide when final wave starts ────────────────
   window._killLoadingAnimation = function () {
