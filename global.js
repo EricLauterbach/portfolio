@@ -19,7 +19,7 @@
 (function () {
 
   // ── Shared config ─────────────────────────────────────────
-  const RECT_BASE = 4;
+  const RECT_BASE = 19;
   const RECT_MIN  = 4;
   const RECT_REST = 4;
 
