@@ -107,121 +107,116 @@
 
     // ── Loading indicator animation ───────────────────────────
 
-const loadingContainer = document.querySelector('.loadingcontainerportfolio');
-const loadingTextCont  = document.querySelector('.loadingtextcontainer');
-const loadingTexts     = Array.from(document.querySelectorAll('.tagportfolio.centered.loading'));
-
-if (loadingContainer && loadingTextCont && loadingTexts.length) {
-
-  // Clear any stale state
-  gsap.set(loadingContainer, { clearProps: 'all' });
-  gsap.set(loadingContainer, { opacity: 1 });
-  gsap.set(loadingTextCont,  { clearProps: 'all' });
-
-  // Measure widths and heights while elements are in natural flow
-  const textWidths = loadingTexts.map(el => el.offsetWidth);
-  const maxHeight  = Math.max(...loadingTexts.map(el => el.offsetHeight));
-
-  // GSAP owns all positioning — no CSS transform conflict
-  gsap.set(loadingTexts, {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    xPercent: -50,
-    yPercent: -50,
-    opacity: 0,
-    y: 40,
-  });
-
-  // Lock container height, start width at 0
-  gsap.set(loadingTextCont, {
-    position: 'relative',
-    height: maxHeight,
-    width: 0,
-    overflow: 'hidden',
-  });
-
-  let current          = 0;
-  let textCycleTimeout = null;
-
-  function showCurrent() {
-    // Fade in the container on first show only
-    if (current === 0 && loadingContainer.style.opacity === '0') {
-      gsap.to(loadingContainer, {
-        opacity: 1,
-        duration: 0.35,
-        ease: 'power2.out',
+    const loadingContainer = document.querySelector('.loadingcontainerportfolio');
+    const loadingTextCont  = document.querySelector('.loadingtextcontainer');
+    const loadingTexts     = Array.from(document.querySelectorAll('.tagportfolio.centered.loading'));
+    
+    if (loadingContainer && loadingTextCont && loadingTexts.length) {
+    
+      // Clear any stale state
+      gsap.set(loadingContainer, { clearProps: 'all' });
+      gsap.set(loadingTextCont,  { clearProps: 'all' });
+    
+      // Measure widths and heights while elements are in natural flow
+      const textWidths = loadingTexts.map(el => el.offsetWidth);
+      const maxHeight  = Math.max(...loadingTexts.map(el => el.offsetHeight));
+    
+      // GSAP owns all positioning — no CSS transform conflict
+      gsap.set(loadingTexts, {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        xPercent: -50,
+        yPercent: -50,
+        opacity: 0,
+        y: 40,
       });
+    
+      // Lock container height, start width at 0
+      gsap.set(loadingTextCont, {
+        position: 'relative',
+        height: maxHeight,
+        width: 0,
+        overflow: 'hidden',
+      });
+    
+      let current          = 0;
+      let textCycleTimeout = null;
+    
+      function showCurrent() {
+        // Fade in the container on first show only
+        if (current === 0 && loadingContainer.style.opacity === '0') {
+          gsap.to(loadingContainer, {
+            opacity: 1,
+            duration: 0.35,
+            ease: 'power2.out',
+          });
+        }
+    
+        gsap.to(loadingTextCont, {
+          width: textWidths[current],
+          duration: 0.35,
+          ease: 'power2.out',
+        });
+    
+        gsap.fromTo(loadingTexts[current],
+          { y: 40, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.35,
+            ease: 'power2.out',
+            onComplete: () => {
+              textCycleTimeout = setTimeout(cycleNext, 800);
+            }
+          }
+        );
+      }
+    
+      function cycleNext() {
+        const prev = current;
+        current = (current + 1) % loadingTexts.length;
+    
+        // Animate current out through top
+        gsap.to(loadingTexts[prev], {
+          y: -40,
+          opacity: 0,
+          duration: 0.35,
+          ease: 'power2.in',
+        });
+    
+        // Short overlap then bring next in from bottom
+        textCycleTimeout = setTimeout(() => {
+          showCurrent();
+        }, 150);
+      }
+    
+      // Kick off with same delay as grid animation
+      setTimeout(() => {
+        showCurrent();
+      }, 100);
+    
+      // ── Kill and hide when final wave starts ────────────────
+      window._killLoadingAnimation = function () {
+        gsap.to(loadingContainer, {
+          width: 0,
+          height: 0,
+          opacity: 0,
+          duration: 0.4,
+          ease: 'power2.inOut',
+          onComplete: () => {
+            if (textCycleTimeout) {
+              clearTimeout(textCycleTimeout);
+              textCycleTimeout = null;
+            }
+            gsap.killTweensOf(loadingTexts);
+            gsap.killTweensOf(loadingTextCont);
+            gsap.set(loadingContainer, { display: 'none' });
+          }
+        });
+      };
+    
     }
-  
-    gsap.to(loadingTextCont, {
-      width: textWidths[current],
-      duration: 0.35,
-      ease: 'power2.out',
-    });
-  
-    gsap.fromTo(loadingTexts[current],
-      { y: 40, opacity: 0 },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 0.35,
-        ease: 'power2.out',
-        onComplete: () => {
-          textCycleTimeout = setTimeout(cycleNext, 800);
-        }
-      }
-    );
-  }
-
-  function cycleNext() {
-    const prev = current;
-    current = (current + 1) % loadingTexts.length;
-
-    // Animate current out through top
-    gsap.to(loadingTexts[prev], {
-      y: -40,
-      opacity: 0,
-      duration: 0.35,
-      ease: 'power2.in',
-    });
-
-    // Short overlap then bring next in from bottom
-    textCycleTimeout = setTimeout(() => {
-      showCurrent();
-    }, 150);
-  }
-
-  // Kick off — same delay as grid animation
-  setTimeout(() => {
-    showCurrent();
-  }, 100);
-
-  // ── Kill and hide when final wave starts ────────────────
-  window._killLoadingAnimation = function (duration) {
-    // Don't kill the text cycle — let it keep running while shrinking
-    // so text is still animating as the container closes
-  
-    gsap.to(loadingContainer, {
-      width: 0,
-      height: 0,
-      opacity: 0,
-      duration: duration || 0.4,
-      ease: 'power2.inOut',
-      onComplete: () => {
-        // NOW kill the text cycle after container is fully gone
-        if (textCycleTimeout) {
-          clearTimeout(textCycleTimeout);
-          textCycleTimeout = null;
-        }
-        gsap.killTweensOf(loadingTexts);
-        gsap.killTweensOf(loadingTextCont);
-        gsap.set(loadingContainer, { display: 'none' });
-      }
-    });
-  };
-
-}
 
     
 
@@ -270,10 +265,10 @@ if (loadingContainer && loadingTextCont && loadingTexts.length) {
       // ── Kill loading indicator at end of final wave ────────
       tl.add(() => {
         if (window._killLoadingAnimation) {
-          window._killLoadingAnimation(totalPulse);
+          window._killLoadingAnimation();
           window._killLoadingAnimation = null;
         }
-      }, 0);
+      }, totalPulse - 0.4);
 
       rows.forEach((rowRects, i) => {
         tl.to(rowRects, {
