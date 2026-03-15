@@ -12,9 +12,9 @@
 
 
 
-// =============================================================
+// ============================================================
 // GRID BACKGROUND ANIMATION
-// =============================================================
+// ============================================================
 
 (function () {
 
@@ -26,7 +26,7 @@
   // ── Page load config ──────────────────────────────────────
   const PULSE_UP    = 0.9;
   const PULSE_DOWN  = 1.2;
-  const ROW_STAGGER = 0.05;
+  const ROW_STAGGER = 0.08;
   const RECT_MAX    = 60;
   const EARLY_IN    = 1.0;
 
@@ -39,17 +39,31 @@
     return Array.from(document.querySelectorAll('#backgroundGrid rect'));
   }
 
-  function groupByRow(rects) {
-    const rows = {};
-    rects.forEach(rect => {
-      const y = parseFloat(rect.getAttribute('y'));
-      if (!rows[y]) rows[y] = [];
-      rows[y].push(rect);
+  function groupByDistance(rects) {
+    const centerX = 2400 / 2;
+    const centerY = 1400 / 2;
+
+    const withDist = rects.map(rect => {
+      const cx = rect._cx || (parseFloat(rect.getAttribute('x')) + RECT_BASE / 2);
+      const cy = rect._cy || (parseFloat(rect.getAttribute('y')) + RECT_BASE / 2);
+      const dist = Math.sqrt(Math.pow(cx - centerX, 2) + Math.pow(cy - centerY, 2));
+      return { rect, dist };
     });
-    return Object.keys(rows)
-      .map(Number)
-      .sort((a, b) => a - b)
-      .map(y => rows[y]);
+
+    const maxDist = Math.max(...withDist.map(d => d.dist));
+    const NUM_BUCKETS = 14;
+
+    const buckets = Array.from({ length: NUM_BUCKETS }, () => []);
+
+    withDist.forEach(({ rect, dist }) => {
+      const bucketIndex = Math.min(
+        Math.floor((dist / maxDist) * NUM_BUCKETS),
+        NUM_BUCKETS - 1
+      );
+      buckets[bucketIndex].push(rect);
+    });
+
+    return buckets.filter(b => b.length > 0);
   }
 
   function primeRects(rects) {
@@ -87,13 +101,12 @@
     }
 
     primeRects(rects);
-    const rows       = groupByRow(rects);
+    const rows       = groupByDistance(rects);
     const numRows    = rows.length;
     const totalPulse = (numRows - 1) * ROW_STAGGER + PULSE_UP + PULSE_DOWN;
 
     let pageLoaded = false;
 
-    // ── Listen for page load ────────────────────────────────
     if (document.readyState === 'complete') {
       pageLoaded = true;
     } else {
@@ -102,26 +115,20 @@
       }, { once: true });
     }
 
-
-    
-
     // ── Loading indicator animation ───────────────────────────
 
     const loadingContainer = document.querySelector('.loadingcontainerportfolio');
     const loadingTextCont  = document.querySelector('.loadingtextcontainer');
     const loadingTexts     = Array.from(document.querySelectorAll('.tagportfolio.centered.loading'));
-    
+
     if (loadingContainer && loadingTextCont && loadingTexts.length) {
-    
-      // Clear any stale state
+
       gsap.set(loadingContainer, { clearProps: 'all' });
       gsap.set(loadingTextCont,  { clearProps: 'all' });
-    
-      // Measure widths and heights while elements are in natural flow
+
       const textWidths = loadingTexts.map(el => el.offsetWidth);
       const maxHeight  = Math.max(...loadingTexts.map(el => el.offsetHeight));
-    
-      // GSAP owns all positioning — no CSS transform conflict
+
       gsap.set(loadingTexts, {
         position: 'absolute',
         top: '50%',
@@ -131,24 +138,21 @@
         opacity: 0,
         y: 40,
       });
-    
-      // Lock container height, start width at 0
+
       gsap.set(loadingTextCont, {
         position: 'relative',
         height: maxHeight,
         width: 0,
         overflow: 'hidden',
       });
-    
-      let current          = 0;
-      let textCycleTimeout = null;
+
+      let current           = 0;
+      let textCycleTimeout  = null;
       let hasShownContainer = false;
-    
+
       function showCurrent() {
-        // Fade in container on first show only
         if (!hasShownContainer) {
           hasShownContainer = true;
-          // Remove just the loading container rule from the style tag
           if (window._pageLoadStyleTag) {
             window._pageLoadStyleTag.textContent = window._pageLoadStyleTag.textContent
               .replace('.loadingcontainerportfolio { opacity: 0 !important; }', '');
@@ -159,13 +163,13 @@
             ease: 'power2.out',
           });
         }
-      
+
         gsap.to(loadingTextCont, {
           width: textWidths[current],
           duration: 0.35,
           ease: 'power2.out',
         });
-      
+
         gsap.fromTo(loadingTexts[current],
           { y: 40, opacity: 0 },
           {
@@ -179,31 +183,27 @@
           }
         );
       }
-    
+
       function cycleNext() {
         const prev = current;
         current = (current + 1) % loadingTexts.length;
-    
-        // Animate current out through top
+
         gsap.to(loadingTexts[prev], {
           y: -40,
           opacity: 0,
           duration: 0.35,
           ease: 'power2.in',
         });
-    
-        // Short overlap then bring next in from bottom
+
         textCycleTimeout = setTimeout(() => {
           showCurrent();
         }, 150);
       }
-    
-      // Kick off with same delay as grid animation
+
       setTimeout(() => {
         showCurrent();
       }, 100);
-    
-      // ── Kill and hide when final wave starts ────────────────
+
       window._killLoadingAnimation = function () {
         gsap.to(loadingContainer, {
           width: 0,
@@ -222,10 +222,7 @@
           }
         });
       };
-    
     }
-
-    
 
     // ── Build one looping wave ──────────────────────────────
     function buildWave() {
@@ -268,8 +265,8 @@
           initEntranceAnimations();
         }
       });
-    
-      // ── Kill loading indicator at end of final wave ────────
+
+      // Kill loading indicator just before content reveals
       tl.add(() => {
         if (window._killLoadingAnimation) {
           window._killLoadingAnimation();
@@ -311,7 +308,6 @@
         }
       }, `${totalPulse - EARLY_IN - 0.05}`);
 
-      // Content reveal overlaps with end of final wave
       tl.fromTo('.headerportfolio',
         { opacity: 0, y: -100 },
         { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
@@ -324,12 +320,11 @@
         `${totalPulse - EARLY_IN}`
       );
 
-      // ── H1 line reveal — timed with content reveal ────────────
       const h1 = document.querySelector('h1');
       if (h1) {
         tl.add(() => { animateLineReveal(h1); }, `${totalPulse - EARLY_IN}`);
       }
-      
+
       return tl;
     }
 
@@ -347,7 +342,6 @@
       });
     }
 
-    // Short delay before first wave — lets SVG and GSAP settle
     setTimeout(() => {
       runLoop();
     }, 100);
