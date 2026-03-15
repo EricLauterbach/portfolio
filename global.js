@@ -102,6 +102,139 @@
       }, { once: true });
     }
 
+
+    // ── Loading indicator animation ───────────────────────────
+    const loadingContainer = document.querySelector('.loadingcontainerportfolio');
+    const loadingCircleContainer = document.querySelector('.loadingcirclecontainer');
+    const loadingCircle = document.querySelector('.loadingcircle');
+    const loadingTextContainer = document.querySelector('.loadingtextcontainer');
+    const loadingTexts = Array.from(document.querySelectorAll('.tagportfolio.centered.loading'));
+    
+    let loadingTl = null;
+    let circleLoopTl = null;
+    
+    if (loadingContainer && loadingCircle && loadingTextContainer && loadingTexts.length) {
+    
+      // Set initial states
+      gsap.set(loadingContainer, { opacity: 1 });
+      gsap.set(loadingTextContainer, { width: 0, overflow: 'hidden' });
+      gsap.set(loadingTexts, { y: 24, opacity: 0 });
+    
+      // ── Circle orbit animation ──────────────────────────────
+      // Orbits .loadingcircle around the center of .loadingcirclecontainer
+      function startCircleOrbit() {
+        const containerW = loadingCircleContainer.offsetWidth;
+        const containerH = loadingCircleContainer.offsetHeight;
+        const circleW    = loadingCircle.offsetWidth;
+        const circleH    = loadingCircle.offsetHeight;
+        const radiusX    = (containerW - circleW) / 2;
+        const radiusY    = (containerH - circleH) / 2;
+    
+        gsap.set(loadingCircle, {
+          x: radiusX,
+          y: 0,
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          xPercent: -50,
+          yPercent: -50,
+        });
+    
+        circleLoopTl = gsap.timeline({ repeat: -1 });
+        circleLoopTl.to(loadingCircle, {
+          duration: 2,
+          ease: 'none',
+          motionPath: {
+            path: [
+              { x:  radiusX, y:  0        },
+              { x:  0,        y:  radiusY  },
+              { x: -radiusX,  y:  0        },
+              { x:  0,        y: -radiusY  },
+              { x:  radiusX,  y:  0        },
+            ],
+            type: 'cubic',
+            autoRotate: false,
+          }
+        });
+      }
+    
+      // ── Text cycling animation ──────────────────────────────
+      function startTextCycle() {
+        let currentIndex = 0;
+    
+        // Expand to first text width and animate first text in
+        const firstTextWidth = loadingTexts[0].offsetWidth;
+        gsap.to(loadingTextContainer, {
+          width: firstTextWidth,
+          duration: 0.4,
+          ease: 'power2.out',
+        });
+        gsap.to(loadingTexts[0], {
+          y: 0,
+          opacity: 1,
+          duration: 0.4,
+          ease: 'power2.out',
+        });
+    
+        function cycleNext() {
+          const prevIndex = currentIndex;
+          currentIndex = (currentIndex + 1) % loadingTexts.length;
+          const nextTextWidth = loadingTexts[currentIndex].offsetWidth;
+    
+          // Animate out current
+          gsap.to(loadingTexts[prevIndex], {
+            y: -24,
+            opacity: 0,
+            duration: 0.4,
+            ease: 'power2.inOut',
+          });
+    
+          // Resize container and animate in next
+          gsap.to(loadingTextContainer, {
+            width: nextTextWidth,
+            duration: 0.4,
+            ease: 'power2.out',
+          });
+    
+          // Reset next text to below before animating in
+          gsap.set(loadingTexts[currentIndex], { y: 24, opacity: 0 });
+          gsap.to(loadingTexts[currentIndex], {
+            y: 0,
+            opacity: 1,
+            duration: 0.4,
+            ease: 'power2.out',
+          });
+        }
+    
+        loadingTl = gsap.timeline({ repeat: -1, repeatDelay: 0 });
+        loadingTexts.forEach((_, i) => {
+          loadingTl.add(cycleNext, `+=${1}`);
+        });
+      }
+    
+      startCircleOrbit();
+      startTextCycle();
+    
+      // Expose kill function so buildFinalWave can stop and hide it
+      window._killLoadingAnimation = function(onComplete) {
+        if (circleLoopTl) circleLoopTl.kill();
+        if (loadingTl) loadingTl.kill();
+    
+        gsap.to(loadingContainer, {
+          width: 0,
+          height: 0,
+          opacity: 0,
+          duration: 0.4,
+          ease: 'power2.inOut',
+          onComplete: () => {
+            gsap.set(loadingContainer, { display: 'none' });
+            if (onComplete) onComplete();
+          }
+        });
+      };
+    }
+    
+
     // ── Build one looping wave ──────────────────────────────
     function buildWave() {
       const tl = gsap.timeline();
@@ -143,6 +276,14 @@
           initEntranceAnimations();
         }
       });
+    
+      // ── Kill loading indicator at start of final wave ────────
+      tl.add(() => {
+        if (window._killLoadingAnimation) {
+          window._killLoadingAnimation();
+          window._killLoadingAnimation = null;
+        }
+      }, 0);
 
       rows.forEach((rowRects, i) => {
         tl.to(rowRects, {
@@ -307,7 +448,7 @@
 // BARBA JS INIT
 // ==============================================================
 
-gsap.registerPlugin(ScrollTrigger, ScrollSmoother, SplitText);
+gsap.registerPlugin(ScrollTrigger, ScrollSmoother, SplitText, MotionPathPlugin);
 
 if ('scrollRestoration' in history) {
   history.scrollRestoration = 'manual';
