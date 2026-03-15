@@ -124,7 +124,7 @@
 
     if (loadingContainer && loadingTextCont && loadingTexts.length) {
 
-      const TEXT_CYCLE_INTERVAL = 1400; // ms — time each text is held before switching
+      const TEXT_CYCLE_INTERVAL = 1500; // ms — time each text is held before switching
     
       gsap.set(loadingContainer, { clearProps: 'all' });
       gsap.set(loadingTextCont,  { clearProps: 'all' });
