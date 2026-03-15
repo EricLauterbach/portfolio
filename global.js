@@ -24,7 +24,7 @@
   const RECT_REST = 4;
 
   // ── Page load config ──────────────────────────────────────
-  const PULSE_UP    = 0.75;
+  const PULSE_UP    = 1.0;
   const PULSE_DOWN  = 1.5;
   const ROW_STAGGER = 0.05;
   const RECT_MAX    = 60;
