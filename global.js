@@ -252,7 +252,7 @@
     
       setTimeout(() => {
         showCurrent();
-      }, 300);
+      }, 500);
     
       // ── Kill and hide when final wave starts ────────────────
       window._killLoadingAnimation = function () {
