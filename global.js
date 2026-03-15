@@ -116,19 +116,21 @@
     }
 
     // ── Loading indicator animation ───────────────────────────
-
+    
     const loadingContainer = document.querySelector('.loadingcontainerportfolio');
     const loadingTextCont  = document.querySelector('.loadingtextcontainer');
     const loadingTexts     = Array.from(document.querySelectorAll('.tagportfolio.centered.loading'));
 
     if (loadingContainer && loadingTextCont && loadingTexts.length) {
 
+      const TEXT_CYCLE_INTERVAL = 500; // ms — time each text is held before switching
+    
       gsap.set(loadingContainer, { clearProps: 'all' });
       gsap.set(loadingTextCont,  { clearProps: 'all' });
-
+    
       const textWidths = loadingTexts.map(el => el.offsetWidth);
       const maxHeight  = Math.max(...loadingTexts.map(el => el.offsetHeight));
-
+    
       gsap.set(loadingTexts, {
         position: 'absolute',
         top: '50%',
@@ -138,18 +140,18 @@
         opacity: 0,
         y: 40,
       });
-
+    
       gsap.set(loadingTextCont, {
         position: 'relative',
         height: maxHeight,
         width: 0,
         overflow: 'hidden',
       });
-
+    
       let current           = 0;
       let textCycleTimeout  = null;
       let hasShownContainer = false;
-
+    
       function showCurrent() {
         if (!hasShownContainer) {
           hasShownContainer = true;
@@ -163,13 +165,13 @@
             ease: 'power2.out',
           });
         }
-
+    
         gsap.to(loadingTextCont, {
           width: textWidths[current],
           duration: 0.35,
           ease: 'power2.out',
         });
-
+    
         gsap.fromTo(loadingTexts[current],
           { y: 40, opacity: 0 },
           {
@@ -178,32 +180,32 @@
             duration: 0.35,
             ease: 'power2.out',
             onComplete: () => {
-              textCycleTimeout = setTimeout(cycleNext, 800);
+              textCycleTimeout = setTimeout(cycleNext, TEXT_CYCLE_INTERVAL);
             }
           }
         );
       }
-
+    
       function cycleNext() {
         const prev = current;
         current = (current + 1) % loadingTexts.length;
-
+    
         gsap.to(loadingTexts[prev], {
           y: -40,
           opacity: 0,
           duration: 0.35,
           ease: 'power2.in',
         });
-
+    
         textCycleTimeout = setTimeout(() => {
           showCurrent();
         }, 150);
       }
-
+    
       setTimeout(() => {
         showCurrent();
       }, 100);
-
+    
       window._killLoadingAnimation = function () {
         gsap.to(loadingContainer, {
           width: 0,
