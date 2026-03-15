@@ -395,7 +395,7 @@
 
     setTimeout(() => {
       runLoop();
-    }, 100);
+    }, 500);
   };
 
   // ── Barba transition animation ────────────────────────────
