@@ -123,7 +123,7 @@
 
     if (loadingContainer && loadingTextCont && loadingTexts.length) {
 
-      const TEXT_CYCLE_INTERVAL = 1250; // ms — time each text is held before switching
+      const TEXT_CYCLE_INTERVAL = 1000; // ms — time each text is held before switching
     
       gsap.set(loadingContainer, { clearProps: 'all' });
       gsap.set(loadingTextCont,  { clearProps: 'all' });
@@ -138,7 +138,7 @@
         xPercent: -50,
         yPercent: -50,
         opacity: 0,
-        y: 40,
+        y: 60,
       });
     
       gsap.set(loadingTextCont, {
@@ -162,14 +162,14 @@
           gsap.to(loadingContainer, {
             opacity: 1,
             duration: 0.35,
-            ease: 'power2.out',
+            ease: 'power2.inOut',
           });
         }
     
         gsap.to(loadingTextCont, {
           width: textWidths[current],
-          duration: 0.35,
-          ease: 'power2.out',
+          duration: 0.5,
+          ease: 'elastic.out(1,1)',
         });
     
         gsap.fromTo(loadingTexts[current],
@@ -177,8 +177,8 @@
           {
             y: 0,
             opacity: 1,
-            duration: 0.35,
-            ease: 'power2.out',
+            duration: 0.5,
+            ease: 'elastic.out(1,1)',
             onComplete: () => {
               textCycleTimeout = setTimeout(cycleNext, TEXT_CYCLE_INTERVAL);
             }
@@ -193,8 +193,8 @@
         gsap.to(loadingTexts[prev], {
           y: -40,
           opacity: 0,
-          duration: 0.35,
-          ease: 'power2.in',
+          duration: 0.5,
+          ease: 'elastic.out(1,1)',
         });
     
         textCycleTimeout = setTimeout(() => {
