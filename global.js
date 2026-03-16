@@ -3139,16 +3139,13 @@ function initCopyleaksMarketing() {
 // Barba's after hook calls initSmoother() on subsequent navigations
 // ============================================================
 
-const _ns = document.querySelector('[data-barba="container"]')?.dataset?.barbaNamespace;
-if (_ns) {
-  window.smoother = ScrollSmoother.create({
-    wrapper: '#smooth-wrapper',
-    content: '#smooth-content',
-    smooth: 1,
-    effects: true,
-    normalizeScroll: true,
-  });
-}
+window.smoother = ScrollSmoother.create({
+  wrapper: '#smooth-wrapper',
+  content: '#smooth-content',
+  smooth: 1,
+  effects: true,
+  normalizeScroll: true,
+});
 
 
 // ============================================================
