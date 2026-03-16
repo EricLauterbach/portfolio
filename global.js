@@ -2067,9 +2067,17 @@ function initHomePage() {
     const smallButtonIcon  = item.querySelector(".smallbuttoniconportfolio");
     let isHovered = false;
     let initialPadding = null;
+  
     const spacingTiny = getComputedStyle(document.documentElement)
       .getPropertyValue("--_portfolio-spacing---spacing-tiny").trim();
-
+    const blackColor = getComputedStyle(document.documentElement)
+      .getPropertyValue("--_portfolio-colors---black").trim();
+  
+    // Capture the initial fill from the SVG path
+    const svgEl   = smallButtonIcon ? smallButtonIcon.querySelector("svg") : null;
+    const pathEl  = svgEl ? svgEl.querySelector("path") : null;
+    const initialFill = pathEl ? getComputedStyle(pathEl).fill : null;
+  
     function runIconLoop() {
       if (!isHovered) {
         gsap.to(smallButtonIcon, { x: 0, duration: 0.6, ease: "elastic.out(1.5,1)" });
@@ -2083,12 +2091,16 @@ function initHomePage() {
         }
       });
     }
-
+  
     item.addEventListener("mouseenter", () => {
       initialPadding = getComputedStyle(imageContainer).padding;
       isHovered = true;
       gsap.killTweensOf(smallButton);
       gsap.killTweensOf(imageContainer);
+  
+      // Animate SVG fill to black
+      if (pathEl) gsap.to(pathEl, { fill: blackColor, duration: 0.3, ease: "power2.inOut" });
+  
       if (gsap.isTweening(smallButtonIcon)) {
         gsap.getTweensOf(smallButtonIcon).forEach(tween => {
           tween.eventCallback("onComplete", () => { if (isHovered) runIconLoop(); });
@@ -2097,6 +2109,7 @@ function initHomePage() {
         gsap.set(smallButtonIcon, { x: 0 });
         runIconLoop();
       }
+  
       gsap.to(imageContainer, { padding: spacingTiny, duration: 0.4, ease: "power2.inOut" });
       projectItems.forEach((otherItem) => {
         if (otherItem !== item) {
@@ -2105,11 +2118,15 @@ function initHomePage() {
         }
       });
     });
-
+  
     item.addEventListener("mouseleave", () => {
       isHovered = false;
       gsap.killTweensOf(smallButton);
       gsap.killTweensOf(imageContainer);
+  
+      // Animate SVG fill back to initial
+      if (pathEl) gsap.to(pathEl, { fill: initialFill, duration: 0.3, ease: "power2.inOut" });
+  
       gsap.to(imageContainer, { padding: initialPadding, duration: 0.4, ease: "power2.inOut" });
       projectItems.forEach((otherItem) => {
         if (otherItem !== item) {
