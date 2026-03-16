@@ -2031,6 +2031,10 @@ function initAll() {
   });
 
 
+
+  /*-
+
+  
   // TINY BUTTONS HOVER
   document.querySelectorAll('.tinybuttonportfolio').forEach(button => {
     const circle = button.querySelector('.tinybuttoncontainerportfolio');
@@ -2049,6 +2053,11 @@ function initAll() {
       gsap.to(button, { width: initialWidth, delay: 0.1, duration: 0.5, ease: 'power2.out' });
     });
   });
+
+
+  -*/
+
+  
 
 } // ← END OF initAll()
 
