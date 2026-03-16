@@ -2073,10 +2073,10 @@ function initHomePage() {
     const blackColor = getComputedStyle(document.documentElement)
       .getPropertyValue("--_portfolio-colors---black").trim();
   
-    // Capture the initial fill from the SVG path
-    const svgEl   = smallButtonIcon ? smallButtonIcon.querySelector("svg") : null;
-    const pathEl  = svgEl ? svgEl.querySelector("path") : null;
-    const initialFill = pathEl ? getComputedStyle(pathEl).fill : null;
+    // Capture all paths and their initial fills
+    const svgEl       = smallButtonIcon ? smallButtonIcon.querySelector("svg") : null;
+    const pathEls     = svgEl ? Array.from(svgEl.querySelectorAll("path")) : [];
+    const initialFills = pathEls.map(p => p.getAttribute("fill") || getComputedStyle(p).fill);
   
     function runIconLoop() {
       if (!isHovered) {
@@ -2098,8 +2098,8 @@ function initHomePage() {
       gsap.killTweensOf(smallButton);
       gsap.killTweensOf(imageContainer);
   
-      // Animate SVG fill to black
-      if (pathEl) gsap.to(pathEl, { fill: blackColor, duration: 0.3, ease: "power2.inOut" });
+      // Animate all SVG paths to black
+      pathEls.forEach(p => gsap.to(p, { fill: blackColor, duration: 0.3, ease: "power2.inOut" }));
   
       if (gsap.isTweening(smallButtonIcon)) {
         gsap.getTweensOf(smallButtonIcon).forEach(tween => {
@@ -2124,8 +2124,8 @@ function initHomePage() {
       gsap.killTweensOf(smallButton);
       gsap.killTweensOf(imageContainer);
   
-      // Animate SVG fill back to initial
-      if (pathEl) gsap.to(pathEl, { fill: initialFill, duration: 0.3, ease: "power2.inOut" });
+      // Animate all SVG paths back to initial fills
+      pathEls.forEach((p, i) => gsap.to(p, { fill: initialFills[i], duration: 0.3, ease: "power2.inOut" }));
   
       gsap.to(imageContainer, { padding: initialPadding, duration: 0.4, ease: "power2.inOut" });
       projectItems.forEach((otherItem) => {
