@@ -406,17 +406,21 @@
         resolve();
         return;
       }
-
+  
       const rects = getGridRects();
       if (!rects.length) { resolve(); return; }
-
+  
       rects.forEach(rect => {
         if (!rect._cx) {
           rect._cx = parseFloat(rect.getAttribute('x')) + RECT_BASE / 2;
           rect._cy = parseFloat(rect.getAttribute('y')) + RECT_BASE / 2;
         }
       });
-
+  
+      // Use radial grouping — same as page load
+      const rings = groupByDistance(rects);
+  
+      // Start from resting state
       gsap.set(rects, (i, rect) => ({
         opacity: 1,
         attr: {
@@ -426,33 +430,43 @@
           y:      rect._cy - RECT_REST / 2,
         }
       }));
-
+  
       const tl = gsap.timeline();
-
-      tl.to(rects, {
-        opacity: 1,
-        attr: (i, rect) => ({
-          width:  TRANSITION_SIZE,
-          height: TRANSITION_SIZE,
-          x:      rect._cx - TRANSITION_SIZE / 2,
-          y:      rect._cy - TRANSITION_SIZE / 2,
-        }),
-        duration: TRANSITION_UP,
-        ease:     'power2.inOut',
-        onComplete: resolve,
+  
+      // Ripple out from center
+      rings.forEach((ringRects, i) => {
+        tl.to(ringRects, {
+          opacity: 1,
+          attr: (j, rect) => ({
+            width:  TRANSITION_SIZE,
+            height: TRANSITION_SIZE,
+            x:      rect._cx - TRANSITION_SIZE / 2,
+            y:      rect._cy - TRANSITION_SIZE / 2,
+          }),
+          duration: TRANSITION_UP,
+          ease: 'power2.inOut',
+        }, `${i * 0.04}`);
       });
-
-      tl.to(rects, {
-        opacity: 1,
-        attr: (i, rect) => ({
-          width:  RECT_REST,
-          height: RECT_REST,
-          x:      rect._cx - RECT_REST / 2,
-          y:      rect._cy - RECT_REST / 2,
-        }),
-        duration: TRANSITION_DOWN,
-        ease:     'power3.out',
+  
+      // Resolve when outermost ring peaks — Barba can swap page
+      tl.add(resolve, `${(rings.length - 1) * 0.04 + TRANSITION_UP}`);
+  
+      // Ripple back in to center
+      rings.forEach((ringRects, i) => {
+        tl.to(ringRects, {
+          opacity: 1,
+          attr: (j, rect) => ({
+            width:  RECT_REST,
+            height: RECT_REST,
+            x:      rect._cx - RECT_REST / 2,
+            y:      rect._cy - RECT_REST / 2,
+          }),
+          duration: TRANSITION_DOWN,
+          ease: 'power3.out',
+        }, `${(rings.length - 1) * 0.04 + TRANSITION_UP + i * 0.04}`);
       });
+  
+      return tl;
     });
   };
 
