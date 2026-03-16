@@ -518,6 +518,7 @@ const projectPages = [
   'copyleaks-website',
   'copyleaks-marketing',
   'ai-detector-extension',
+  'original-source-podcast',
 ];
 
 let isFirstLoad = true;
@@ -799,6 +800,12 @@ barba.hooks.after((data) => {
       ScrollTrigger.refresh();
       initLottieElements();
       initAiDetectorExtension();
+    }, 300);
+  }
+  if (namespace === 'original-source-podcast') {
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+        initOriginalSourcePodcast();
     }, 300);
   }
 
@@ -2410,6 +2417,17 @@ function initCopyleaksAnimations() {
 }
 
 
+
+// ============================================================
+// ORIGINAL SOURCE PODCAST PAGE
+// ============================================================
+
+function initOriginalSourcePodcast() {
+}
+
+
+
+
 // ============================================================
 // AI DETECTOR EXTENSION PAGE
 // ============================================================
@@ -3184,6 +3202,9 @@ function onPageLoad() {
   }
   if (namespace === 'ai-detector-extension') {
     setTimeout(() => { initLottieElements(); initAiDetectorExtension(); }, 100);
+  }
+  if (namespace === 'original-source-podcast') {
+    setTimeout(() => { initOriginalSourcePodcast(); }, 100);
   }
 
   // Entrance animations are now handled by playReveal's onComplete — do not call here
