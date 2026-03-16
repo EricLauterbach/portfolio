@@ -417,10 +417,18 @@
         }
       });
   
-      // Use radial grouping — same as page load
-      const rings = groupByDistance(rects);
+      // Group by row for top-to-bottom transition
+      const rowMap = {};
+      rects.forEach(rect => {
+        const y = parseFloat(rect.getAttribute('y'));
+        if (!rowMap[y]) rowMap[y] = [];
+        rowMap[y].push(rect);
+      });
+      const rows = Object.keys(rowMap)
+        .map(Number)
+        .sort((a, b) => a - b)
+        .map(y => rowMap[y]);
   
-      // Start from resting state
       gsap.set(rects, (i, rect) => ({
         opacity: 1,
         attr: {
@@ -433,9 +441,9 @@
   
       const tl = gsap.timeline();
   
-      // Ripple out from center
-      rings.forEach((ringRects, i) => {
-        tl.to(ringRects, {
+      // Ripple top to bottom
+      rows.forEach((rowRects, i) => {
+        tl.to(rowRects, {
           opacity: 1,
           attr: (j, rect) => ({
             width:  TRANSITION_SIZE,
@@ -448,12 +456,12 @@
         }, `${i * 0.04}`);
       });
   
-      // Resolve when outermost ring peaks — Barba can swap page
-      tl.add(resolve, `${(rings.length - 1) * 0.04 + TRANSITION_UP}`);
+      // Resolve when last row peaks
+      tl.add(resolve, `${(rows.length - 1) * 0.04 + TRANSITION_UP}`);
   
-      // Ripple back in to center
-      rings.forEach((ringRects, i) => {
-        tl.to(ringRects, {
+      // Collapse top to bottom
+      rows.forEach((rowRects, i) => {
+        tl.to(rowRects, {
           opacity: 1,
           attr: (j, rect) => ({
             width:  RECT_REST,
@@ -463,7 +471,7 @@
           }),
           duration: TRANSITION_DOWN,
           ease: 'power3.out',
-        }, `${(rings.length - 1) * 0.04 + TRANSITION_UP + i * 0.04}`);
+        }, `${(rows.length - 1) * 0.04 + TRANSITION_UP + i * 0.04}`);
       });
   
       return tl;
