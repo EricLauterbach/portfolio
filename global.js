@@ -2067,16 +2067,8 @@ function initHomePage() {
     const smallButtonIcon  = item.querySelector(".smallbuttoniconportfolio");
     let isHovered = false;
     let initialPadding = null;
-  
     const spacingTiny = getComputedStyle(document.documentElement)
       .getPropertyValue("--_portfolio-spacing---spacing-tiny").trim();
-    const blackColor = getComputedStyle(document.documentElement)
-      .getPropertyValue("--_portfolio-colors---black").trim();
-  
-    // smallButtonIcon is the <svg> itself
-    const pathEls      = smallButtonIcon ? Array.from(smallButtonIcon.querySelectorAll("path")) : [];
-    const initialFills = pathEls.map(p => p.getAttribute("fill"));
-  
     function runIconLoop() {
       if (!isHovered) {
         gsap.to(smallButtonIcon, { x: 0, duration: 0.6, ease: "elastic.out(1.5,1)" });
@@ -2090,16 +2082,11 @@ function initHomePage() {
         }
       });
     }
-  
     item.addEventListener("mouseenter", () => {
       initialPadding = getComputedStyle(imageContainer).padding;
       isHovered = true;
       gsap.killTweensOf(smallButton);
       gsap.killTweensOf(imageContainer);
-  
-      // Animate all SVG paths to black
-      pathEls.forEach(p => gsap.to(p, { attr: { fill: blackColor }, duration: 0.3, ease: "power2.inOut" }));
-  
       if (gsap.isTweening(smallButtonIcon)) {
         gsap.getTweensOf(smallButtonIcon).forEach(tween => {
           tween.eventCallback("onComplete", () => { if (isHovered) runIconLoop(); });
@@ -2108,7 +2095,6 @@ function initHomePage() {
         gsap.set(smallButtonIcon, { x: 0 });
         runIconLoop();
       }
-  
       gsap.to(imageContainer, { padding: spacingTiny, duration: 0.4, ease: "power2.inOut" });
       projectItems.forEach((otherItem) => {
         if (otherItem !== item) {
@@ -2117,15 +2103,10 @@ function initHomePage() {
         }
       });
     });
-  
     item.addEventListener("mouseleave", () => {
       isHovered = false;
       gsap.killTweensOf(smallButton);
       gsap.killTweensOf(imageContainer);
-  
-      // Animate all SVG paths back to initial fills
-      pathEls.forEach((p, i) => gsap.to(p, { attr: { fill: initialFills[i] }, duration: 0.3, ease: "power2.inOut" }));
-  
       gsap.to(imageContainer, { padding: initialPadding, duration: 0.4, ease: "power2.inOut" });
       projectItems.forEach((otherItem) => {
         if (otherItem !== item) {
