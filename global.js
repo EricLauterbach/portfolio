@@ -519,6 +519,7 @@ const projectPages = [
   'copyleaks-marketing',
   'ai-detector-extension',
   'original-source-podcast',
+  'clinto-website',
 ];
 
 let isFirstLoad = true;
@@ -806,6 +807,12 @@ barba.hooks.after((data) => {
     setTimeout(() => {
       ScrollTrigger.refresh();
         initOriginalSourcePodcast();
+    }, 300);
+  }
+  if (namespace === 'clinto-website') {
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+        initClintoWebsite();
     }, 300);
   }
 
@@ -2429,6 +2436,16 @@ function initOriginalSourcePodcast() {
 
 
 // ============================================================
+// CLINTO WEBSITE PAGE
+// ============================================================
+
+function initClintoWebsite() {
+}
+
+
+
+
+// ============================================================
 // AI DETECTOR EXTENSION PAGE
 // ============================================================
 
@@ -3205,6 +3222,9 @@ function onPageLoad() {
   }
   if (namespace === 'original-source-podcast') {
     setTimeout(() => { initOriginalSourcePodcast(); }, 100);
+  }
+  if (namespace === 'clinto-website') {
+    setTimeout(() => { initClintoWebsite(); }, 100);
   }
 
   // Entrance animations are now handled by playReveal's onComplete — do not call here
