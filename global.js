@@ -520,6 +520,7 @@ const projectPages = [
   'ai-detector-extension',
   'original-source-podcast',
   'clinto-website',
+  'clinto-branding',
 ];
 
 let isFirstLoad = true;
@@ -813,6 +814,12 @@ barba.hooks.after((data) => {
     setTimeout(() => {
       ScrollTrigger.refresh();
         initClintoWebsite();
+    }, 300);
+  }
+  if (namespace === 'clinto-branding') {
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+        initClintoBranding();
     }, 300);
   }
 
@@ -2443,6 +2450,15 @@ function initClintoWebsite() {
 }
 
 
+// ============================================================
+// CLINTO BRANDING PAGE
+// ============================================================
+
+function initClintoBranding() {
+}
+
+
+
 
 
 // ============================================================
@@ -3225,6 +3241,9 @@ function onPageLoad() {
   }
   if (namespace === 'clinto-website') {
     setTimeout(() => { initClintoWebsite(); }, 100);
+  }
+  if (namespace === 'clinto-branding') {
+    setTimeout(() => { initClintoBranding(); }, 100);
   }
 
   // Entrance animations are now handled by playReveal's onComplete — do not call here
